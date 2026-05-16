@@ -327,7 +327,7 @@
                 <i class="fas fa-balance-scale"></i>
             </div>
             <h1>نقابة المحامين بالفيوم</h1>
-            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية</p>
+            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V2.1)</p>
         </div>
 
         <!-- إشعار الاتصال -->
@@ -559,7 +559,7 @@ async function loadTracking() {
     show('loading-card');
 
     try {
-        const res = await fetch(`${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}`, {
+        const res = await fetch(`${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}&v=${Date.now()}`, {
             method: 'GET',
             headers: { 
                 'Accept': 'application/json',
