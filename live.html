@@ -718,40 +718,32 @@ async function loadTracking(isSilent = false) {
 
     if (!tr) { show('welcome-card'); return; }
 
-    if (!API_BASE || API_BASE === 'CLOUDFLARE_TUNNEL_URL_HERE') {
-        show('maintenance-card');
-        return;
+    const cachedData = localStorage.getItem(cache_ + tr);
+    if (cachedData && !isSilent && !lastStatus) {
+        const parsed = JSON.parse(cachedData);
+        renderTransaction(parsed.transaction);
+    } else if (!isSilent && !lastStatus) {
+        show('loading-card');
     }
 
-    if (!isSilent) show('loading-card');
-
     try {
-        const res = await fetch(`${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}&v=${Date.now()}&cf-skip-browser-warning=1`, {
+        const res = await fetch(${API_BASE}/api/track/?tr= + encodeURIComponent(tr) + &v= + Date.now() + &cf-skip-browser-warning=1, {
             method: 'GET',
-            headers: { 
-                'Accept': 'application/json'
-            },
-            signal: AbortSignal.timeout(30000)
+            headers: { 'Accept': 'application/json' },
+            signal: AbortSignal.timeout(15000)
         });
 
-        if (!res.ok) {
-            if (!isSilent) {
-                const data = await res.json().catch(() => ({}));
-                showError(data.error || 'ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، طھط­ظ…ظٹظ„ ط§ظ„ط¨ظٹط§ظ†ط§طھ.');
-            }
-            return;
-        }
+        if (!res.ok) throw new Error("Offline");
 
         const data = await res.json();
         if (data.success) {
             const t = data.transaction;
-            // طھط­ط¯ظٹط« ط§ظ„ظˆط§ط¬ظ‡ط© ظپظ‚ط· ط¥ط°ط§ طھط؛ظٹط±طھ ط§ظ„ط­ط§ظ„ط© ط£ظˆ ط§ظ„طھط§ط±ظٹط® ط£ظˆ ط§ظ„ظˆطµظپ ط£ظˆ ط§ظ„ط¹ظ†ظˆط§ظ† ط£ظˆ ط§ظ„ظ†ظˆط§ظ‚طµ
-            const hasChanged = t.current_status !== lastStatus || 
-                               t.updated_at !== lastUpdate || 
-                               t.description !== lastDesc || 
-                               t.title !== lastTitle ||
-                               t.missing_info !== lastMissingInfo;
+            localStorage.setItem(cache_ + tr, JSON.stringify({
+                transaction: t,
+                timestamp: new Date().toLocaleString('ar-EG')
+            }));
 
+            const hasChanged = t.current_status !== lastStatus || t.updated_at !== lastUpdate || t.description !== lastDesc || t.title !== lastTitle || t.missing_info !== lastMissingInfo;
             if (hasChanged) {
                 const oldStatus = lastStatus;
                 lastStatus = t.current_status;
@@ -760,44 +752,51 @@ async function loadTracking(isSilent = false) {
                 lastTitle  = t.title;
                 lastMissingInfo = t.missing_info;
                 renderTransaction(t);
-
-                // ط¥ط°ط§ طھط؛ظٹط±طھ ط§ظ„ط­ط§ظ„ط© ظˆط§ظ„طµظپط­ط© ظ…ظپطھظˆط­ط© ط¨ط§ظ„ظپط¹ظ„طŒ ط£ط¸ظ‡ط± ط¥ط´ط¹ط§ط±ط§ظ‹
-                if (oldStatus && oldStatus !== t.current_status) {
-                    notifyStatusChange(t.status_display);
-                }
-
-                if (isSilent) {
-                    console.log("Data Updated Live!");
-                }
+                if (oldStatus && oldStatus !== t.current_status) notifyStatusChange(t.status_display);
             }
+            
             const banner = document.getElementById('offline-banner');
-            if (banner) banner.classList.remove('active');
+            if (banner) {
+                banner.classList.remove('active');
+                banner.style.background = ""; banner.style.color = ""; banner.style.borderColor = "";
+                banner.innerHTML = <div class="m-dot"></div> ط§ظ„ظ†ط¸ط§ظ… ظ…طھطµظ„ ط§ظ„ط¢ظ† (ط¨ط« ظ…ط¨ط§ط´ط±);
+            }
+            const liveText = document.querySelector('.live-text');
+            if (liveText) { liveText.textContent = "ظ…طھط§ط¨ط¹ط© ظ…ط¨ط§ط´ط±ط© ط§ظ„ط¢ظ†"; liveText.style.color = "#10b981"; }
+            const liveDot = document.querySelector('.live-dot');
+            if (liveDot) { liveDot.style.background = "#10b981"; liveDot.style.boxShadow = "0 0 10px #10b981"; liveDot.style.animation = "livePulse 1.5s infinite"; }
         } else {
             if (!isSilent) showError(data.error || 'ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ظ‡ط°ظ‡ ط§ظ„ظ…ط¹ط§ظ…ظ„ط©.');
         }
     } catch (err) {
-        console.error("Fetch Error:", err);
-        if (!isSilent) {
-            show('maintenance-card');
-            // ط¥ط¸ظ‡ط§ط± ط³ط¨ط¨ ط§ظ„ط®ط·ط£ ظ„ظ„ط¯ظٹ ط¨ط§ط¬
-            const errDetail = document.getElementById('error-detail');
-            if (errDetail) errDetail.textContent = `Error: ${err.message}`;
+        console.warn("Offline Mode - Loading from Cache");
+        const cache = localStorage.getItem(cache_ + tr);
+        if (cache) {
+            const parsed = JSON.parse(cache);
+            renderTransaction(parsed.transaction);
+            const banner = document.getElementById('offline-banner');
+            if (banner) {
+                banner.innerHTML = <i class="fas fa-wifi-slash"></i> ط¹ط±ط¶ ط¢ط®ط± ط¨ظٹط§ظ†ط§طھ ظ…ط³ط¬ظ„ط© (ط§ظ„ظ†ط¸ط§ظ… ط؛ظٹط± ظ…طھطµظ„ ط­ط§ظ„ظٹط§ظ‹);
+                banner.classList.add('active');
+                banner.style.background = "rgba(239, 68, 68, 0.15)";
+                banner.style.color = "#fca5a5";
+                banner.style.borderColor = "rgba(239, 68, 68, 0.4)";
+            }
+            const liveText = document.querySelector('.live-text');
+            if (liveText) { liveText.textContent = "ط¨ظٹط§ظ†ط§طھ ظ…ط­ظپظˆط¸ط© - " + parsed.timestamp; liveText.style.color = "#94a3b8"; }
+            const liveDot = document.querySelector('.live-dot');
+            if (liveDot) { liveDot.style.background = "#94a3b8"; liveDot.style.boxShadow = "none"; liveDot.style.animation = "none"; }
         } else {
-            console.warn("Live update failed, will retry...");
+            if (!isSilent) show('maintenance-card');
         }
     }
 }
-
-// طھط­ظ…ظٹظ„ ط£ظˆظ„ظٹ
 loadTracking();
-
-// ظ†ط¨ط¶ ط§ظ„طھط­ط¯ظٹط« (ظƒظ„ 5 ط«ظˆط§ظ†ظچ)
-setInterval(() => {
-    loadTracking(true);
-}, 5000);
+setInterval(() => { loadTracking(true); }, 10000);
 </script>
 </body>
 </html>
+
 
 
 
