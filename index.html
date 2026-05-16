@@ -254,6 +254,38 @@
         .step-name.pending { color: var(--muted); font-weight: 600; }
         .step-time { font-size: 11px; color: var(--muted); font-weight: 600; }
 
+        /* ══ مؤشر المتابعة المباشرة ══ */
+        .live-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 6px 12px;
+            border-radius: 50px;
+            margin: 0 auto 10px;
+            width: fit-content;
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #10b981;
+            animation: livePulse 1.5s infinite;
+        }
+        .live-text {
+            color: #10b981;
+            font-size: 11px;
+            font-weight: 800;
+        }
+        @keyframes livePulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
         /* ══ معلومات المعاملة ══ */
         .info-section { padding: 18px 22px; }
         .info-row {
@@ -327,7 +359,7 @@
                 <i class="fas fa-balance-scale"></i>
             </div>
             <h1>نقابة المحامين بالفيوم</h1>
-            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V7.0 - Authorized Access)</p>
+            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V4.1 - Final)</p>
         </div>
 
         <!-- إشعار الاتصال -->
@@ -357,6 +389,10 @@
 
         <!-- بطاقة المعاملة (تُعرض بعد جلب البيانات) -->
         <div class="result-card" id="result-card">
+            <div class="live-status" style="margin-top: 15px;">
+                <div class="live-dot"></div>
+                <div class="live-text">متابعة مباشرة الآن</div>
+            </div>
 
             <!-- رأس البطاقة -->
             <div class="card-header">
@@ -544,7 +580,10 @@ async function shareStatus() {
 }
 
 // ══ تحميل البيانات عند فتح الصفحة ══
-async function loadTracking() {
+let lastStatus = null;
+let lastUpdate = null;
+
+async function loadTracking(isSilent = false) {
     const params = new URLSearchParams(window.location.search);
     const tr = params.get('tr');
 
@@ -556,33 +595,58 @@ async function loadTracking() {
         return;
     }
 
-    show('loading-card');
+    if (!isSilent) show('loading-card');
 
     try {
-        const res = await fetch(`${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}&v=${Date.now()}`, {
+        const res = await fetch(`${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}&v=${Date.now()}&ngrok-skip-browser-warning=1`, {
             method: 'GET',
             headers: { 
-                'Accept': 'application/json',
-                'ngrok-skip-browser-warning': 'true'
+                'Accept': 'application/json'
             },
-            signal: AbortSignal.timeout(20000)
+            signal: AbortSignal.timeout(10000)
         });
 
-        if (!res.ok) throw new Error('Network response was not ok');
-        const data = await res.json();
+        if (!res.ok) {
+            if (!isSilent) {
+                const data = await res.json().catch(() => ({}));
+                showError(data.error || 'حدث خطأ أثناء تحميل البيانات.');
+            }
+            return;
+        }
 
+        const data = await res.json();
         if (data.success) {
-            renderTransaction(data.transaction);
+            const t = data.transaction;
+            // تحديث الواجهة فقط إذا تغيرت الحالة أو تاريخ التحديث
+            if (t.current_status !== lastStatus || t.updated_at !== lastUpdate) {
+                lastStatus = t.current_status;
+                lastUpdate = t.updated_at;
+                renderTransaction(t);
+                if (isSilent) {
+                    console.log("Status Updated Live!");
+                }
+            }
+            document.getElementById('offline-banner').classList.remove('active');
         } else {
-            showError(data.error || 'لم يتم العثور على هذه المعاملة.');
+            if (!isSilent) showError(data.error || 'لم يتم العثور على هذه المعاملة.');
         }
     } catch (err) {
-        document.getElementById('offline-banner').classList.add('active');
-        showError('تعذّر الوصول للنظام، يرجى المحاولة مرة أخرى أو التواصل مع النقابة.');
+        if (!isSilent) {
+            document.getElementById('offline-banner').classList.add('active');
+            showError('تعذّر الوصول للنظام، يرجى المحاولة مرة أخرى أو التواصل مع النقابة.');
+        } else {
+            console.warn("Live update failed, will retry...");
+        }
     }
 }
 
+// تحميل أولي
 loadTracking();
+
+// نبض التحديث (كل 5 ثوانٍ)
+setInterval(() => {
+    loadTracking(true);
+}, 5000);
 </script>
 </body>
 </html>
