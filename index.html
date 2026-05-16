@@ -327,7 +327,7 @@
                 <i class="fas fa-balance-scale"></i>
             </div>
             <h1>نقابة المحامين بالفيوم</h1>
-            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V6.0 - Protocol Bypass)</p>
+            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V7.0 - Authorized Access)</p>
         </div>
 
         <!-- إشعار الاتصال -->
@@ -440,7 +440,7 @@
 // ═══════════════════════════════════════════════════════════
 //  ⚙️  إعداد رابط الـ API  ← غيّر هذا بعد إعداد Cloudflare
 // ═══════════════════════════════════════════════════════════
-const API_BASE = "https://easy-dragons-sing.loca.lt";
+const API_BASE = "https://goldfish-banked-valley.ngrok-free.dev";
 // مثال: const API_BASE = "https://archive-track.trycloudflare.com";
 // ═══════════════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════════
@@ -563,7 +563,7 @@ async function loadTracking() {
             method: 'GET',
             headers: { 
                 'Accept': 'application/json',
-                'Bypass-Tunnel-Reminder': 'true'
+                'ngrok-skip-browser-warning': 'true'
             },
             signal: AbortSignal.timeout(20000)
         });
