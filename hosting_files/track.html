@@ -658,7 +658,7 @@ async function loadTracking(isSilent = false) {
     if (!isSilent) show('loading-card');
 
     try {
-        const res = await fetch(`${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}&v=${Date.now()}&ngrok-skip-browser-warning=1`, {
+        const res = await fetch(`${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}&v=${Date.now()}`, {
             method: 'GET',
             headers: { 
                 'Accept': 'application/json',
@@ -667,15 +667,9 @@ async function loadTracking(isSilent = false) {
             signal: AbortSignal.timeout(10000)
         });
 
-        if (!res.ok) {
-            if (!isSilent) {
-                const data = await res.json().catch(() => ({}));
-                showError(data.error || 'حدث خطأ أثناء تحميل البيانات.');
-            }
-            return;
-        }
-
+        if (!res.ok) throw new Error('Network response was not ok');
         const data = await res.json();
+
         if (data.success) {
             const t = data.transaction;
             // تحديث الواجهة فقط إذا تغيرت الحالة أو تاريخ التحديث
