@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}تفاصيل المستخدم: {{ target_user.profile.full_name|default:target_user.username }} | نظام الأرشيف{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 style="font-size: 26px; font-weight: 900;">ملف المستخدم: {{ target_user.profile.full_name|default:target_user.username }}</h1>
+            <p style="color: var(--text-muted); font-size: 15px; font-weight: 700;">استعراض البيانات الشخصية وصلاحيات الوصول الحالية</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a href="{% url 'user_update' target_user.pk %}" class="btn btn-primary" style="padding: 12px 25px; border-radius: 12px; font-weight: 900;">
+                <i class="fas fa-edit"></i> تعديل الملف
+            </a>
+            <a href="{% url 'user_list' %}" class="btn" style="background: #ffffff; border: 1px solid var(--border-color); padding: 12px 25px; border-radius: 12px; font-weight: 900;">
+                العودة للقائمة
+            </a>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 350px 1fr; gap: 30px;">
+        <!-- Side Card: Identity -->
+        <div class="form-card" style="padding: 40px 30px; text-align: center; height: fit-content;">
+            <div style="width: 100px; height: 100px; background: var(--accent-color); color: white; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 900; margin: 0 auto 20px; box-shadow: 0 15px 30px rgba(37, 99, 235, 0.2);">
+                {{ target_user.profile.full_name|default:target_user.username|first|upper }}
+            </div>
+            <h2 style="font-size: 22px; font-weight: 900; margin-bottom: 5px;">{{ target_user.profile.full_name|default:target_user.username }}</h2>
+            <div style="font-size: 14px; color: var(--text-muted); font-weight: 800; margin-bottom: 20px;">@{{ target_user.username }}</div>
+            
+            <div style="display: inline-block; padding: 8px 20px; border-radius: 12px; font-size: 14px; font-weight: 900; 
+                {% if target_user.profile.access_users %} background: #fef2f2; color: #991b1b;
+                {% elif target_user.profile.access_categories %} background: #f0fdf4; color: #166534;
+                {% else %} background: #f1f5f9; color: #475569; {% endif %}">
+                {{ target_user.profile.job_title|default:'موظف' }}
+            </div>
+
+            <div style="margin-top: 30px; text-align: right; border-top: 1px solid #f1f5f9; padding-top: 25px;">
+                <div style="margin-bottom: 15px;">
+                    <div style="font-size: 12px; color: var(--text-muted); font-weight: 700;">المسمى الوظيفي:</div>
+                    <div style="font-weight: 900;">{{ target_user.profile.job_title|default:'غير محدد' }}</div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <div style="font-size: 12px; color: var(--text-muted); font-weight: 700;">القسم / الإدارة:</div>
+                    <div style="font-weight: 900;">{{ target_user.profile.department|default:'غير محدد' }}</div>
+                </div>
+                <div>
+                    <div style="font-size: 12px; color: var(--text-muted); font-weight: 700;">تاريخ الانضمام:</div>
+                    <div style="font-weight: 900;">{{ target_user.date_joined|date:"Y-m-d" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Panel: Permissions -->
+        <div class="data-container" style="padding: 40px;">
+            <h3 style="font-size: 20px; font-weight: 900; margin-bottom: 30px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-shield-halved" style="color: var(--accent-color);"></i> صلاحيات الوصول المفعلة
+            </h3>
+
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                
+                <div class="perm-status-card {% if target_user.profile.can_access_documents %}active{% endif %}">
+                    <i class="fas fa-file-circle-check"></i>
+                    <div class="details">
+                        <span class="label">الوصول للوثائق</span>
+                        <span class="status">{% if target_user.profile.can_access_documents %}مسموح{% else %}غير مسموح{% endif %}</span>
+                    </div>
+                </div>
+
+                <div class="perm-status-card {% if target_user.profile.can_access_reports %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i>
+                    <div class="details">
+                        <span class="label">الوصول للتقارير</span>
+                        <span class="status">{% if target_user.profile.can_access_reports %}مسموح{% else %}غير مسموح{% endif %}</span>
+                    </div>
+                </div>
+
+                <div class="perm-status-card {% if target_user.profile.can_access_categories %}active{% endif %}">
+                    <i class="fas fa-folder-tree"></i>
+                    <div class="details">
+                        <span class="label">إدارة الأقسام</span>
+                        <span class="status">{% if target_user.profile.can_access_categories %}مسموح{% else %}غير مسموح{% endif %}</span>
+                    </div>
+                </div>
+
+                <div class="perm-status-card {% if target_user.profile.can_access_audit_log %}active{% endif %}">
+                    <i class="fas fa-user-secret"></i>
+                    <div class="details">
+                        <span class="label">سجل التحركات</span>
+                        <span class="status">{% if target_user.profile.can_access_audit_log %}مسموح{% else %}غير مسموح{% endif %}</span>
+                    </div>
+                </div>
+
+                <div class="perm-status-card {% if target_user.profile.can_manage_users %}active{% endif %}">
+                    <i class="fas fa-users-cog"></i>
+                    <div class="details">
+                        <span class="label">إدارة المستخدمين</span>
+                        <span class="status">{% if target_user.profile.can_manage_users %}مسموح{% else %}غير مسموح{% endif %}</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div style="margin-top: 50px; background: #f8fafc; padding: 25px; border-radius: 20px; border: 1px dashed var(--border-color);">
+                <h4 style="font-size: 14px; font-weight: 900; color: var(--primary-color); margin-bottom: 10px;">
+                    <i class="fas fa-circle-info"></i> ملاحظة إدارية
+                </h4>
+                <p style="font-size: 13px; color: var(--text-muted); font-weight: 700; line-height: 1.8;">
+                    يتم تطبيق هذه الصلاحيات فوراً عند دخول المستخدم للنظام. في حال تغيير صلاحية موظف وهو قيد تسجيل الدخول، سيحتاج لإعادة تحميل الصفحة لتفعيل الإعدادات الجديدة.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .perm-status-card {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px;
+        background: #ffffff;
+        border: 2px solid #f1f5f9;
+        border-radius: 18px;
+        transition: all 0.3s;
+        opacity: 0.6;
+        filter: grayscale(1);
+    }
+
+    .perm-status-card.active {
+        border-color: rgba(16, 185, 129, 0.2);
+        background: rgba(16, 185, 129, 0.02);
+        opacity: 1;
+        filter: none;
+    }
+
+    .perm-status-card i { font-size: 24px; color: var(--text-muted); }
+    .perm-status-card.active i { color: var(--success); }
+
+    .perm-status-card .details { display: flex; flex-direction: column; }
+    .perm-status-card .label { font-size: 14px; font-weight: 900; color: var(--primary-color); }
+    .perm-status-card .status { font-size: 11px; font-weight: 700; color: var(--text-muted); }
+    .perm-status-card.active .status { color: var(--success); }
+</style>
+{% endblock %}

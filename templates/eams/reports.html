@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+
+{% block title %}تقارير النظام | نقابة المحامين بالفيوم{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Print Styles */
+    @media print {
+        .topnav, .btn, .no-print {
+            display: none !important;
+        }
+        .main-content {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .data-container {
+            box-shadow: none !important;
+            border: 1px solid #000 !important;
+        }
+        body {
+            background: white !important;
+            font-size: 14pt;
+        }
+        .print-header {
+            display: block !important;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #000;
+            padding-bottom: 15px;
+        }
+    }
+    .print-header { display: none; }
+
+    /* Reports Dashboard Styles */
+    .report-card {
+        background: white;
+        padding: 30px;
+        border-radius: 24px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        border: 2px solid #000000;
+        height: 100%;
+    }
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 18px;
+        font-weight: 800;
+        color: #000;
+    }
+    .stat-row:last-child { border-bottom: none; }
+    
+    label {
+        font-size: 16px !important;
+        font-weight: 900 !important;
+        color: #000 !important;
+        margin-bottom: 10px !important;
+        display: block;
+    }
+    
+    select, input {
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        padding: 12px 15px !important;
+    }
+    
+    .filter-item {
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Header & Filters -->
+    <div class="no-print" style="margin-bottom: 40px;">
+        <div class="list-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
+            <div>
+                <h1 style="font-size: 28px; font-weight: 900; color: #000;">تقارير النظام الشاملة</h1>
+                <p style="color: #64748b; font-size: 16px; font-weight: 700;">عرض وتحليل بيانات الأرشيف والمعاملات بدقة عالية</p>
+            </div>
+            <!-- PDF Export Form -->
+            <form action="{% url 'reports_export_pdf' %}" method="GET" target="_blank" id="pdfExportForm">
+                <input type="hidden" name="report_type" id="hidden_report_type">
+                <input type="hidden" name="category" id="hidden_category">
+                <input type="hidden" name="doc_type" id="hidden_doc_type">
+                <input type="hidden" name="user_id" id="hidden_user_id">
+                <input type="hidden" name="start_date" id="hidden_start_date">
+                <input type="hidden" name="end_date" id="hidden_end_date">
+                <input type="hidden" name="q" id="hidden_q">
+                
+                <button type="button" onclick="submitExportForm()" class="btn btn-primary" style="background: #ffffff; color: #000000 !important; border: 3px solid #000000; padding: 12px 30px; border-radius: 16px; font-size: 16px; font-weight: 900;">
+                    <i class="fas fa-file-pdf"></i> طباعة التقرير PDF
+                </button>
+            </form>
+        </div>
+
+        <!-- Enhanced Filter Form - Fixed UI Overlap -->
+        <form action="" method="GET" class="chic-form" style="background: white; padding: 25px; border-radius: 24px; border: 2px solid #000; box-shadow: 0 10px 30px rgba(0,0,0,0.03);">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; align-items: end;">
+                <div class="filter-item">
+                    <label>نوع التقرير</label>
+                    <select name="report_type" id="main_report_type" style="width: 100%; border-radius: 12px; border: 2.5px solid #000; outline: none; background: #f8fafc; font-weight: 900 !important; color: #6366f1;">
+                        <option value="all" {% if report_type == 'all' %}selected{% endif %}>التقرير الشامل (الكل)</option>
+                        <option value="archive" {% if report_type == 'archive' %}selected{% endif %}>تقرير الأرشيف فقط</option>
+                        <option value="transaction" {% if report_type == 'transaction' %}selected{% endif %}>تقرير المعاملات فقط</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>البحث النصي (العنوان/الرقم)</label>
+                    <input type="text" name="q" id="main_q" value="{{ q|default:'' }}" placeholder="ابحث هنا..." style="width: 100%; border-radius: 12px; border: 2.5px solid #000; outline: none; background: #f8fafc;">
+                </div>
+                <div class="filter-item">
+                    <label>القسم / التصنيف</label>
+                    <select name="category" id="main_category" style="width: 100%; border-radius: 12px; border: 2.5px solid #000; outline: none; background: #f8fafc;">
+                        <option value="">كافة الأقسام</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>نوع البريد</label>
+                    <select name="doc_type" id="main_doc_type" style="width: 100%; border-radius: 12px; border: 2.5px solid #000; outline: none; background: #f8fafc;">
+                        <option value="">كافة الأنواع</option>
+                        {% for val, name in doc_types %}
+                        <option value="{{ val }}" {% if selected_type == val %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>الموظف المسئول</label>
+                    <select name="user_id" id="main_user_id" style="width: 100%; border-radius: 12px; border: 2.5px solid #000; outline: none; background: #f8fafc;">
+                        <option value="">كافة الموظفين</option>
+                        {% for u in all_users %}
+                        <option value="{{ u.id }}" {% if selected_user == u.id|stringformat:"s" %}selected{% endif %}>{{ u.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>النطاق الزمني (من - إلى)</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="date" name="start_date" id="main_start_date" value="{{ start_date|default:'' }}" style="width: 50%; border-radius: 12px; border: 2.5px solid #000; outline: none; background: #f8fafc; padding: 10px;">
+                        <input type="date" name="end_date" id="main_end_date" value="{{ end_date|default:'' }}" style="width: 50%; border-radius: 12px; border: 2.5px solid #000; outline: none; background: #f8fafc; padding: 10px;">
+                    </div>
+                </div>
+                <div class="filter-item" style="display: flex; flex-direction: row; gap: 10px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 2; border-radius: 12px; height: 50px; font-size: 16px; font-weight: 900; background: #ffffff; border: 3px solid #000000; color: #000000 !important;">تطبيق البحث</button>
+                    <a href="{% url 'reports' %}" class="btn" style="flex: 1; background: #f1f5f9; color: #475569; border-radius: 12px; text-decoration: none; padding: 0 10px; height: 50px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px;">إعادة تعيين</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {% if report_type == 'all' or report_type == 'archive' %}
+    <!-- Section 1: Documents Stats -->
+    <h2 style="font-size: 22px; font-weight: 900; margin-bottom: 20px; color: #000; display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-archive" style="color: #6366f1;"></i> إحصائيات الأرشفة الإلكترونية
+    </h2>
+    <div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px;">
+        <div class="report-card" style="border-top: 6px solid #000;">
+            <div style="font-size: 14px; color: #64748b; font-weight: 900; margin-bottom: 5px;">إجمالي الوثائق</div>
+            <div style="font-size: 32px; font-weight: 900; color: #000;">{{ total_docs }}</div>
+        </div>
+        <div class="report-card" style="border-top: 6px solid #10b981;">
+            <div style="font-size: 14px; color: #64748b; font-weight: 900; margin-bottom: 5px;">بريد وارد</div>
+            <div style="font-size: 32px; font-weight: 900; color: #10b981;">{{ incoming }}</div>
+        </div>
+        <div class="report-card" style="border-top: 6px solid #f59e0b;">
+            <div style="font-size: 14px; color: #64748b; font-weight: 900; margin-bottom: 5px;">بريد صادر</div>
+            <div style="font-size: 32px; font-weight: 900; color: #f59e0b;">{{ outgoing }}</div>
+        </div>
+        <div class="report-card" style="border-top: 6px solid #6366f1;">
+            <div style="font-size: 14px; color: #64748b; font-weight: 900; margin-bottom: 5px;">بريد داخلي</div>
+            <div style="font-size: 32px; font-weight: 900; color: #6366f1;">{{ internal }}</div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if report_type == 'all' or report_type == 'transaction' %}
+    <!-- Section 2: Transactions Stats (New) -->
+    <h2 style="font-size: 22px; font-weight: 900; margin-bottom: 20px; color: #000; display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-exchange-alt" style="color: #ec4899;"></i> تقرير المعاملات (رقم المتابعة)
+    </h2>
+    <div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+        <div class="report-card" style="border-top: 6px solid #000;">
+            <div style="font-size: 14px; color: #64748b; font-weight: 900; margin-bottom: 5px;">إجمالي المعاملات</div>
+            <div style="font-size: 32px; font-weight: 900; color: #000;">{{ total_transactions }}</div>
+        </div>
+        <div class="report-card" style="border-top: 6px solid #10b981;">
+            <div style="font-size: 14px; color: #64748b; font-weight: 900; margin-bottom: 5px;">معاملات مكتملة</div>
+            <div style="font-size: 32px; font-weight: 900; color: #10b981;">{{ transactions_completed }}</div>
+        </div>
+        <div class="report-card" style="border-top: 6px solid #f59e0b;">
+            <div style="font-size: 14px; color: #64748b; font-weight: 900; margin-bottom: 5px;">قيد التنفيذ</div>
+            <div style="font-size: 32px; font-weight: 900; color: #f59e0b;">{{ transactions_in_progress }}</div>
+        </div>
+        <div class="report-card" style="border-top: 6px solid #6366f1;">
+            <div style="font-size: 14px; color: #64748b; font-weight: 900; margin-bottom: 5px;">نسبة الإنجاز</div>
+            <div style="font-size: 32px; font-weight: 900; color: #6366f1;">
+                {{ completion_rate|floatformat:1 }}%
+            </div>
+        </div>
+    </div>
+    
+    <!-- Detailed Status Breakdown in UI -->
+    <div class="report-card" style="margin-bottom: 40px; border: 1px solid #e2e8f0; padding: 20px;">
+        <h3 style="font-size: 18px; font-weight: 900; margin-bottom: 15px; color: #000;">توزيع الحالات بدقة:</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+            <div style="background: #f8fafc; border: 2px solid #e2e8f0; padding: 10px 15px; border-radius: 12px; flex: 1; min-width: 150px; text-align: center;">
+                <div style="font-size: 12px; color: #64748b; font-weight: 800;">تم الاستلام</div>
+                <div style="font-size: 20px; font-weight: 900; color: #000;">{{ status_counts.received }}</div>
+            </div>
+            <div style="background: #f8fafc; border: 2px solid #e2e8f0; padding: 10px 15px; border-radius: 12px; flex: 1; min-width: 150px; text-align: center;">
+                <div style="font-size: 12px; color: #64748b; font-weight: 800;">تحت المراجعة</div>
+                <div style="font-size: 20px; font-weight: 900; color: #000;">{{ status_counts.under_review }}</div>
+            </div>
+            <div style="background: #f8fafc; border: 2px solid #e2e8f0; padding: 10px 15px; border-radius: 12px; flex: 1; min-width: 150px; text-align: center;">
+                <div style="font-size: 12px; color: #64748b; font-weight: 800;">جاري التنفيذ</div>
+                <div style="font-size: 20px; font-weight: 900; color: #000;">{{ status_counts.in_progress }}</div>
+            </div>
+            <div style="background: #f8fafc; border: 2px solid #e2e8f0; padding: 10px 15px; border-radius: 12px; flex: 1; min-width: 150px; text-align: center;">
+                <div style="font-size: 12px; color: #64748b; font-weight: 800;">تم الإرسال</div>
+                <div style="font-size: 20px; font-weight: 900; color: #000;">{{ status_counts.sent }}</div>
+            </div>
+            <div style="background: #f8fafc; border: 2px solid #e2e8f0; padding: 10px 15px; border-radius: 12px; flex: 1; min-width: 150px; text-align: center;">
+                <div style="font-size: 12px; color: #64748b; font-weight: 800;">تم الاستلام من جهة أخرى</div>
+                <div style="font-size: 20px; font-weight: 900; color: #000;">{{ status_counts.received_from_other }}</div>
+            </div>
+            <div style="background: #f8fafc; border: 2px solid #10b981; padding: 10px 15px; border-radius: 12px; flex: 1; min-width: 150px; text-align: center;">
+                <div style="font-size: 12px; color: #10b981; font-weight: 800;">تم الانتهاء</div>
+                <div style="font-size: 20px; font-weight: 900; color: #10b981;">{{ status_counts.completed }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-bottom: 40px;">
+        <!-- Left: Categories -->
+        <div class="report-card">
+            <h3 style="font-size: 20px; font-weight: 900; margin-bottom: 20px; color: #000; border-bottom: 2px solid #000; padding-bottom: 10px;">
+                <i class="fas fa-layer-group"></i> الوثائق حسب التصنيف
+            </h3>
+            <div style="display: flex; flex-direction: column;">
+                {% for cat in categories_stats %}
+                <div class="stat-row">
+                    <span>{{ cat.name }}</span>
+                    <span style="font-weight: 900; background: #ffffff; color: #000000 !important; border: 2px solid #000000; padding: 4px 12px; border-radius: 10px; font-size: 16px;">{{ cat.count }}</span>
+                </div>
+                {% empty %}
+                <p style="text-align: center; color: #64748b; padding: 20px;">لا توجد بيانات متاحة</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Right: User Activity -->
+        <div class="report-card">
+            <h3 style="font-size: 20px; font-weight: 900; margin-bottom: 20px; color: #000; border-bottom: 2px solid #000; padding-bottom: 10px;">
+                <i class="fas fa-users-cog"></i> أكثر المستخدمين نشاطاً
+            </h3>
+            <div style="display: flex; flex-direction: column;">
+                {% for user in users_stats %}
+                <div class="stat-row">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 35px; height: 35px; background: #ffffff; color: #000000; border: 2px solid #000000; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900;">
+                            {{ user.username|first|upper }}
+                        </div>
+                        <span>{{ user.username }}</span>
+                    </div>
+                    <span style="font-size: 14px; color: #64748b; font-weight: 900;">{{ user.doc_count }} وثيقة</span>
+                </div>
+                {% empty %}
+                <p style="text-align: center; color: #64748b; padding: 20px;">لا توجد بيانات متاحة</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions List -->
+    <div class="report-card" style="margin-bottom: 40px;">
+        <h3 style="font-size: 20px; font-weight: 900; margin-bottom: 20px; color: #000; border-bottom: 2px solid #000; padding-bottom: 10px;">
+            <i class="fas fa-list-alt"></i> آخر المعاملات (رقم المتابعة)
+        </h3>
+        <div class="data-container table-responsive" style="border: none; box-shadow: none;">
+            <table style="width: 100%; border-collapse: collapse; min-width: 700px;">
+                <thead>
+                    <tr style="text-align: right; border-bottom: 3px solid #000;">
+                        <th style="padding: 12px; font-size: 15px;">رقم المتابعة</th>
+                        <th style="padding: 12px; font-size: 15px;">عنوان المعاملة</th>
+                        <th style="padding: 12px; font-size: 15px;">الحالة</th>
+                        <th style="padding: 12px; font-size: 15px;">تاريخ الإنشاء</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tr in transactions_recent %}
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 18px; font-weight: 900; color: #000; font-size: 16px;">{{ tr.tracking_number }}</td>
+                        <td style="padding: 18px; font-weight: 800; font-size: 16px;">{{ tr.title }}</td>
+                        <td style="padding: 18px; font-weight: 700; font-size: 16px;">
+                            <span class="badge" style="background: #ffffff; color: #000; border: 2px solid #000; padding: 5px 10px; border-radius: 8px;">{{ tr.get_current_status_display }}</span>
+                        </td>
+                        <td style="padding: 18px; color: #64748b; font-size: 15px; font-weight: 700;">{{ tr.created_at|date:"Y-m-d" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 30px; color: #64748b;">لا توجد معاملات حديثة</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Logs Table -->
+    <div class="report-card">
+        <h3 style="font-size: 20px; font-weight: 900; margin-bottom: 20px; color: #000; border-bottom: 2px solid #000; padding-bottom: 10px;">
+            <i class="fas fa-history"></i> آخر النشاطات المسجلة بدقة
+        </h3>
+        <div class="data-container table-responsive" style="border: none; box-shadow: none;">
+            <table style="width: 100%; border-collapse: collapse; min-width: 700px;">
+                <thead>
+                    <tr style="text-align: right; border-bottom: 3px solid #000;">
+                        <th style="padding: 12px; font-size: 15px;">المستخدم</th>
+                        <th style="padding: 12px; font-size: 15px;">العملية</th>
+                        <th style="padding: 12px; font-size: 15px;">الوثيقة/الإجراء</th>
+                        <th style="padding: 12px; font-size: 15px;">التاريخ والوقت</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in recent_logs %}
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 18px; font-weight: 900; color: #000; font-size: 16px;">{{ log.user.username }}</td>
+                        <td style="padding: 18px; font-weight: 800; font-size: 16px;">{{ log.get_action_display }}</td>
+                        <td style="padding: 18px; font-weight: 700; font-size: 16px;">{{ log.document_title }}</td>
+                        <td style="padding: 18px; color: #64748b; font-size: 15px; font-weight: 700;">{{ log.timestamp|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function submitExportForm() {
+        document.getElementById('hidden_report_type').value = document.getElementById('main_report_type').value;
+        document.getElementById('hidden_category').value = document.getElementById('main_category').value;
+        document.getElementById('hidden_doc_type').value = document.getElementById('main_doc_type').value;
+        document.getElementById('hidden_user_id').value = document.getElementById('main_user_id').value;
+        document.getElementById('hidden_start_date').value = document.getElementById('main_start_date').value;
+        document.getElementById('hidden_end_date').value = document.getElementById('main_end_date').value;
+        document.getElementById('hidden_q').value = document.getElementById('main_q').value;
+        document.getElementById('pdfExportForm').submit();
+    }
+</script>
+{% endblock %}

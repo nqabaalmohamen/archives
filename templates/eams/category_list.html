@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}أقسام الأرشيف | نظام الأرشيف{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 fade-in">
+    <!-- Header Section -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px;">
+        <div>
+            <h1 style="font-size: 32px; font-weight: 900; color: #1e3a5f; margin-bottom: 10px;">تصنيفات الأرشيف</h1>
+            <p style="color: #64748b; font-size: 16px; font-weight: 700;">
+                <i class="fas fa-sitemap" style="margin-left: 8px;"></i>
+                تنظيم الوثائق حسب الأقسام والإدارات المختلفة
+            </p>
+        </div>
+        {% if request.user.profile.access_users %}
+        <button class="btn btn-primary" onclick="location.href='{% url 'category_create' %}'" 
+            style="padding: 12px 25px; border-radius: 14px; font-weight: 800; display: flex; align-items: center; gap: 10px; background: #2563eb; border: none; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">
+            <i class="fas fa-plus-circle" style="font-size: 18px;"></i>
+            <span>إضافة قسم إداري جديد</span>
+        </button>
+        {% endif %}
+    </div>
+
+    <style>
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .category-card {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            padding: 25px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 200px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+        }
+        .category-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+            border-color: #3b82f6;
+        }
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 5px;
+            height: 100%;
+            background: #3b82f6;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .category-card:hover::before {
+            opacity: 1;
+        }
+        .category-icon {
+            width: 50px;
+            height: 50px;
+            background: #eff6ff;
+            color: #3b82f6;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s;
+        }
+        .category-card:hover .category-icon {
+            background: #3b82f6;
+            color: white;
+        }
+        .doc-badge {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 4px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+        .category-actions {
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .category-card:hover .category-actions {
+            opacity: 1;
+        }
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .btn-edit { background: #f0f9ff; color: #0ea5e9; border: 1px solid #e0f2fe; }
+        .btn-delete { background: #fff1f2; color: #f43f5e; border: 1px solid #ffe4e6; }
+        .btn-edit:hover { background: #0ea5e9; color: white; }
+        .btn-delete:hover { background: #f43f5e; color: white; }
+    </style>
+
+    <div class="category-grid">
+        {% for cat in categories %}
+        <div class="category-card">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                    <div class="category-icon">
+                        <i class="fas fa-folder"></i>
+                    </div>
+                    <span class="doc-badge">{{ cat.doc_count }} وثيقة</span>
+                </div>
+                
+                <a href="{% url 'document_list' %}?category={{ cat.id }}" style="text-decoration: none; color: inherit;">
+                    <h3 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 8px; transition: color 0.3s;" class="category-title">{{ cat.name }}</h3>
+                </a>
+                <p style="font-size: 13px; color: #94a3b8; font-weight: 600;">أنشئ في: {{ cat.created_at|date:"Y-m-d" }}</p>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px;">
+                <a href="{% url 'document_list' %}?category={{ cat.id }}" style="font-size: 14px; color: #3b82f6; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 5px;">
+                    تصفح الوثائق <i class="fas fa-chevron-left" style="font-size: 10px;"></i>
+                </a>
+                
+                {% if request.user.profile.access_users %}
+                <div class="category-actions">
+                    <a href="{% url 'category_update' cat.pk %}" class="action-btn btn-edit" title="تعديل"><i class="fas fa-edit"></i></a>
+                    <a href="#" class="action-btn btn-delete" title="حذف" onclick="return showDeleteModal('{% url 'category_delete' cat.pk %}')"><i class="fas fa-trash"></i></a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div style="grid-column: 1/-1; text-align: center; padding: 100px 20px; background: white; border-radius: 30px; border: 2px dashed #e2e8f0;">
+            <div style="font-size: 60px; color: #e2e8f0; margin-bottom: 20px;">
+                <i class="fas fa-folder-open"></i>
+            </div>
+            <h3 style="font-size: 20px; font-weight: 800; color: #64748b;">لا توجد أقسام مضافة بعد</h3>
+            <p style="color: #94a3b8; margin-bottom: 30px;">ابدأ بإضافة أول قسم لتنظيم وثائقك</p>
+            {% if request.user.profile.access_users %}
+            <button class="btn btn-primary" onclick="location.href='{% url 'category_create' %}'">إضافة قسم الآن</button>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

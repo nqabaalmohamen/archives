@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}إدارة المستخدمين | نقابة المحامين بالفيوم{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Header -->
+    <div class="list-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 20px;">
+        <div>
+            <h1 style="font-size: 28px; font-weight: 900; color: #000;">إدارة مستخدمي النظام</h1>
+            <p style="color: #64748b; font-size: 16px; font-weight: 700;">إدارة صلاحيات الوصول للأقسام وإضافة مستخدمين جدد للنظام</p>
+        </div>
+        <a href="{% url 'user_create' %}" class="btn btn-primary" style="padding: 12px 30px; border-radius: 16px; font-weight: 900; font-size: 16px; background: #ffffff; border: 3px solid #000000; color: #000000 !important;">
+            <i class="fas fa-user-plus"></i> إضافة مستخدم جديد
+        </a>
+    </div>
+
+    <!-- Full-Width Search Bar -->
+    <div class="search-bar-wrapper" style="margin-bottom: 30px;">
+        <form action="{{ request.path }}" method="GET">
+            <div class="search-container" style="display: flex; align-items: center; gap: 15px; background: #fff; border: 3px solid #000; border-radius: 24px; padding: 12px 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 15px; flex-grow: 1; min-width: 250px;">
+                    <i class="fas fa-search" style="color: #000; font-size: 18px;"></i>
+                    <input type="text" name="q" placeholder="بحث باسم المستخدم أو الاسم الكامل أو الوظيفة..." value="{{ request.GET.q|default:'' }}"
+                        style="border: none; outline: none; flex-grow: 1; font-size: 16px; background: transparent; color: #000; font-weight: 900; width: 100%;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; width: auto;">
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 25px; border-radius: 12px; font-weight: 900; background: #ffffff; border: 2px solid #000000; color: #000000 !important;">بحث</button>
+                    {% if request.GET.q %}
+                    <a href="{{ request.path }}" style="color: #ef4444; text-decoration: none; font-size: 14px; white-space: nowrap; font-weight: 900;">
+                        <i class="fas fa-times"></i> إلغاء
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Full-Width Data Table -->
+    <div class="data-container table-responsive" style="border: 3px solid #000; padding: 0; width: 100%;">
+        <table style="width: 100%; border-collapse: collapse; min-width: 900px;">
+            <thead style="background: #f8fafc; border-bottom: 3px solid #000;">
+                <tr>
+                    <th style="padding: 15px 20px; text-align: right; font-size: 16px; color: #000;">المستخدم</th>
+                    <th style="padding: 15px 20px; text-align: right; font-size: 16px; color: #000;">الوظيفة / القسم</th>
+                    <th style="padding: 15px 20px; text-align: right; font-size: 16px; color: #000;">كلمة المرور</th>
+                    <th style="padding: 15px 20px; text-align: center; font-size: 16px; color: #000;">صلاحيات الوصول</th>
+                    <th style="padding: 15px 20px; text-align: center; font-size: 16px; color: #000;">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr style="border-bottom: 2px solid #f1f5f9; transition: all 0.2s;">
+                    <td style="padding: 25px;">
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <div style="width: 55px; height: 55px; background: #ffffff; color: #000000; border: 2px solid #000000; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 22px;">
+                                {{ user.profile.full_name|default:user.username|first|upper }}
+                            </div>
+                            <div>
+                                <div style="font-weight: 900; font-size: 20px; color: #000;">{{ user.profile.full_name|default:user.username }}</div>
+                                <div style="font-size: 14px; color: #64748b; font-weight: 800;">ID: {{ user.username }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="padding: 25px;">
+                        <div style="font-weight: 900; font-size: 18px; color: #000;">{{ user.profile.job_title|default:'موظف نظام' }}</div>
+                        <div style="font-size: 15px; color: #64748b; font-weight: 800;">{{ user.profile.department|default:'النقابة العامة' }}</div>
+                    </td>
+                    <td style="padding: 25px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            {% if user.profile.raw_password %}
+                            <div class="password-box" id="pass-{{ user.id }}" style="background: #ffffff; color: #000000 !important; padding: 5px 15px; border-radius: 8px; font-family: monospace; font-weight: 900; font-size: 16px; display: inline-block; border: 2px solid #000000; min-width: 100px; text-align: center;">
+                                ••••••••
+                            </div>
+                            <button onclick="togglePassword('{{ user.id }}', '{{ user.profile.raw_password }}')" class="btn-icon" style="background: #f1f5f9; color: #000; width: 35px; height: 35px; border-radius: 8px; border: none; cursor: pointer;">
+                                <i class="fas fa-eye" id="eye-{{ user.id }}"></i>
+                            </button>
+                            {% else %}
+                            <div style="background: #fee2e2; color: #991b1b; padding: 5px 15px; border-radius: 8px; font-size: 13px; font-weight: 900; border: 1px dashed #ef4444;">
+                                <i class="fas fa-exclamation-triangle"></i> حدث كلمة المرور لتظهر
+                            </div>
+                            {% endif %}
+                        </div>
+                    </td>
+
+                    <td style="padding: 25px;">
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+                            {% if user.profile.access_incoming %}<span style="background: #dcfce7; color: #166534; padding: 6px 12px; border-radius: 10px; font-size: 13px; font-weight: 900;">وارد</span>{% endif %}
+                            {% if user.profile.access_outgoing %}<span style="background: #dcfce7; color: #166534; padding: 6px 12px; border-radius: 10px; font-size: 13px; font-weight: 900;">صادر</span>{% endif %}
+                            {% if user.profile.access_internal %}<span style="background: #dcfce7; color: #166534; padding: 6px 12px; border-radius: 10px; font-size: 13px; font-weight: 900;">داخلي</span>{% endif %}
+                            {% if user.profile.access_users %}<span style="background: #fee2e2; color: #991b1b; padding: 6px 12px; border-radius: 10px; font-size: 13px; font-weight: 900;">مسؤول</span>{% endif %}
+                        </div>
+                    </td>
+                    <td style="padding: 25px;">
+                        <div style="display: flex; gap: 12px; justify-content: center;">
+                            <a href="{% url 'user_detail' user.pk %}" style="width: 45px; height: 45px; border-radius: 12px; background: #f1f5f9; color: #000; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 18px;" title="رؤية">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'user_update' user.pk %}" style="width: 45px; height: 45px; border-radius: 12px; background: #e0f2fe; color: #0369a1; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 18px;" title="تعديل">
+                                <i class="fas fa-user-edit"></i>
+                            </a>
+                            {% if user != request.user %}
+                            <a href="#" onclick="return showDeleteModal('{% url 'user_delete' user.pk %}')" style="width: 45px; height: 45px; border-radius: 12px; background: #fee2e2; color: #ef4444; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 18px;" title="حذف">
+                                <i class="fas fa-user-minus"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    function togglePassword(userId, rawPass) {
+        const box = document.getElementById('pass-' + userId);
+        const icon = document.getElementById('eye-' + userId);
+        
+        if (box.innerText.includes('•')) {
+            box.innerText = rawPass;
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+            box.style.background = '#3b82f6'; // Change to blue when revealed
+        } else {
+            box.innerText = '••••••••';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+            box.style.background = '#000'; // Back to black
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %}

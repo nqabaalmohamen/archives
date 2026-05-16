@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm 1cm 1.5cm 1cm;
+        }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            direction: rtl;
+            text-align: right;
+            padding: 0;
+            margin: 0;
+            color: #000;
+        }
+        .header-container {
+            width: 100%;
+            margin-bottom: 30px;
+            display: table;
+        }
+        .logo-cell {
+            display: table-cell;
+            width: 120px;
+            vertical-align: top;
+        }
+        .title-cell {
+            display: table-cell;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .report-title {
+            font-size: 24pt;
+            font-weight: bold;
+            margin: 0;
+            color: #1e293b;
+        }
+        .subtitle {
+            font-size: 14pt;
+            margin-top: 10px;
+            color: #475569;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: center;
+            font-size: 11pt;
+        }
+        th {
+            background-color: #f1f5f9;
+            font-weight: bold;
+        }
+        .summary-table {
+            width: 50%;
+            margin-top: 20px;
+        }
+        .total-row {
+            background-color: #f8fafc;
+            font-weight: bold;
+        }
+        .report-footer-info {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 11pt;
+            color: #000;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <div class="title-cell">
+            <div class="report-title">{{ report_title }}</div>
+            <div class="subtitle">
+                الفترة من: {{ filters.start|default:"البداية" }} إلى: {{ filters.end|default:"الآن" }}
+            </div>
+        </div>
+        <div class="logo-cell" style="text-align: left;">
+            {% if logo_path %}
+                <img src="file:///{{ logo_path }}" style="width: 100px; height: auto;">
+            {% else %}
+                <div style="width: 80px; height: 80px; border: 1px solid #ccc; border-radius: 50%; text-align: center; line-height: 80px; font-size: 8pt;">لا يوجد شعار</div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if report_type == 'all' or report_type == 'transaction' %}
+    <h3 style="border-right: 5px solid #6366f1; padding-right: 10px;">بيانات المعاملات (رقم المتابعة)</h3>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 15%;">رقم المتابعة</th>
+                <th style="width: 25%;">الموضوع</th>
+                <th style="width: 12%;">الحالة</th>
+                <th style="width: 28%;">الأرشفة المرتبطة</th>
+                <th style="width: 20%;">المسؤول / القسم</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tr in transactions_list %}
+            <tr>
+                <td style="font-weight: bold;">{{ tr.tracking_number }}</td>
+                <td style="text-align: right;">{{ tr.title }}</td>
+                <td>{{ tr.get_current_status_display }}</td>
+                <td style="text-align: right; font-size: 9pt;">
+                    <strong>({{ tr.doc_count }}) ملفات:</strong><br>
+                    {% for doc in tr.documents.all %}
+                        - {{ doc.reference_number }} (بواسطة: {{ doc.uploaded_by.profile.full_name|default:doc.uploaded_by.username }})<br>
+                    {% endfor %}
+                </td>
+                <td>
+                    {{ tr.created_by.profile.full_name|default:tr.created_by.username }}<br>
+                    <small>({{ tr.created_by.profile.department|default:"-" }})</small>
+                    <br><small>{{ tr.created_at|date:"Y/m/d h:i A" }}</small>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">لا توجد بيانات</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if report_type == 'all' or report_type == 'archive' %}
+    <h3 style="border-right: 5px solid #10b981; padding-right: 10px; margin-top: 30px;">بيانات الأرشفة الإلكترونية</h3>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 15%;">رقم الأرشفة</th>
+                <th style="width: 35%;">العنوان / الموضوع</th>
+                <th style="width: 15%;">النوع</th>
+                <th style="width: 20%;">تاريخ ووقت الإيداع</th>
+                <th style="width: 15%;">الموظف</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doc in documents %}
+            <tr>
+                <td style="font-weight: bold;">{{ doc.reference_number }}</td>
+                <td style="text-align: right;">{{ doc.title }}</td>
+                <td>{{ doc.get_doc_type_display }}</td>
+                <td>{{ doc.uploaded_at|date:"Y/m/d h:i A" }}</td>
+                <td>{{ doc.uploaded_by.username }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">لا توجد بيانات</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if report_type == 'all' or report_type == 'archive' %}
+    <table class="summary-table">
+        <thead>
+            <tr><th colspan="2">إحصائيات الأرشفة</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>بريد وارد</td><td>{{ incoming }}</td></tr>
+            <tr><td>بريد صادر</td><td>{{ outgoing }}</td></tr>
+            <tr class="total-row"><td>إجمالي الوثائق</td><td>{{ total_docs }}</td></tr>
+        </tbody>
+    </table>
+    {% endif %}
+
+    <div class="report-footer-info">
+        تم استخراج التقرير في: {{ "now"|date:"Y/m/d h:i A" }}
+    </div>
+</body>
+</html>

@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_edit %}تعديل مستخدم{% else %}إضافة مستخدم{% endif %} | نظام الأرشيف{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div style="margin-bottom: 45px;">
+        <h1 style="font-size: 42px; font-weight: 900; color: #000; margin-bottom: 10px;">
+            {% if is_edit %}تعديل بيانات: {{ target_user.profile.full_name|default:target_user.username }}{% else %}إضافة مستخدم جديد للنظام{% endif %}
+        </h1>
+        <p style="color: #64748b; font-size: 20px; font-weight: 700;">
+            {% if is_edit %}قم بتحديث البيانات وتعديل صلاحيات الوصول للموظف بدقة{% else %}يرجى إدخال بيانات الموظف وتحديد صلاحيات الوصول الخاصة به للبدء{% endif %}
+        </p>
+    </div>
+
+    <div class="form-card chic-form">
+        <form action="{% if is_edit %}{% url 'user_update' target_user.pk %}{% else %}{% url 'user_create' %}{% endif %}" method="POST">
+            {% csrf_token %}
+            
+            <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+                <!-- Full Name -->
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="id_full_name"><i class="fas fa-user-tie"></i> الاسم الكامل (الاسم الثلاثي)</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="full_name" id="id_full_name" class="form-control" placeholder="أدخل الاسم الكامل باللغة العربية..." value="{{ profile.full_name|default:'' }}" required>
+                    </div>
+                </div>
+
+                <!-- Username -->
+                <div class="form-group">
+                    <label for="id_username"><i class="fas fa-id-badge"></i> اسم المستخدم (عربي أو إنجليزي)</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="username" id="id_username" class="form-control" value="{{ target_user.username }}" {% if is_edit %}readonly style="background: #f1f5f9; cursor: not-allowed; border-color: #cbd5e1;"{% endif %} required placeholder="أدخل اسم المستخدم (مثال: esraa أو إسراء)">
+                    </div>
+                    {% if is_edit %}<small style="color: #64748b; font-size: 14px; font-weight: 800; margin-top: 8px; display: block;">لا يمكن تغيير اسم المستخدم بعد الإنشاء</small>{% endif %}
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="id_password" style="color: #ef4444;"><i class="fas fa-key"></i> {% if is_edit %}تغيير كلمة المرور{% else %}كلمة المرور{% endif %}</label>
+                    <div class="input-wrapper">
+                        <input type="password" name="password" id="id_password" class="form-control" placeholder="{% if is_edit %}اتركها فارغة لعدم التغيير...{% else %}أدخل كلمة مرور قوية...{% endif %}" {% if not is_edit %}required{% endif %} style="border-color: #ef4444;">
+                    </div>
+                </div>
+
+                <!-- Job Title -->
+                <div class="form-group">
+                    <label for="id_job_title"><i class="fas fa-briefcase"></i> المسمى الوظيفي</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="job_title" id="id_job_title" class="form-control" placeholder="مثال: مدير شؤون الموظفين" value="{{ profile.job_title|default:'' }}">
+                    </div>
+                </div>
+
+                <!-- Department -->
+                <div class="form-group">
+                    <label for="id_department"><i class="fas fa-building"></i> القسم / الإدارة</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="department" id="id_department" class="form-control" placeholder="مثال: الإدارة العامة" value="{{ profile.department|default:'' }}">
+                    </div>
+                </div>
+
+                <!-- Permissions Section -->
+                <div class="form-group" style="grid-column: 1 / -1; margin-top: 20px;">
+                    <label style="font-size: 24px; font-weight: 900; border-bottom: 5px solid var(--accent-color); padding-bottom: 15px; margin-bottom: 40px; display: block; width: fit-content;">
+                        <i class="fas fa-shield-halved"></i> صلاحيات الوصول للأقسام
+                    </label>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                        <!-- Archive Access -->
+                        <div style="background: #f8fafc; padding: 35px; border-radius: 24px; border: 3px solid #e2e8f0;">
+                            <h3 style="font-size: 20px; font-weight: 900; color: #000; margin-bottom: 25px; display: flex; align-items: center; gap: 12px;">
+                                <i class="fas fa-archive" style="color: var(--accent-color);"></i> الوصول للأرشيف
+                            </h3>
+                            <div style="display: flex; flex-direction: column; gap: 20px;">
+                                <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; font-weight: 800; font-size: 18px;">
+                                    <input type="checkbox" name="access_incoming" class="chic-check" {% if profile.access_incoming or not is_edit %}checked{% endif %}>
+                                    <span>صلاحية الأرشيف الوارد</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; font-weight: 800; font-size: 18px;">
+                                    <input type="checkbox" name="access_outgoing" class="chic-check" {% if profile.access_outgoing or not is_edit %}checked{% endif %}>
+                                    <span>صلاحية الأرشيف الصادر</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; font-weight: 800; font-size: 18px;">
+                                    <input type="checkbox" name="access_internal" class="chic-check" {% if profile.access_internal or not is_edit %}checked{% endif %}>
+                                    <span>صلاحية البريد الداخلي</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Administrative Access -->
+                        <div style="background: #fffafa; padding: 35px; border-radius: 24px; border: 3px solid #fee2e2;">
+                            <h3 style="font-size: 20px; font-weight: 900; color: #991b1b; margin-bottom: 25px; display: flex; align-items: center; gap: 12px;">
+                                <i class="fas fa-user-shield"></i> صلاحيات إدارية
+                            </h3>
+                            <div style="display: flex; flex-direction: column; gap: 20px;">
+                                <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; font-weight: 800; font-size: 18px;">
+                                    <input type="checkbox" name="access_reports" class="chic-check" {% if profile.access_reports %}checked{% endif %}>
+                                    <span>التقارير الإحصائية</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; font-weight: 800; font-size: 18px;">
+                                    <input type="checkbox" name="access_categories" class="chic-check" {% if profile.access_categories %}checked{% endif %}>
+                                    <span>إدارة الأقسام</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; font-weight: 800; font-size: 18px;">
+                                    <input type="checkbox" name="access_audit" class="chic-check" {% if profile.access_audit %}checked{% endif %}>
+                                    <span>سجل التحركات</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; font-weight: 800; font-size: 18px;">
+                                    <input type="checkbox" name="access_users" class="chic-check" {% if profile.access_users %}checked{% endif %}>
+                                    <span style="color: #ef4444;">إدارة المستخدمين (Full Admin)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions" style="margin-top: 60px; border-top: 4px solid #000; padding-top: 50px; display: flex; gap: 25px;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-{% if is_edit %}save{% else %}user-plus{% endif %}"></i> {% if is_edit %}حفظ بيانات الموظف{% else %}إنشاء الحساب الآن{% endif %}
+                </button>
+                <a href="{% url 'user_list' %}" class="btn" style="background: #f1f5f9; color: #475569;">
+                    إلغاء والعودة
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .chic-check {
+        width: 25px;
+        height: 25px;
+        cursor: pointer;
+        accent-color: #000;
+        transition: all 0.2s;
+    }
+    .chic-check:hover {
+        transform: scale(1.15);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% for log in logs %}
+<tr style="border-bottom: 1px solid #f1f5f9; transition: all 0.2s;">
+    <td style="padding: 20px; white-space: nowrap;">
+        <div style="display: flex; flex-direction: column;">
+            <span style="font-weight: 900; color: #000000; font-size: 14px;">{{ log.timestamp|date:"H:i:s" }}</span>
+            <span style="font-weight: 700; color: #64748b; font-size: 12px;">{{ log.timestamp|date:"Y-m-d" }}</span>
+        </div>
+    </td>
+    <td style="padding: 20px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 35px; height: 35px; background: #ffffff; color: #000000 !important; border: 2px solid #000000; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px;">
+                {{ log.user.username|first|upper }}
+            </div>
+            <span style="font-weight: 900; color: #000000;">{{ log.user.username }}</span>
+        </div>
+    </td>
+    <td style="padding: 20px;">
+        {% if log.action == 'upload' %}
+        <span style="background: #dcfce7; color: #166534; padding: 6px 14px; border-radius: 12px; font-size: 13px; font-weight: 900; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fas fa-upload"></i> {{ log.get_action_display }}
+        </span>
+        {% elif log.action == 'edit' %}
+        <span style="background: #fef9c3; color: #854d0e; padding: 6px 14px; border-radius: 12px; font-size: 13px; font-weight: 900; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fas fa-edit"></i> {{ log.get_action_display }}
+        </span>
+        {% elif log.action == 'delete' %}
+        <span style="background: #fee2e2; color: #991b1b; padding: 6px 14px; border-radius: 12px; font-size: 13px; font-weight: 900; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fas fa-trash"></i> {{ log.get_action_display }}
+        </span>
+        {% else %}
+        <span style="background: #e0e7ff; color: #3730a3; padding: 6px 14px; border-radius: 12px; font-size: 13px; font-weight: 900; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fas fa-eye"></i> {{ log.get_action_display }}
+        </span>
+        {% endif %}
+    </td>
+    <td style="padding: 20px;">
+        <span style="font-weight: 800; color: #334155;">{{ log.document_title|default:"---" }}</span>
+    </td>
+    <td style="padding: 20px;">
+        <p style="font-size: 13px; color: #64748b; font-weight: 700; max-width: 300px; line-height: 1.4;">{{ log.details }}</p>
+    </td>
+</tr>
+{% endfor %}

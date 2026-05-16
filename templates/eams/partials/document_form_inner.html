@@ -1,0 +1,105 @@
+<div style="text-align: right; direction: rtl; font-family: 'Tajawal', sans-serif;">
+    <div style="margin-bottom: 20px;">
+        <h2 style="font-size: 24px; font-weight: 900; color: #000; margin-bottom: 5px;">
+            {% if doc %}تعديل الوثيقة{% else %}أرشفة وثيقة جديدة{% endif %}
+        </h2>
+        <p style="color: #64748b; font-size: 14px; font-weight: 700; margin: 0;">
+            {% if doc %}تعديل بيانات: {{ doc.title }}{% else %}إضافة مستند إلى الأرشيف الإلكتروني{% endif %}
+        </p>
+    </div>
+
+    <form hx-post="{% if doc %}{% url 'document_update' doc.pk %}{% else %}{% url 'document_create' %}{% endif %}" 
+          hx-target="#htmxModalBody"
+          enctype="multipart/form-data"
+          style="background: #fff; padding: 10px; border-radius: 16px;">
+        {% csrf_token %}
+        
+        <input type="hidden" name="transaction" value="{{ selected_transaction|default:'' }}">
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div class="form-group" style="grid-column: span 2;">
+                <label style="font-size: 14px; font-weight: 900; color: #000; margin-bottom: 8px; display: block;">
+                    <i class="fas fa-heading"></i> عنوان الوثيقة <span style="color: #ef4444;">*</span>
+                </label>
+                <input type="text" name="title" class="form-control" placeholder="أدخل العنوان..." style="height: 45px; font-size: 15px; font-weight: 800; border: 2px solid #000; border-radius: 12px; width: 100%;" value="{{ doc.title|default:'' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label style="font-size: 14px; font-weight: 900; color: #000; margin-bottom: 8px; display: block;">
+                    <i class="fas fa-exchange-alt"></i> النوع <span style="color: #ef4444;">*</span>
+                </label>
+                <select name="doc_type" id="modal_id_doc_type" class="form-control" style="height: 45px; font-size: 15px; font-weight: 800; border: 2px solid #000; border-radius: 12px; background: #fff; width: 100%;" required>
+                    <option value="incoming" {% if doc.doc_type == 'incoming' or selected_type == 'incoming' %}selected{% endif %}>وارد</option>
+                    <option value="outgoing" {% if doc.doc_type == 'outgoing' or selected_type == 'outgoing' %}selected{% endif %}>صادر</option>
+                    <option value="internal" {% if doc.doc_type == 'internal' or selected_type == 'internal' %}selected{% endif %}>داخلي</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label style="font-size: 14px; font-weight: 900; color: #000; margin-bottom: 8px; display: block;">
+                    <i class="fas fa-folder"></i> القسم <span style="color: #ef4444;">*</span>
+                </label>
+                <select name="category" class="form-control" style="height: 45px; font-size: 15px; font-weight: 800; border: 2px solid #000; border-radius: 12px; background: #fff; width: 100%;" required>
+                    <option value="" disabled selected>اختر القسم...</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if doc.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group modal-recipient-field">
+                <label style="font-size: 14px; font-weight: 900; color: #000; margin-bottom: 8px; display: block;">
+                    <i class="fas fa-user-check"></i> اسم المستلم
+                </label>
+                <input type="text" name="recipient_name" class="form-control" style="height: 45px; font-size: 15px; font-weight: 800; border: 2px solid #000; border-radius: 12px; width: 100%;" value="{{ doc.recipient_name|default:'' }}">
+            </div>
+
+            <div class="form-group modal-recipient-field">
+                <label style="font-size: 14px; font-weight: 900; color: #000; margin-bottom: 8px; display: block;">
+                    <i class="fas fa-building"></i> قسم المستلم
+                </label>
+                <input type="text" name="recipient_department" class="form-control" style="height: 45px; font-size: 15px; font-weight: 800; border: 2px solid #000; border-radius: 12px; width: 100%;" value="{{ doc.recipient_department|default:'' }}">
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label style="font-size: 14px; font-weight: 900; color: #000; margin-bottom: 8px; display: block;">
+                <i class="fas fa-file-upload"></i> ارفاق ملفات <span style="font-size: 11px; color: #64748b;">(يمكن اختيار ملفات متعددة)</span>
+            </label>
+            <input type="file" name="file" class="form-control" multiple style="height: 45px; font-size: 15px; border: 2px solid #000; border-radius: 12px; width: 100%; padding: 8px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label style="font-size: 14px; font-weight: 900; color: #000; margin-bottom: 8px; display: block;">
+                <i class="fas fa-align-right"></i> ملاحظات
+            </label>
+            <textarea name="description" class="form-control" placeholder="أضف أي تفاصيل..." style="min-height: 60px; border: 2px solid #000; border-radius: 12px; font-weight: 700; font-size: 14px; padding: 10px; width: 100%;">{{ doc.description|default:'' }}</textarea>
+        </div>
+
+        <div class="form-actions" style="display: flex; gap: 12px; border-top: 2px solid #f1f5f9; padding-top: 20px;">
+            <button type="submit" class="btn btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; font-size: 16px; font-weight: 900; display: flex; align-items: center; justify-content: center; gap: 10px; border: none; cursor: pointer;">
+                <i class="fas fa-save"></i>
+                <span>حفظ وأرشفة</span>
+            </button>
+            <button type="button" onclick="closeHtmxModal()" class="btn" style="background: #f1f5f9; color: #475569; padding: 12px 25px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer;">
+                إلغاء
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    (function() {
+        const docTypeSelect = document.getElementById('modal_id_doc_type');
+        const recipientFields = document.querySelectorAll('.modal-recipient-field');
+
+        function toggleRecipientFields() {
+            const isIncoming = docTypeSelect.value === 'incoming';
+            recipientFields.forEach(field => {
+                field.style.display = isIncoming ? 'none' : 'block';
+            });
+        }
+        toggleRecipientFields();
+        docTypeSelect.addEventListener('change', toggleRecipientFields);
+    })();
+</script>

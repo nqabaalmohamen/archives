@@ -1,0 +1,54 @@
+{% for doc in documents %}
+<tr style="border-bottom: 1px solid #f8fafc;">
+    <td style="padding: 20px 0; font-weight: 900; color: var(--accent-color);">#{{ doc.reference_number }}</td>
+    <td style="padding: 20px 0;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 40px; height: 40px; background: #fff1f2; color: #e11d48; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                <i class="far fa-file-pdf"></i>
+            </div>
+            <span style="font-weight: 800; font-size: 15px;">{{ doc.title }}</span>
+        </div>
+    </td>
+    <td style="padding: 20px 0;">
+        <span style="font-weight: 800; color: #1e40af;">{{ doc.transaction.client_name|default:"—" }}</span>
+    </td>
+    <td style="padding: 20px 0;">
+        {% if doc.doc_type == 'incoming' %}
+        <span style="background: #dcfce7; color: #166534; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 900;">وارد</span>
+        {% elif doc.doc_type == 'outgoing' %}
+        <span style="background: #fef9c3; color: #854d0e; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 900;">صادر</span>
+        {% else %}
+        <span style="background: #e0e7ff; color: #3730a3; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 900;">داخلي</span>
+        {% endif %}
+    </td>
+    <td style="padding: 20px 0;">
+        <span style="font-weight: 800; color: #000;">{{ doc.uploaded_by.profile.full_name|default:doc.uploaded_by.username|default:"نظام" }}</span>
+    </td>
+    <td style="padding: 20px 0; color: var(--text-muted); font-weight: 700;">{{ doc.uploaded_at|date:"Y-m-d" }}</td>
+    <td style="padding: 20px 0;">
+        <div style="display: flex; gap: 8px; justify-content: center;">
+            <a href="{% url 'document_detail' doc.pk %}" style="width: 35px; height: 35px; border-radius: 10px; background: #f0f9ff; color: #0369a1; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.2s;" title="عرض التفاصيل">
+                <i class="fas fa-eye" style="font-size: 14px;"></i>
+            </a>
+            {% if doc.file %}
+            <a href="{% url 'document_download' doc.pk %}" target="_blank" style="width: 35px; height: 35px; border-radius: 10px; background: #f1f5f9; color: var(--text-main); display: flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.2s;" title="تحميل">
+                <i class="fas fa-download" style="font-size: 14px;"></i>
+            </a>
+            {% endif %}
+            <a href="{% url 'document_update' doc.pk %}" style="width: 35px; height: 35px; border-radius: 10px; background: #eff6ff; color: var(--accent-color); display: flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.2s;" title="تعديل">
+                <i class="fas fa-edit" style="font-size: 14px;"></i>
+            </a>
+            <a href="#" onclick="return showDeleteModal('{% url 'document_delete' doc.pk %}')" style="width: 35px; height: 35px; border-radius: 10px; background: #fee2e2; color: #ef4444; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.2s;" title="حذف">
+                <i class="fas fa-trash-alt" style="font-size: 14px;"></i>
+            </a>
+        </div>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="6" style="padding: 40px; text-align: center; color: var(--text-muted);">
+        <i class="fas fa-file-excel" style="font-size: 40px; margin-bottom: 15px; opacity: 0.3;"></i>
+        <div style="font-weight: 800;">لا توجد وثائق مؤرشفة مطابقة للبحث</div>
+    </td>
+</tr>
+{% endfor %}

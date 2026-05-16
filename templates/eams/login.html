@@ -1,0 +1,434 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول | نظام الأرشيف الإلكتروني</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #020617;
+            --accent: #e11d48;
+            --accent-glow: rgba(225, 29, 72, 0.3);
+        }
+
+        * {
+            font-family: 'Cairo', sans-serif;
+            margin: 0; padding: 0; box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%; width: 100%;
+            margin: 0; overflow: hidden;
+            background-color: var(--primary);
+        }
+
+        .full-screen-wrapper {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Information Side (Left) - 60% */
+        .info-panel {
+            flex: 6;
+            background: linear-gradient(135deg, rgba(2, 6, 23, 0.95), rgba(2, 6, 23, 0.8)), url('https://images.unsplash.com/photo-1568667256549-094345857637?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-position: center;
+            padding: 8% 10%;
+            color: white;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .info-panel::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at bottom right, var(--accent-glow), transparent);
+        }
+
+        .animated-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .glow-ball {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.2;
+            animation: pulse 15s infinite alternate ease-in-out;
+        }
+
+        .glow-1 { width: 500px; height: 500px; background: var(--accent); top: -200px; right: -100px; }
+        .glow-2 { width: 400px; height: 400px; background: #3b82f6; bottom: -100px; left: 5%; animation-delay: -5s; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.2; }
+            100% { transform: scale(1.2); opacity: 0.3; }
+        }
+
+        .panel-content {
+            position: relative;
+            z-index: 2;
+            animation: slideFadeIn 1s ease-out;
+        }
+
+        @keyframes slideFadeIn {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .logo-container {
+            width: 220px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* This blend mode hides white background on dark backgrounds */
+            mix-blend-mode: multiply;
+            filter: brightness(1.2) contrast(1.1);
+        }
+
+        .logo-container img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .brand-h1 {
+            font-size: 4.8rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 25px;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .brand-p {
+            font-size: 1.6rem;
+            opacity: 0.85;
+            margin-bottom: 60px;
+            max-width: 650px;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .status-labels {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .status-item i {
+            color: var(--accent);
+            font-size: 2rem;
+        }
+
+        /* Form Panel (Right) - 40% */
+        .form-panel {
+            flex: 4;
+            background: #050810;
+            padding: 6% 8%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            box-shadow: -30px 0 60px rgba(0,0,0,0.6);
+            z-index: 10;
+        }
+
+        .form-inner {
+            width: 100%;
+            max-width: 440px;
+            margin: 0 auto;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .form-head {
+            margin-bottom: 50px;
+        }
+
+        .form-head h2 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        .form-head p {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .custom-input-group {
+            margin-bottom: 30px;
+        }
+
+        .custom-input-group label {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #94a3b8;
+            padding-right: 5px;
+        }
+
+        .field-wrapper {
+            position: relative;
+        }
+
+        .field-wrapper i.main-icon {
+            position: absolute;
+            right: 22px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #334155;
+            font-size: 1.25rem;
+            transition: color 0.3s;
+        }
+
+        .input-modern-dark {
+            width: 100%;
+            height: 70px;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 20px;
+            padding: 0 65px 0 25px;
+            color: white;
+            font-size: 1.15rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .input-modern-dark:focus {
+            background: #1e293b;
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 5px rgba(225, 29, 72, 0.15);
+        }
+
+        .input-modern-dark:focus + i {
+            color: var(--accent);
+        }
+
+        .toggle-btn {
+            position: absolute;
+            left: 22px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #334155;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        .submit-btn-premium {
+            width: 100%;
+            height: 70px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 20px 40px rgba(225, 29, 72, 0.25);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .submit-btn-premium:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(225, 29, 72, 0.35);
+            filter: brightness(1.1);
+        }
+
+        .alert-error {
+            background: rgba(225, 29, 72, 0.1);
+            border: 1px solid rgba(225, 29, 72, 0.2);
+            color: #fda4af;
+            padding: 20px;
+            border-radius: 18px;
+            margin-bottom: 35px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .footer-copyright {
+            margin-top: auto;
+            text-align: center;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 1024px) {
+            .full-screen-wrapper {
+                flex-direction: column;
+                overflow-y: auto;
+                height: auto;
+            }
+            .info-panel {
+                display: none; /* Hide info on mobile */
+            }
+            .form-panel {
+                flex: 1;
+                width: 100%;
+                padding: 40px 20px;
+                box-shadow: none;
+                min-height: 100vh;
+            }
+            .form-head h2 {
+                font-size: 2.2rem;
+            }
+            body, html {
+                overflow: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="full-screen-wrapper">
+        <!-- Right Section: Login Form -->
+        <div class="form-panel">
+            <div class="form-inner">
+                <div class="form-head">
+                    <h2>تسجيل الدخول</h2>
+                    <p>أهلاً بك مجدداً، يرجى إدخال بياناتك للمتابعة</p>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert-error">
+                        <i class="fas fa-info-circle"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if form.errors %}
+                <div class="alert-error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>اسم المستخدم أو كلمة المرور غير صحيحة</span>
+                </div>
+                {% endif %}
+
+                <form method="post" id="loginForm">
+                    {% csrf_token %}
+                    
+                    <div class="custom-input-group">
+                        <label>اسم المستخدم</label>
+                        <div class="field-wrapper">
+                            <input type="text" name="username" class="input-modern-dark" 
+                                   placeholder="أدخل اسم المستخدم" required autofocus>
+                            <i class="fas fa-user-shield main-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="custom-input-group">
+                        <label>كلمة المرور</label>
+                        <div class="field-wrapper">
+                            <input type="password" name="password" id="id_password" 
+                                   class="input-modern-dark" placeholder="••••••••" required>
+                            <i class="fas fa-key main-icon"></i>
+                            <button type="button" class="toggle-btn" onclick="togglePassword()">
+                                <i class="fas fa-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn-premium" id="loginBtn">
+                        <span id="btnText">دخول للنظام</span>
+                        <i class="fas fa-arrow-left" id="btnIcon"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Left Section: Information -->
+        <div class="info-panel">
+            <div class="animated-bg">
+                <div class="glow-ball glow-1"></div>
+                <div class="glow-ball glow-2"></div>
+            </div>
+
+            <div class="panel-content">
+                <h1 class="brand-h1">نقابة المحامين<br>بالفيوم</h1>
+                <p class="brand-p">نظام الأرشفة والتوثيق الرقمي المتقدم. تنظيم، سرعة، وأمان تام لمستنداتك ومعاملاتك.</p>
+                
+                <div class="status-labels">
+                    <div class="status-item">
+                        <i class="fas fa-folder-open"></i>
+                        <span>أرشفة ذكية</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-search-plus"></i>
+                        <span>بحث فوري</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-lock"></i>
+                        <span>حماية البيانات</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordField = document.getElementById('id_password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function() {
+            const btn = document.getElementById('loginBtn');
+            const text = document.getElementById('btnText');
+            const icon = document.getElementById('btnIcon');
+            
+            btn.disabled = true;
+            text.innerText = 'جاري التحقق...';
+            icon.className = 'fas fa-circle-notch fa-spin';
+        });
+    </script>
+</body>
+</html>

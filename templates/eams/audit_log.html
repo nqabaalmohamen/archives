@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}سجل الرقابة | نظام الأرشيف{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 fade-in">
+    <!-- Page Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div>
+            <h1 style="font-size: 28px; font-weight: 900; color: #1e3a5f;">سجل الرقابة والنشاط (Audit Log)</h1>
+            <p style="color: #64748b; font-size: 15px; font-weight: 700;">تتبع كافة تحركات المستخدمين والعمليات التي تمت على نظام الأرشيف</p>
+        </div>
+    </div>
+
+    <style>
+        .filter-grid {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filter-item-search {
+            flex-grow: 1;
+            min-width: 250px;
+        }
+        .filter-item-date {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        @media (max-width: 768px) {
+            .filter-item-search {
+                flex-basis: 100%;
+            }
+            .filter-item-date {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+            }
+            .date-input-group {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <!-- Filter Bar -->
+    <div style="background: white; padding: 20px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+        <form action="{{ request.path }}" method="GET" class="filter-grid">
+            <!-- Search Input -->
+            <div class="filter-item-search" style="position: relative;">
+                <i class="fas fa-search" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #64748b;"></i>
+                <input type="text" name="q" placeholder="ابحث باسم المستخدم، الوثيقة، أو تفاصيل العملية..." value="{{ q|default:'' }}"
+                    style="width: 100%; padding: 12px 50px 12px 20px; border-radius: 12px; border: 1.5px solid #e2e8f0; outline: none; font-weight: 700; font-size: 15px; background: #f8fafc; transition: all 0.3s;">
+            </div>
+            
+            <!-- Date Range -->
+            <div class="filter-item-date">
+                <div class="date-input-group" style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 12px; font-weight: 800; color: #64748b; margin-right: 5px;">من تاريخ</label>
+                    <input type="date" name="start_date" value="{{ start_date|default:'' }}"
+                        style="padding: 10px 15px; border-radius: 10px; border: 1.5px solid #e2e8f0; outline: none; font-weight: 700; font-size: 14px; background: #f8fafc;">
+                </div>
+                <div class="date-input-group" style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 12px; font-weight: 800; color: #64748b; margin-right: 5px;">إلى تاريخ</label>
+                    <input type="date" name="end_date" value="{{ end_date|default:'' }}"
+                        style="padding: 10px 15px; border-radius: 10px; border: 1.5px solid #e2e8f0; outline: none; font-weight: 700; font-size: 14px; background: #f8fafc;">
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div style="display: flex; gap: 10px; align-items: flex-end; margin-top: auto;">
+                <button type="submit" class="btn btn-primary" style="padding: 12px 25px;">تصفية</button>
+                {% if q or start_date or end_date %}
+                <a href="{{ request.path }}" style="color: #ef4444; font-weight: 800; text-decoration: none; font-size: 14px; padding: 10px;">
+                    <i class="fas fa-undo"></i> إعادة تعيين
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Audit Log Table -->
+    <div style="background: white; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden;">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" style="width: 100%; border-collapse: collapse;">
+                <thead style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                    <tr>
+                        <th style="padding: 20px; text-align: right; font-size: 14px; color: #1e3a5f; font-weight: 800;">الوقت والتاريخ</th>
+                        <th style="padding: 20px; text-align: right; font-size: 14px; color: #1e3a5f; font-weight: 800;">المستخدم</th>
+                        <th style="padding: 20px; text-align: right; font-size: 14px; color: #1e3a5f; font-weight: 800;">النشاط / العملية</th>
+                        <th style="padding: 20px; text-align: right; font-size: 14px; color: #1e3a5f; font-weight: 800;">الوثيقة المتأثرة</th>
+                        <th style="padding: 20px; text-align: right; font-size: 14px; color: #1e3a5f; font-weight: 800;">التفاصيل الإضافية</th>
+                    </tr>
+                </thead>
+                <tbody id="audit-log-table-body" 
+                       hx-get="{% url 'audit_log' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" 
+                       hx-trigger="every 5s" 
+                       hx-headers='{"X-Requested-Part": "rows"}' 
+                       hx-swap="innerHTML">
+                    {% include 'eams/partials/audit_log_rows.html' %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

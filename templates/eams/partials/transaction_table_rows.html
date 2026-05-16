@@ -1,0 +1,77 @@
+{% for tr in transactions %}
+<tr style="border-bottom: 1px solid #f1f5f9; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+    <td style="padding: 15px 20px;">
+        <span style="background: #fff !important; color: #000 !important; padding: 6px 14px; border-radius: 10px; font-family: 'Courier New', monospace; font-weight: 900; font-size: 15px; border: 2px solid #000; box-shadow: 3px 3px 0px rgba(0,0,0,0.1);">
+            {{ tr.tracking_number }}
+        </span>
+    </td>
+    <td style="padding: 15px 20px;">
+        <div style="font-weight: 900; color: #000 !important;">{{ tr.title }}</div>
+        <div style="font-size: 11px; color: #64748b !important; font-weight: 700;">
+            بواسطة: 
+            {% if tr.created_by %}
+                {{ tr.created_by.profile.full_name|default:tr.created_by.username }}
+            {% else %}
+                غير معروف
+            {% endif %}
+        </div>
+    </td>
+    <td style="padding: 15px 20px;">
+        <span style="font-weight: 800; color: #1e40af;">{{ tr.client_name }}</span>
+    </td>
+    <td style="padding: 15px 20px;">
+        {% if tr.current_status == 'completed' %}
+            <span class="badge" style="background: #dcfce7 !important; color: #166534 !important; border: 2px solid #166534; padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 12px;">
+                <i class="fas fa-check-circle"></i> {{ tr.get_current_status_display }}
+            </span>
+        {% elif tr.current_status == 'in_progress' %}
+            <span class="badge" style="background: #e0f2fe !important; color: #0369a1 !important; border: 2px solid #0369a1; padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 12px;">
+                <i class="fas fa-spinner fa-spin"></i> {{ tr.get_current_status_display }}
+            </span>
+        {% elif tr.current_status == 'sent' %}
+            <span class="badge" style="background: #fef3c7 !important; color: #92400e !important; border: 2px solid #92400e; padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 12px;">
+                <i class="fas fa-paper-plane"></i> {{ tr.get_current_status_display }}
+            </span>
+        {% else %}
+            <span class="badge" style="background: #f1f5f9 !important; color: #475569 !important; border: 2px solid #475569; padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 12px;">
+                {{ tr.get_current_status_display }}
+            </span>
+        {% endif %}
+    </td>
+    <td style="padding: 15px 20px;">
+        <div style="font-size: 13px; font-weight: 700; color: #475569 !important;">{{ tr.created_at|date:"Y/m/d" }}</div>
+        <div style="font-size: 10px; color: #94a3b8 !important; font-weight: 700;">{{ tr.created_at|date:"h:i A" }}</div>
+    </td>
+    <td style="padding: 15px 20px;">
+        <span style="background: #f1f5f9 !important; color: #000 !important; padding: 4px 10px; border-radius: 50px; font-weight: 900; font-size: 12px; border: 1px solid #000;">
+            <i class="fas fa-file-alt"></i> {{ tr.documents.count }}
+        </span>
+    </td>
+    <td style="padding: 15px 20px;">
+        <div style="display: flex; gap: 8px;">
+            <a href="{% url 'transaction_detail' tr.pk %}" class="btn" style="background: #f1f5f9 !important; color: #000 !important; padding: 8px 15px; border-radius: 10px; font-size: 13px; font-weight: 900; border: 2px solid #000; box-shadow: 3px 3px 0px #000;">
+                <i class="fas fa-eye"></i> متابعة
+            </a>
+            <button hx-get="{% url 'transaction_print' tr.pk %}" hx-target="#htmxModalBody" class="btn" style="background: #1a1a2e !important; color: #fff !important; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 900; border: 2px solid #1a1a2e; cursor: pointer;">
+                <i class="fas fa-print"></i>
+            </button>
+            <button hx-get="{% url 'transaction_update' tr.pk %}" hx-target="#htmxModalBody" class="btn" style="background: #eff6ff !important; color: #1e40af !important; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 900; border: 2px solid #1e40af; cursor: pointer;">
+                <i class="fas fa-edit"></i> تعديل
+            </button>
+            <a href="{% url 'document_create' %}?transaction_id={{ tr.id }}" class="btn" style="background: #10b981; color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 12px;">
+                <i class="fas fa-plus"></i>
+            </a>
+            <button onclick="showDeleteModal('{% url 'transaction_delete' tr.pk %}')" class="btn" style="background: #fee2e2; color: #ef4444; padding: 8px 12px; border-radius: 10px; font-size: 12px;">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="6" style="padding: 40px; text-align: center; color: #64748b;">
+        <i class="fas fa-folder-open" style="font-size: 40px; margin-bottom: 15px; opacity: 0.3;"></i>
+        <div style="font-weight: 800;">لا توجد معاملات مسجلة حالياً</div>
+    </td>
+</tr>
+{% endfor %}

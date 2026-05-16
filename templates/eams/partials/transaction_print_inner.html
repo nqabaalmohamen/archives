@@ -1,0 +1,51 @@
+<div style="text-align: center; direction: rtl; font-family: 'Cairo', sans-serif; padding: 20px;">
+    <div style="background: #1a1a2e; color: #fff; padding: 15px; border-radius: 16px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="text-align: right;">
+            <div style="font-size: 18px; font-weight: 900;">نقابة المحامين بالفيوم</div>
+            <div style="font-size: 12px; opacity: 0.8;">إثبات تتبع المعاملة رقم {{ transaction.simple_number }}</div>
+        </div>
+        <div style="background: #f59e0b; color: #1a1a2e; padding: 5px 15px; border-radius: 10px; font-weight: 900; font-size: 14px;">
+            {{ transaction.get_current_status_display }}
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr auto; gap: 30px; align-items: start; text-align: right;">
+        <div>
+            <h3 style="font-size: 16px; font-weight: 800; color: #6366f1; margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 5px;">
+                <i class="fas fa-user-circle"></i> بيانات صاحب الشأن
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div style="background: #f8fafc; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 10px; color: #94a3b8; font-weight: 800;">الاسم بالكامل</div>
+                    <div style="font-size: 14px; font-weight: 800; color: #1a1a2e;">{{ transaction.client_name }}</div>
+                </div>
+                <div style="background: #f8fafc; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 10px; color: #94a3b8; font-weight: 800;">رقم الهاتف</div>
+                    <div style="font-size: 14px; font-weight: 800; color: #1a1a2e;">{{ transaction.client_phone }}</div>
+                </div>
+                <div style="background: #f8fafc; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0; grid-column: span 2;">
+                    <div style="font-size: 10px; color: #94a3b8; font-weight: 800;">موضوع المعاملة</div>
+                    <div style="font-size: 14px; font-weight: 800; color: #1a1a2e;">{{ transaction.title }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: #fff; border: 2px solid #1a1a2e; padding: 15px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+            <div style="font-size: 11px; font-weight: 900; color: #1a1a2e; margin-bottom: 10px;">رمز تتبع صاحب الشأن</div>
+            <img src="{{ qr_url }}" style="width: 150px; height: 150px; border: 1px solid #f1f5f9; border-radius: 10px; margin-bottom: 10px;">
+            <div style="font-family: 'Courier New', monospace; font-size: 12px; font-weight: 900; color: #6366f1; background: #f1f5f9; padding: 5px; border-radius: 8px;">
+                رقم المتابعة: {{ transaction.simple_number }}
+            </div>
+            <p style="font-size: 9px; color: #94a3b8; margin-top: 8px; font-weight: 700;">قم بتصوير الكود للمتابعة من منزلك</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
+        <a href="{% url 'transaction_print' transaction.pk %}" target="_blank" class="btn btn-primary" style="padding: 12px 30px; border-radius: 12px; font-weight: 900; display: flex; align-items: center; gap: 10px; text-decoration: none;">
+            <i class="fas fa-print"></i> طباعة الإيصال الرسمي
+        </a>
+        <button onclick="closeHtmxModal()" class="btn" style="background: #f1f5f9; color: #475569; padding: 12px 25px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer;">
+            إغلاق
+        </button>
+    </div>
+</div>

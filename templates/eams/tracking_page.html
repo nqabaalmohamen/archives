@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>تتبع المعاملة | نقابة المحامين بالفيوم</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary:   #1a1a2e;
+            --accent:    #6366f1;
+            --gold:      #f59e0b;
+            --success:   #10b981;
+            --warning:   #f59e0b;
+            --danger:    #ef4444;
+            --info:      #3b82f6;
+            --surface:   #ffffff;
+            --bg:        #f0f4f8;
+            --text:      #1a1a2e;
+            --muted:     #64748b;
+            --border:    #e2e8f0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        /* ========= خلفية متحركة ========= */
+        .bg-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(160deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* دوائر خلفية ديكورية */
+        .bg-wrapper::before,
+        .bg-wrapper::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.08;
+            animation: float 8s ease-in-out infinite;
+        }
+        .bg-wrapper::before {
+            width: 500px; height: 500px;
+            background: #6366f1;
+            top: -150px; right: -150px;
+        }
+        .bg-wrapper::after {
+            width: 350px; height: 350px;
+            background: #f59e0b;
+            bottom: -100px; left: -100px;
+            animation-delay: 3s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50%       { transform: translateY(-20px) scale(1.05); }
+        }
+
+        /* ========= الحاوية المركزية ========= */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 30px 16px 50px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ========= رأس الصفحة ========= */
+        .page-header {
+            text-align: center;
+            padding-top: 10px;
+        }
+
+        .logo-circle {
+            width: 72px; height: 72px;
+            background: rgba(255,255,255,0.12);
+            border: 2px solid rgba(255,255,255,0.25);
+            border-radius: 22px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; color: #f59e0b;
+            margin: 0 auto 14px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .page-header h1 {
+            font-size: 22px;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .page-header .subtitle {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            font-weight: 600;
+        }
+
+        /* ========= بطاقة البحث ========= */
+        .search-card {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 24px;
+            padding: 22px 20px;
+            backdrop-filter: blur(20px);
+        }
+
+        .search-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border: 1.5px solid rgba(255,255,255,0.2);
+            border-radius: 14px;
+            padding: 13px 16px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .search-input::placeholder { color: rgba(255,255,255,0.4); }
+        .search-input:focus {
+            border-color: #6366f1;
+            background: rgba(99,102,241,0.15);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.25);
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            padding: 13px 20px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(99,102,241,0.4);
+        }
+        .search-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(99,102,241,0.5);
+        }
+
+        /* ========= رسالة الخطأ ========= */
+        .error-msg {
+            background: rgba(239,68,68,0.15);
+            border: 1.5px solid rgba(239,68,68,0.4);
+            border-radius: 14px;
+            padding: 14px 16px;
+            color: #fca5a5;
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        /* ========= بطاقة المعاملة ========= */
+        .result-card {
+            background: #fff;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* رأس البطاقة */
+        .card-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            padding: 22px 22px 18px;
+            text-align: center;
+        }
+
+        .trk-chip {
+            display: inline-block;
+            background: rgba(245,158,11,0.2);
+            border: 1.5px solid #f59e0b;
+            border-radius: 8px;
+            padding: 4px 14px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            font-weight: 900;
+            color: #f59e0b;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .card-date {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            font-weight: 600;
+        }
+
+        /* ========= شريط الحالة ========= */
+        .status-bar {
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .status-label-sm {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50%       { transform: scale(1.4); opacity: 0.7; }
+        }
+
+        /* ألوان الحالات */
+        .s-received        { background: #e0f2fe; color: #0369a1; }
+        .s-received        .status-dot { background: #0369a1; }
+        .s-under_review    { background: #fef3c7; color: #92400e; }
+        .s-under_review    .status-dot { background: #f59e0b; }
+        .s-sent            { background: #ede9fe; color: #5b21b6; }
+        .s-sent            .status-dot { background: #8b5cf6; }
+        .s-received_from_other { background: #e0f2fe; color: #0369a1; }
+        .s-received_from_other .status-dot { background: #0ea5e9; }
+        .s-in_progress     { background: #fef9c3; color: #854d0e; }
+        .s-in_progress     .status-dot { background: #eab308; }
+        .s-completed       { background: #dcfce7; color: #166534; }
+        .s-completed       .status-dot { background: #22c55e; animation: none; }
+
+        /* ========= مراحل التقدم (Stepper) ========= */
+        .stepper-section {
+            padding: 20px 22px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stepper-title {
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .stepper {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            position: relative;
+        }
+
+        /* الخط الرأسي بين الخطوات */
+        .step-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 15px;
+            top: 32px;
+            width: 2px;
+            height: calc(100% - 16px);
+            background: var(--border);
+        }
+
+        .step-item.done::after  { background: #22c55e; }
+        .step-item.active::after { background: var(--border); }
+
+        .step-icon {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-icon.done   { background: #22c55e; color: #fff; }
+        .step-icon.active { background: #6366f1; color: #fff; box-shadow: 0 0 0 4px rgba(99,102,241,0.2); }
+        .step-icon.pending{ background: #f1f5f9; color: #94a3b8; border: 2px solid #e2e8f0; }
+
+        .step-content {
+            padding-bottom: 18px;
+            flex: 1;
+        }
+
+        .step-name {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+        .step-name.pending { color: var(--muted); font-weight: 600; }
+
+        .step-time {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        /* ========= معلومات خفيفة ========= */
+        .info-section {
+            padding: 18px 22px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 9px 0;
+            border-bottom: 1px solid #f8fafc;
+        }
+        .info-row:last-child { border-bottom: none; }
+
+        .info-key {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .info-val {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        /* ========= تذييل البطاقة ========= */
+        .card-footer {
+            background: #f8fafc;
+            border-top: 1px solid var(--border);
+            padding: 14px 22px;
+            text-align: center;
+        }
+
+        .card-footer p {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        /* ========= تذييل الصفحة ========= */
+        .page-footer {
+            text-align: center;
+        }
+
+        .page-footer p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.35);
+            font-weight: 600;
+        }
+
+        /* ========= رسالة لا نتائج (البداية) ========= */
+        .welcome-hint {
+            background: rgba(255,255,255,0.06);
+            border: 1px dashed rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 30px 22px;
+            text-align: center;
+        }
+
+        .welcome-hint .icon {
+            font-size: 42px;
+            margin-bottom: 14px;
+            opacity: 0.4;
+        }
+
+        .welcome-hint p {
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+            font-weight: 700;
+            line-height: 1.7;
+        }
+
+        /* ========= موبايل ========= */
+        /* ========= بطاقة البيانات (مخفية عن المستخدم - للتنزيل فقط) ========= */
+        #digital-card-target {
+            position: absolute;
+            left: -5000px; /* نقلها لمكان بعيد جداً خارج الشاشة */
+            top: 0;
+            width: 800px;
+            background: #ffffff;
+            font-family: 'Cairo', sans-serif;
+            direction: rtl;
+            padding: 0;
+            border: 20px solid #1a1a2e;
+            display: block; /* تظل موجودة برمجياً ليراها المحرك */
+        }
+        .dc-header {
+            background: #1a1a2e;
+            color: #f59e0b;
+            padding: 40px;
+            text-align: center;
+            border-bottom: 5px solid #f59e0b;
+        }
+        .dc-body {
+            padding: 50px 40px;
+            background: #fff;
+        }
+        .dc-row {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        .dc-label {
+            font-size: 18px;
+            font-weight: 800;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+        .dc-value {
+            font-size: 32px;
+            font-weight: 900;
+            color: #1a1a2e;
+        }
+        .dc-footer {
+            background: #f8fafc;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 2px solid #eee;
+        }
+        .dc-qr {
+            width: 150px;
+            height: 150px;
+        }
+
+        /* ========= نافذة معاينة الصورة للهواتف ========= */
+        #image-preview-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 10000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        #preview-img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+        .modal-hint {
+            color: #fff;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+        .close-modal {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+        @media print {
+            body { background: #fff !important; margin: 0; padding: 0; }
+            .bg-wrapper { background: #fff !important; min-height: unset; position: relative; }
+            .bg-wrapper::before, .bg-wrapper::after { display: none; }
+            .container { padding: 0; margin: 0; max-width: 100%; width: 100%; }
+            .page-header, .search-card, .page-footer, .card-footer, .welcome-hint { display: none !important; }
+            .result-card {
+                box-shadow: none !important;
+                border: 2px solid #e2e8f0 !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                animation: none !important;
+            }
+            .card-header { background: #1a1a2e !important; -webkit-print-color-adjust: exact; }
+            .status-bar { background: #f8fafc !important; -webkit-print-color-adjust: exact; }
+            .status-pill { -webkit-print-color-adjust: exact; }
+            .step-icon.done, .step-icon.active { background: #6366f1 !important; color: #fff !important; -webkit-print-color-adjust: exact; }
+            @page { size: auto; margin: 5mm; }
+        }
+    </style>
+</head>
+<body>
+<div class="bg-wrapper">
+    <div class="container">
+
+        <!-- رأس الصفحة -->
+        <div class="page-header">
+            <h1>نقابة المحامين بالفيوم</h1>
+            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية</p>
+        </div>
+
+        {% if error %}
+        <div class="error-msg" style="margin-bottom: 20px;">
+            <i class="fas fa-exclamation-circle" style="font-size:18px; flex-shrink:0;"></i>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <!-- نتيجة البحث -->
+        {% if transaction %}
+        <div class="result-card">
+
+            <!-- رأس البطاقة -->
+            <div class="card-header">
+                <div class="trk-chip">
+                    <i class="fas fa-file-invoice" style="margin-left:5px; font-size:11px;"></i>
+                    المعاملة رقم {{ transaction.simple_number }}
+                </div>
+                <div class="card-title" style="font-size: 24px;">{{ transaction.client_name }}</div>
+                <div class="card-date">
+                    <i class="fas fa-briefcase" style="margin-left:4px;"></i>
+                    الموضوع: {{ transaction.title }}
+                </div>
+            </div>
+
+            <!-- شريط حالة الطلب -->
+            <div class="status-bar" style="background: #f8fafc; padding: 22px; border-bottom: 2px solid #e2e8f0;">
+                <div>
+                    <div class="status-label-sm" style="font-size: 13px; color: #6366f1; font-weight: 900; margin-bottom: 4px;">حالة الطلب الآن:</div>
+                    <div style="font-size:11px; color:#94a3b8; font-weight:600;">
+                        آخر تحديث: {{ transaction.updated_at|date:"Y/m/d - h:i A" }}
+                    </div>
+                </div>
+                <div class="status-pill s-{{ transaction.current_status }}" style="font-size: 18px; padding: 10px 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <span class="status-dot"></span>
+                    {{ transaction.get_current_status_display }}
+                </div>
+            </div>
+
+            <!-- مراحل التقدم -->
+            <div class="stepper-section">
+                <div class="stepper-title">
+                    <i class="fas fa-route" style="margin-left:5px;"></i>
+                    مراحل المعاملة
+                </div>
+                <div class="stepper">
+                    {% with s=transaction.current_status %}
+
+                    <!-- مرحلة 1: تم الاستلام -->
+                    <div class="step-item {% if s == 'received' %}active{% elif s == 'under_review' or s == 'in_progress' or s == 'completed' %}done{% else %}pending{% endif %}">
+                        <div class="step-icon {% if s == 'received' %}active{% elif s == 'under_review' or s == 'in_progress' or s == 'completed' %}done{% else %}pending{% endif %}">
+                            <i class="fas {% if s == 'received' or s == 'under_review' or s == 'in_progress' or s == 'completed' %}fa-check{% else %}fa-inbox{% endif %}"></i>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-name">تم الاستلام</div>
+                            <div class="step-time">تم تسجيل المعاملة بنجاح</div>
+                        </div>
+                    </div>
+
+                    <!-- مرحلة 2: تحت المراجعة -->
+                    <div class="step-item {% if s == 'under_review' %}active{% elif s == 'in_progress' or s == 'completed' %}done{% else %}pending{% endif %}">
+                        <div class="step-icon {% if s == 'under_review' %}active{% elif s == 'in_progress' or s == 'completed' %}done{% else %}pending{% endif %}">
+                            <i class="fas {% if s == 'under_review' or s == 'in_progress' or s == 'completed' %}fa-check{% else %}fa-search{% endif %}"></i>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-name {% if s == 'received' %}pending{% endif %}">تحت المراجعة</div>
+                            <div class="step-time">دراسة وفحص المعاملة</div>
+                        </div>
+                    </div>
+
+                    <!-- مرحلة 3: جاري التنفيذ -->
+                    <div class="step-item {% if s == 'in_progress' %}active{% elif s == 'completed' %}done{% else %}pending{% endif %}">
+                        <div class="step-icon {% if s == 'in_progress' %}active{% elif s == 'completed' %}done{% else %}pending{% endif %}">
+                            <i class="fas {% if s == 'in_progress' or s == 'completed' %}fa-check{% else %}fa-cog{% endif %}"></i>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-name {% if s == 'received' or s == 'under_review' %}pending{% endif %}">جاري التنفيذ</div>
+                            <div class="step-time">اتخاذ الإجراءات اللازمة</div>
+                        </div>
+                    </div>
+
+                    <!-- مرحلة 4: تم الانتهاء -->
+                    <div class="step-item {% if s == 'completed' %}done{% else %}pending{% endif %}">
+                        <div class="step-icon {% if s == 'completed' %}done{% else %}pending{% endif %}">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="step-content" style="padding-bottom:0;">
+                            <div class="step-name {% if s != 'completed' %}pending{% endif %}">تم الانتهاء</div>
+                            <div class="step-time">جاهزة للاستلام / منتهية</div>
+                        </div>
+                    </div>
+
+                    {% endwith %}
+                </div>
+            </div>
+
+            <!-- معلومات أساسية (بدون تفاصيل داخلية) -->
+            <div class="info-section">
+                <div class="info-row">
+                    <div class="info-key"><i class="fas fa-user"></i> صاحب الشأن</div>
+                    <div class="info-val">{{ transaction.client_name }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-key"><i class="fas fa-hashtag"></i> رقم المعاملة</div>
+                    <div class="info-val" style="font-family:monospace; color:#6366f1; font-weight:900;">{{ transaction.simple_number }}</div>
+                </div>
+                {% if transaction.registration_number %}
+                <div class="info-row">
+                    <div class="info-key"><i class="fas fa-id-card"></i> رقم القيد</div>
+                    <div class="info-val">{{ transaction.registration_number }}</div>
+                </div>
+                {% endif %}
+                <div class="info-row">
+                    <div class="info-key"><i class="fas fa-calendar"></i> تاريخ التسجيل</div>
+                    <div class="info-val">{{ transaction.created_at|date:"Y/m/d" }}</div>
+                </div>
+                {% if transaction.description %}
+                <div class="info-row" style="flex-direction: column; align-items: flex-start; gap: 8px; border-top: 1px dashed #eee; padding-top: 15px; margin-top: 5px;">
+                    <div class="info-key"><i class="fas fa-align-right"></i> وصف المعاملة</div>
+                    <div class="info-val" style="width: 100%; white-space: pre-wrap; line-height: 1.6; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 13px;">{{ transaction.description }}</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- تذييل البطاقة -->
+            <div class="card-footer">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                    <button onclick="shareStatus()" style="background: none; border: none; color: var(--accent); font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border: 1.5px dashed var(--accent); border-radius: 12px;">
+                        <i class="fas fa-share-alt"></i>
+                        مشاركة
+                    </button>
+                    <button onclick="downloadCard()" style="background: var(--accent); border: none; color: #fff; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 12px; box-shadow: 0 4px 10px rgba(99,102,241,0.3);">
+                        <i class="fas fa-image"></i>
+                        حفظ كصورة
+                    </button>
+                </div>
+                <p>
+                    <i class="fas fa-shield-alt" style="margin-left:5px; color:#6366f1;"></i>
+                    هذه المعلومات خاصة بمعاملتك فقط
+                </p>
+            </div>
+
+        </div>
+        {% elif not transaction %}
+        <!-- رسالة ترحيبية عند الدخول بدون بحث -->
+        <div class="welcome-hint">
+            <div class="icon">
+                <i class="fas fa-qrcode"></i>
+            </div>
+            <p style="font-size: 18px; color: #fff; margin-bottom: 10px;">بوابة التتبع الذكي</p>
+            <p>
+                فضلاً قم بمسح رمز الـ QR الموجود على إيصال المعاملة<br>
+                لمتابعة حالة طلبك بشكل مباشر وآمن
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- بطاقة التنزيل الرقمية (المخفية التي سيتم تصويرها) -->
+        {% if transaction %}
+        <div id="digital-card-target">
+            <div class="dc-header">
+                <div style="font-size: 24px; font-weight: 900; margin-bottom: 10px;">نقابة المحامين بالفيوم</div>
+                <div style="font-size: 40px; font-weight: 900; color: #fff;">بطاقة إثبات معاملة</div>
+            </div>
+            <div class="dc-body">
+                <div class="dc-row">
+                    <div class="dc-label">اسم صاحب الشأن</div>
+                    <div class="dc-value">{{ transaction.client_name }}</div>
+                </div>
+                <div class="dc-row">
+                    <div class="dc-label">موضوع المعاملة</div>
+                    <div class="dc-value">{{ transaction.title }}</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div class="dc-row">
+                        <div class="dc-label">رقم المعاملة</div>
+                        <div class="dc-value" style="color: #6366f1;">{{ transaction.simple_number }}</div>
+                    </div>
+                    <div class="dc-row">
+                        <div class="dc-label">حالة الطلب الآن</div>
+                        <div class="dc-value">{{ transaction.get_current_status_display }}</div>
+                    </div>
+                </div>
+                {% if transaction.description %}
+                <div class="dc-row" style="border: none;">
+                    <div class="dc-label">وصف المعاملة</div>
+                    <div class="dc-value" style="font-size: 20px; line-height: 1.5; background: #f1f5f9; padding: 20px; border-radius: 10px;">{{ transaction.description }}</div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="dc-footer">
+                <div>
+                    <div style="font-size: 16px; font-weight: 800; color: #64748b;">تاريخ التسجيل</div>
+                    <div style="font-size: 20px; font-weight: 900;">{{ transaction.created_at|date:"Y/m/d" }}</div>
+                </div>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ request.build_absolute_uri }}&bgcolor=f8fafc" class="dc-qr">
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- نافذة معاينة الصورة (للجوال) -->
+        <div id="image-preview-modal">
+            <div class="modal-hint">تم تجهيز البطاقة بنجاح!<br>اضغط مطولاً على الصورة واختار "Save Image" أو "حفظ الصورة"</div>
+            <img id="preview-img" src="">
+            <button class="close-modal" onclick="document.getElementById('image-preview-modal').style.display='none'">إغلاق</button>
+        </div>
+
+
+    </div>
+</div>
+
+<script>
+    // وظيفة تنزيل البطاقة الرقمية (تنزيل مباشر)
+    async function downloadCard() {
+        const target = document.getElementById('digital-card-target');
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
+        
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
+        btn.disabled = true;
+
+        try {
+            const canvas = await html2canvas(target, {
+                scale: 3, // جودة عالية
+                useCORS: true,
+                backgroundColor: "#ffffff",
+            });
+
+            // تحويل الكانفاس إلى Blob لضمان التنزيل المباشر
+            canvas.toBlob(async (blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'معاملة_رقم_{{ transaction.simple_number }}.png';
+                document.body.appendChild(a);
+                a.click();
+                
+                // تنظيف الذاكرة
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }, 100);
+                
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 'image/png', 1.0);
+
+        } catch (err) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            alert('حدث خطأ، يرجى المحاولة مرة أخرى أو تصوير الشاشة.');
+        }
+    }
+
+    // وظيفة مشاركة الرابط
+    function shareStatus() {
+        if (navigator.share) {
+            navigator.share({
+                title: 'تتبع معاملتي - نقابة المحامين بالفيوم',
+                text: 'يمكنك تتبع حالة المعاملة: {{ transaction.tracking_number }} من خلال هذا الرابط',
+                url: window.location.href,
+            }).catch(console.error);
+        } else {
+            // نسخة احتياطية: نسخ للكلببورد
+            const el = document.createElement('textarea');
+            el.value = window.location.href;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            alert('تم نسخ رابط التتبع للجهاز بنجاح!');
+        }
+    }
+
+    // Fallback إذا فشل تحميل صورة QR
+    document.addEventListener('DOMContentLoaded', function () {
+        var img = document.getElementById('qrImg');
+        if (!img) return;
+        img.addEventListener('error', function () {
+            this.style.display = 'none';
+            var fb = document.createElement('div');
+            fb.style.cssText = 'width:130px;height:130px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:6px;margin:0 auto 8px;font-size:10px;color:#64748b;font-weight:700;text-align:center;padding:8px;';
+            fb.textContent = 'QR غير متاح - استخدم رقم المتابعة';
+            this.parentNode.insertBefore(fb, this.nextSibling);
+        });
+    });
+</script>
+
+</body>
+</html>

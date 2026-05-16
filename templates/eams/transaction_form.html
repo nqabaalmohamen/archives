@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if transaction %}تعديل المعاملة{% else %}إنشاء رقم متابعة{% endif %} | نظام الأرشيف{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div style="margin-bottom: 20px; text-align: right;">
+        <h1 style="font-size: 26px; font-weight: 900; color: #000; margin-bottom: 5px;">{% if transaction %}تعديل بيانات المعاملة{% else %}إنشاء رقم متابعة جديد{% endif %}</h1>
+        <p style="color: #64748b; font-size: 14px; font-weight: 700; margin: 0;">{% if transaction %}رقم المتابعة: {{ transaction.tracking_number }}{% else %}تسجيل بيانات المعاملة الجديدة{% endif %}</p>
+    </div>
+
+    <div class="form-card chic-form" style="max-width: 800px; background: #fff; padding: 25px 30px; border-radius: 24px; border: 3px solid #000; box-shadow: 12px 12px 0px 0px rgba(0,0,0,1);">
+        <form method="POST">
+            {% csrf_token %}
+            
+            <!-- السطر الأول: الاسم والهاتف -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div class="form-group">
+                    <label style="font-size: 16px; font-weight: 900; color: #000; margin-bottom: 8px; display: block;">
+                        <i class="fas fa-user"></i> اسم صاحب الشأن <span style="color: var(--danger);">*</span>
+                    </label>
+                    <input type="text" name="client_name" class="form-control" placeholder="الاسم بالكامل" style="height: 48px; font-size: 16px; font-weight: 800; border: 2px solid #000; border-radius: 12px;" value="{{ transaction.client_name|default:'' }}" required>
+                </div>
+                <div class="form-group">
+                    <label style="font-size: 16px; font-weight: 900; color: #000; margin-bottom: 8px; display: block;">
+                        <i class="fas fa-phone"></i> رقم الهاتف <span style="color: var(--danger);">*</span>
+                    </label>
+                    <input type="text" name="client_phone" class="form-control" placeholder="01xxxxxxxxx" style="height: 48px; font-size: 16px; font-weight: 800; border: 2px solid #000; border-radius: 12px;" value="{{ transaction.client_phone|default:'' }}" required maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11);">
+                </div>
+            </div>
+
+            <!-- السطر الثاني: النوع ورقم القيد -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div class="form-group">
+                    <label style="font-size: 16px; font-weight: 900; color: #000; margin-bottom: 8px; display: block;">
+                        <i class="fas fa-venus-mars"></i> النوع <span style="color: var(--danger);">*</span>
+                    </label>
+                    <select name="client_gender" class="form-control" style="height: 48px; font-size: 16px; font-weight: 800; border: 2px solid #000; border-radius: 12px; background: #fff;" required>
+                        <option value="" disabled {% if not transaction %}selected{% endif %}>اختر النوع</option>
+                        <option value="male" {% if transaction.client_gender == 'male' %}selected{% endif %}>ذكر</option>
+                        <option value="female" {% if transaction.client_gender == 'female' %}selected{% endif %}>أنثى</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="font-size: 16px; font-weight: 900; color: #000; margin-bottom: 8px; display: block;">
+                        <i class="fas fa-id-card"></i> رقم القيد (اختياري)
+                    </label>
+                    <input type="text" name="registration_number" class="form-control" placeholder="رقم القيد إن وجد" style="height: 48px; font-size: 16px; font-weight: 800; border: 2px solid #000; border-radius: 12px;" value="{{ transaction.registration_number|default:'' }}">
+                </div>
+            </div>
+
+            <!-- السطر الثالث: العنوان -->
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="font-size: 16px; font-weight: 900; color: #000; margin-bottom: 8px; display: block;">
+                    <i class="fas fa-file-signature"></i> عنوان المعاملة / الموضوع <span style="color: var(--danger);">*</span>
+                </label>
+                <input type="text" name="title" class="form-control" placeholder="مثلاً: معاملة تجديد كارنيه الأستاذ..." style="height: 48px; font-size: 16px; font-weight: 800; border: 2px solid #000; border-radius: 12px;" value="{{ transaction.title|default:'' }}" required>
+            </div>
+
+            <!-- السطر الرابع: الملاحظات -->
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label style="font-size: 16px; font-weight: 900; color: #000; margin-bottom: 8px; display: block;">
+                    <i class="fas fa-align-right"></i> ملاحظات إضافية
+                </label>
+                <textarea name="description" class="form-control" placeholder="أي تفاصيل إضافية..." style="min-height: 80px; border: 2px solid #000; border-radius: 12px; font-weight: 700; font-size: 15px; padding: 10px;">{{ transaction.description|default:'' }}</textarea>
+            </div>
+
+
+
+            <!-- الأزرار -->
+            <div class="form-actions" style="display: flex; gap: 12px; border-top: 2px solid #000; padding-top: 20px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1; padding: 15px; border-radius: 12px; font-size: 17px; font-weight: 900; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                    <i class="fas {% if transaction %}fa-save{% else %}fa-plus-circle{% endif %}"></i>
+                    <span>{% if transaction %}حفظ التعديلات{% else %}إنشاء رقم المتابعة{% endif %}</span>
+                </button>
+                <a href="{% url 'transaction_list' %}" class="btn" style="background: #f1f5f9; color: #475569; padding: 15px 25px; border-radius: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center;">
+                    إلغاء
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

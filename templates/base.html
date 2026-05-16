@@ -1,0 +1,595 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}نقابة المحامين بالفيوم | نظام الأرشيف{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- NProgress for Visual Feedback -->
+    <link rel="stylesheet" href="https://unpkg.com/nprogress@0.2.0/nprogress.css">
+    <script src="https://unpkg.com/nprogress@0.2.0/nprogress.js"></script>
+
+    <!-- HTMX for Live Interactions -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=11">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'Gemini_Generated_Image_ekeq1aekeq1aekeq.png' %}">
+
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        /* Modal Style */
+        .custom-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(8px);
+        }
+
+        .custom-modal {
+            background: white;
+            padding: 32px;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            text-align: center;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* SUPER MOBILE OVERRIDE - Forcing everything into the frame */
+        @media (max-width: 768px) {
+            * {
+                max-width: 100vw !important;
+                box-sizing: border-box !important;
+            }
+            body, html {
+                overflow-x: hidden !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .main-content {
+                padding-left: 10px !important;
+                padding-right: 10px !important;
+                width: 100% !important;
+            }
+            /* Overriding common inline styles that cause overflow */
+            div[style*="width: 800px"], 
+            div[style*="width: 600px"], 
+            div[style*="width: 450px"],
+            div[style*="max-width: 800px"],
+            div[style*="max-width: 600px"] {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            div[style*="padding: 45px"],
+            div[style*="padding: 30px"],
+            div[style*="padding: 25px 30px"] {
+                padding: 15px !important;
+            }
+            div[style*="grid-template-columns: 2fr 1fr"],
+            div[style*="grid-template-columns: 1fr 1fr"],
+            div[style*="display: grid"] {
+                grid-template-columns: 1fr !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            div[style*="display: flex"] {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+            .topnav, .topnav-right, .user-profile {
+                flex-direction: row !important;
+                align-items: center !important;
+            }
+            table {
+                display: block !important;
+                width: 100% !important;
+                overflow-x: auto !important;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="js-loading">
+
+    <!-- Premium Page Transition Elements -->
+    <div class="page-loader" id="page-loader"></div>
+
+    <!-- Floating Chic Top Menu -->
+    <div class="topnav-container">
+
+
+        <nav class="topnav">
+            <!-- Brand Section -->
+            <a href="{% url 'dashboard' %}" class="topnav-brand" style="text-decoration: none;">
+                <div class="logo-container">
+                    <img src="{% static 'Gemini_Generated_Image_ekeq1aekeq1aekeq.png' %}" alt="Logo" class="main-logo">
+                </div>
+                <div class="brand-text">
+                    <span class="main-title">نقابة المحامين بالفيوم</span>
+                    <span class="sub-title">نظام الأرشيف الإلكتروني</span>
+                </div>
+            </a>
+
+
+
+            <!-- Navigation Links -->
+            <button class="mobile-menu-toggle" id="mobile-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <ul class="topnav-links">
+                <li>
+                    <a href="{% url 'dashboard' %}"
+                        class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <i class="fas fa-th-large"></i>
+                        <span>الرئيسية</span>
+                    </a>
+                </li>
+
+                <li class="has-dropdown">
+                    <a href="#"
+                        class="nav-link {% if 'transaction' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>المعاملات</span>
+                        <i class="fas fa-chevron-down" style="font-size: 10px; opacity: 0.5;"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="{% url 'transaction_create' %}" class="dropdown-item"><i
+                                class="fas fa-plus-circle"></i> إنشاء رقم متابعة</a>
+                        <a href="{% url 'transaction_list' %}" class="dropdown-item"><i class="fas fa-list-ol"></i> كافة
+                            المعاملات</a>
+                        <a href="{% url 'tracking_page' %}" class="dropdown-item"><i class="fas fa-search-location"></i>
+                            تتبع معاملة</a>
+                    </div>
+                </li>
+
+                <li class="has-dropdown">
+                    <a href="#"
+                        class="nav-link {% if request.resolver_match.url_name == 'document_list' %}active{% endif %}">
+                        <i class="fas fa-folder-open"></i>
+                        <span>الأرشيف</span>
+                        <i class="fas fa-chevron-down" style="font-size: 10px; opacity: 0.5;"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        {% if request.user.profile.access_internal %}
+                        <a href="{% url 'document_list' %}?type=internal" class="dropdown-item"><i
+                                class="fas fa-file-alt"></i> البريد الداخلي</a>
+                        {% endif %}
+                        {% if request.user.profile.access_incoming %}
+                        <a href="{% url 'document_list' %}?type=incoming" class="dropdown-item"><i
+                                class="fas fa-file-import"></i> الأرشيف الوارد</a>
+                        {% endif %}
+                        {% if request.user.profile.access_outgoing %}
+                        <a href="{% url 'document_list' %}?type=outgoing" class="dropdown-item"><i
+                                class="fas fa-file-export"></i> الأرشيف الصادر</a>
+                        {% endif %}
+                        <a href="{% url 'document_list' %}" class="dropdown-item"><i class="fas fa-list"></i> كافة
+                            الوثائق</a>
+                    </div>
+                </li>
+
+                <li class="has-dropdown">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>الإعدادات</span>
+                        <i class="fas fa-chevron-down" style="font-size: 10px; opacity: 0.5;"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        {% if request.user.profile.access_reports %}
+                        <a href="{% url 'reports' %}" class="dropdown-item"><i class="fas fa-chart-line"></i>
+                            التقارير</a>
+                        {% endif %}
+                        {% if request.user.profile.access_categories %}
+                        <a href="{% url 'category_list' %}" class="dropdown-item"><i class="fas fa-tags"></i> إدارة
+                            الأقسام</a>
+                        {% endif %}
+                        {% if request.user.profile.access_audit %}
+                        <a href="{% url 'audit_log' %}" class="dropdown-item"><i class="fas fa-shield-alt"></i> سجل
+                            التحركات</a>
+                        {% endif %}
+                        {% if request.user.profile.access_users %}
+                        <a href="{% url 'user_list' %}" class="dropdown-item"><i class="fas fa-users-cog"></i> إدارة
+                            المستخدمين</a>
+                        {% endif %}
+                    </div>
+                </li>
+            </ul>
+
+            <!-- Right Section (Clock & User) -->
+            <div class="topnav-right" style="display: flex; align-items: center; gap: 20px;">
+                <!-- Small Integrated Clock -->
+                <div class="live-clock-container"
+                    style="background: #ffffff; color: #000000; padding: 6px 15px; border-radius: 12px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 2px solid #000000;">
+                    <div style="text-align: center; border-left: 1px solid rgba(0,0,0,0.1); padding-left: 10px;">
+                        <div id="live-time"
+                            style="font-size: 15px; font-weight: 900; letter-spacing: 0.5px; color: #000000;">00:00:00
+                        </div>
+                        <div id="live-period"
+                            style="font-size: 9px; font-weight: 800; opacity: 0.8; margin-top: -2px; color: #000000;">AM
+                        </div>
+                    </div>
+                    <div id="live-date"
+                        style="font-size: 11px; font-weight: 800; opacity: 0.9; text-align: right; line-height: 1.1; color: #000000;">
+                        --/--/----</div>
+                    <i class="fas fa-clock" style="font-size: 14px; color: #000000; animation: pulse 2s infinite;"></i>
+                </div>
+
+                <div class="user-profile has-dropdown">
+                    <div class="user-avatar">{{ request.user.username|first|upper }}</div>
+                    <div class="user-meta">
+                        <span class="user-name">{{ request.user.profile.full_name|default:request.user.username }}</span>
+                        <span class="user-role">{{ request.user.profile.job_title|default:'موظف النظام' }}</span>
+                    </div>
+                    <i class="fas fa-chevron-down" style="font-size: 10px; color: var(--text-muted);"></i>
+
+                    <div class="dropdown-menu">
+                        <a href="{% url 'password_change' %}" class="dropdown-item">
+                            <i class="fas fa-key"></i> تغيير كلمة المرور
+                        </a>
+                        <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
+                            {% csrf_token %}
+                        </form>
+                        <a href="javascript:void(0)" onclick="showLogoutModal();"
+                            class="dropdown-item"
+                            style="color: #ef4444; border-top: 1px solid #f1f5f9; margin-top: 5px;">
+                            <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+        {% if messages %}
+        <div class="messages-container" style="margin-bottom: 30px;">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}"
+                style="padding: 15px 20px; border-radius: 16px; background: {% if message.tags == 'success' %}#dcfce7{% else %}#fee2e2{% endif %}; color: {% if message.tags == 'success' %}#166534{% else %}#991b1b{% endif %}; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(0,0,0,0.05);">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %}"></i>
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <script>
+            // Auto-hide alerts after 3 seconds
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(function() {
+                    const alerts = document.querySelectorAll('.alert');
+                    alerts.forEach(function(alert) {
+                        alert.style.transition = 'opacity 0.5s ease';
+                        alert.style.opacity = '0';
+                        setTimeout(() => alert.remove(), 500);
+                    });
+                }, 3000);
+            });
+        </script>
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <div
+                style="width: 65px; height: 65px; background: #fee2e2; color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 26px;">
+                <i class="fas fa-trash-alt"></i>
+            </div>
+            <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 12px;">تأكيد الحذف</h2>
+            <p style="color: var(--text-muted); font-size: 14px; font-weight: 700; line-height: 1.5;">هل أنت متأكد من
+                رغبتك في حذف هذا العنصر؟ <br>هذا الإجراء نهائي ولا يمكن التراجع عنه.</p>
+            <div style="display: flex; gap: 12px; margin-top: 30px; justify-content: center;">
+                <button onclick="closeDeleteModal()" class="btn"
+                    style="background: #f1f5f9; color: #475569; font-weight: 800;">إلغاء</button>
+                <a id="confirmDeleteBtn" href="#" class="btn btn-primary" style="background: #ef4444; color: white !important; font-weight: 800;">حذف الآن</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Ended Modal -->
+<div id="sessionTimeoutModal" class="custom-modal-overlay">
+    <div class="custom-modal">
+        <div
+            style="width: 65px; height: 65px; background: #fff7ed; color: #f97316; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 26px; border: 2px solid #fdba74;">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 12px; color: #1e293b;">تنبيه: انتهت مهلة الجلسة</h2>
+        <p style="color: #64748b; font-size: 14px; font-weight: 700; line-height: 1.5;">
+            لقد انتهت جلسة العمل الخاصة بك بسبب عدم النشاط.
+            <br>يرجى إعادة تسجيل الدخول مرة أخرى لمتابعة العمل.
+        </p>
+        <div style="display: flex; gap: 12px; margin-top: 30px; justify-content: center;">
+            <button onclick="performLogout()" class="btn" style="background: #f97316; border: none; width: 100%; padding: 12px; border-radius: 12px; font-weight: 800; color: white !important; display: block !important; visibility: visible !important; opacity: 1 !important;">موافق</button>
+        </div>
+    </div>
+</div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <div
+                style="width: 65px; height: 65px; background: #fee2e2; color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 26px;">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+            <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 12px;">تسجيل الخروج</h2>
+            <p style="color: var(--text-muted); font-size: 14px; font-weight: 700; line-height: 1.5;">هل أنت متأكد من رغبتك في تسجيل الخروج الآن؟</p>
+            <div style="display: flex; gap: 12px; margin-top: 30px; justify-content: center;">
+                <button onclick="closeLogoutModal()" class="btn" style="background: #f1f5f9; color: #475569; border: none; padding: 10px 25px; border-radius: 12px; font-weight: 800; cursor: pointer;">إلغاء</button>
+                <button onclick="performLogout()" class="btn" style="background: #ef4444; color: white; border: none; padding: 10px 25px; border-radius: 12px; font-weight: 800; cursor: pointer;">نعم، خروج</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Universal HTMX Modal Container -->
+    <div id="htmxModalOverlay" class="custom-modal-overlay" style="display: none;">
+        <div class="custom-modal" id="htmxModalContent" style="max-width: 800px; width: 95%; max-height: 90vh; overflow-y: auto; position: relative;">
+            <button onclick="closeHtmxModal()" style="position: absolute; top: 15px; left: 15px; border: none; background: #f1f5f9; width: 35px; height: 35px; border-radius: 10px; cursor: pointer; color: #475569; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="htmxModalBody">
+                <!-- Content will be loaded here via HTMX -->
+                <div style="padding: 40px; text-align: center;">
+                    <i class="fas fa-circle-notch fa-spin" style="font-size: 30px; color: #1a1a2e; margin-bottom: 15px;"></i>
+                    <p style="font-weight: 800; color: #64748b;">جاري تحميل البيانات...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function closeHtmxModal() {
+            document.getElementById('htmxModalOverlay').style.display = 'none';
+            document.getElementById('htmxModalBody').innerHTML = `
+                <div style="padding: 40px; text-align: center;">
+                    <i class="fas fa-circle-notch fa-spin" style="font-size: 30px; color: #1a1a2e; margin-bottom: 15px;"></i>
+                    <p style="font-weight: 800; color: #64748b;">جاري تحميل البيانات...</p>
+                </div>`;
+        }
+        
+        document.addEventListener('htmx:afterSwap', function(evt) {
+            if (evt.detail.target.id === "htmxModalBody") {
+                document.getElementById('htmxModalOverlay').style.display = 'flex';
+                playSound('click');
+            }
+        });
+
+        // Close on ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") closeHtmxModal();
+        });
+    </script>
+
+    <!-- Sound Interaction System -->
+    <script>
+        const sounds = {
+            success: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3',
+            notify: 'https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3',
+            delete: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
+            click: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'
+        };
+
+        function playSound(type) {
+            const audio = new Audio(sounds[type]);
+            audio.volume = 0.5;
+            audio.play().catch(e => console.log("Sound enabled after user interaction"));
+        }
+
+        // Auto-play sound for Django messages
+        document.addEventListener('DOMContentLoaded', function () {
+            const alerts = document.querySelectorAll('.alert');
+            if (alerts.length > 0) {
+                const isSuccess = Array.from(alerts).some(a => a.classList.contains('alert-success'));
+                playSound(isSuccess ? 'success' : 'notify');
+            }
+
+            // Click sounds for main navigation
+            document.querySelectorAll('.nav-link, .dropdown-item, .btn').forEach(el => {
+                el.addEventListener('click', () => playSound('click'));
+            });
+        });
+    </script>
+
+    <script>
+        // Live Clock Animation
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = String(hours % 12 || 12).padStart(2, '0');
+
+            document.getElementById('live-time').textContent = `${displayHours}:${minutes}:${seconds}`;
+            document.getElementById('live-period').textContent = ampm;
+
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            document.getElementById('live-date').textContent = now.toLocaleDateString('ar-EG', options);
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // HTMX CSRF Token Setup
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        });
+
+        // NProgress Integration
+        // NProgress Integration (Skip for polling requests)
+        document.addEventListener('htmx:beforeSend', (event) => {
+            const trigger = event.detail.elt;
+            if (trigger && trigger.getAttribute('hx-trigger') && trigger.getAttribute('hx-trigger').includes('every')) {
+                return;
+            }
+            NProgress.start();
+        });
+        document.addEventListener('htmx:afterOnLoad', () => NProgress.done());
+        document.addEventListener('htmx:onLoadError', () => NProgress.done());
+
+        // Fix for components after htmx swap (like live updates)
+        document.addEventListener('htmx:afterSwap', (event) => {
+            updateClock();
+            setupDropdowns();
+            setupMobileToggle();
+        });
+
+        function setupDropdowns() {
+            document.querySelectorAll('.has-dropdown').forEach(el => {
+                // Clear existing listeners to avoid duplicates
+                const newEl = el.cloneNode(true);
+                el.parentNode.replaceChild(newEl, el);
+                
+                newEl.addEventListener('click', function (e) {
+                    if (e.target.closest('a') && e.target.closest('a').getAttribute('href') === '#') {
+                        e.preventDefault();
+                    }
+                    e.stopPropagation();
+                    const isOpen = this.classList.contains('open');
+                    document.querySelectorAll('.has-dropdown').forEach(d => d.classList.remove('open'));
+                    if (!isOpen) this.classList.add('open');
+                });
+            });
+        }
+
+        function setupMobileToggle() {
+            const mobileToggle = document.getElementById('mobile-toggle');
+            const navLinks = document.querySelector('.topnav-links');
+            if (mobileToggle && navLinks) {
+                mobileToggle.onclick = function (e) {
+                    e.stopPropagation();
+                    navLinks.classList.toggle('show');
+                    const icon = this.querySelector('i');
+                    if (navLinks.classList.contains('show')) {
+                        icon.className = 'fas fa-times';
+                    } else {
+                        icon.className = 'fas fa-bars';
+                    }
+                };
+            }
+        }
+
+        // Initial setup
+        setupDropdowns();
+        setupMobileToggle();
+
+        // Modal Logic
+        function showDeleteModal(deleteUrl) {
+            if (typeof playSound === 'function') playSound('delete');
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            if (confirmBtn) confirmBtn.href = deleteUrl;
+            const modal = document.getElementById('deleteModal');
+            if (modal) modal.style.display = 'flex';
+            return false;
+        }
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        // Logout Modal Logic
+        function showLogoutModal() {
+            if (typeof playSound === 'function') playSound('notify');
+            const modal = document.getElementById('logoutModal');
+            if (modal) modal.style.display = 'flex';
+        }
+        function closeLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            if (modal) modal.style.display = 'none';
+        }
+    function performLogout() {
+        const logoutForm = document.getElementById('logout-form');
+        if (logoutForm) {
+            logoutForm.submit();
+        } else {
+            window.location.href = "{% url 'logout' %}";
+        }
+    }
+
+    // Session Timeout Logic (15 minutes) with activity detection
+    {% if user.is_authenticated %}
+    (function() {
+        let inactivityTime = 0;
+        const maxInactivity = 15 * 60; // 15 minutes
+
+        function resetTimer() {
+            inactivityTime = 0;
+        }
+
+        // Events that reset the inactivity timer
+        window.onload = resetTimer;
+        document.onmousemove = resetTimer;
+        document.onmousedown = resetTimer;
+        document.ontouchstart = resetTimer;
+        document.onclick = resetTimer;
+        document.onkeydown = resetTimer;
+        if (window.addEventListener) {
+            window.addEventListener('scroll', resetTimer, true);
+        }
+
+        setInterval(function() {
+            inactivityTime++;
+            if (inactivityTime >= maxInactivity) {
+                const modal = document.getElementById('sessionTimeoutModal');
+                if (modal && modal.style.display !== 'flex') {
+                    modal.style.display = 'flex';
+                    if (typeof playSound === 'function') playSound('notify');
+                }
+            }
+        }, 1000);
+    })();
+    {% endif %}
+
+        // Premium Page Transition Logic (Initial Load)
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('page-loader');
+            const content = document.getElementById('main-content');
+            if (loader) loader.style.width = '100%';
+            
+            setTimeout(() => {
+                document.body.classList.remove('js-loading');
+                if (content) content.classList.add('fade-in-active');
+                
+                setTimeout(() => {
+                    if (loader) {
+                        loader.style.opacity = '0';
+                        setTimeout(() => { loader.style.width = '0%'; }, 400);
+                    }
+                }, 300);
+            }, 100);
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>
