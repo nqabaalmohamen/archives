@@ -412,7 +412,7 @@
                 <i class="fas fa-balance-scale"></i>
             </div>
             <h1>نقابة المحامين بالفيوم</h1>
-            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V4.5 - Live Realtime)</p>
+            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V4.6 - Live Realtime)</p>
         </div>
 
         <!-- واجهة النظام غير متاح (Premium) -->
@@ -422,8 +422,9 @@
             <h2>نقابة المحامين بالفيوم</h2>
             <p>
                 النظام غير متاح حالياً، يرجى المحاولة لاحقاً أو التواصل مع النقابة.<br>
-                <span style="opacity: 0.7; font-size: 13px;">تعذّر الوصول للنظام، يرجى المحاولة مرة أخرى أو التواصل مع النقابة.</span>
+                <span class="description">تعذّر الوصول للنظام، يرجى المحاولة مرة أخرى أو التواصل مع النقابة.</span>
             </p>
+            <div id="error-detail" style="font-size: 10px; color: #999; margin-top: 10px; font-family: monospace;"></div>
             <button class="retry-btn" onclick="location.reload()">
                 <i class="fas fa-sync-alt"></i> إعادة المحاولة
             </button>
@@ -663,7 +664,7 @@ async function loadTracking(isSilent = false) {
             headers: { 
                 'Accept': 'application/json'
             },
-            signal: AbortSignal.timeout(10000)
+            signal: AbortSignal.timeout(30000)
         });
 
         if (!res.ok) {
@@ -691,8 +692,12 @@ async function loadTracking(isSilent = false) {
             if (!isSilent) showError(data.error || 'لم يتم العثور على هذه المعاملة.');
         }
     } catch (err) {
+        console.error("Fetch Error:", err);
         if (!isSilent) {
             show('maintenance-card');
+            // إظهار سبب الخطأ للدي باج
+            const errDetail = document.getElementById('error-detail');
+            if (errDetail) errDetail.textContent = `Error: ${err.message}`;
         } else {
             console.warn("Live update failed, will retry...");
         }
