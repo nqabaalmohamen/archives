@@ -1,20 +1,26 @@
-# Standard Start Script
+# Standard Start Script V6.5
 $ErrorActionPreference = "SilentlyContinue"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-Write-Host "Cleaning up..."
-Stop-Process -Name "cloudflared" -Force
+$PORT = 8002
 
-Write-Host "Starting Django..."
-Start-Process python -ArgumentList "manage.py runserver 0.0.0.0:8000" -WindowStyle Minimized
-Start-Sleep -Seconds 3
+Write-Host "Cleaning up..."
+$ExistingProcess = Get-NetTCPConnection -LocalPort $PORT -ErrorAction SilentlyContinue
+if ($ExistingProcess) {
+    Stop-Process -Id $ExistingProcess.OwningProcess -Force -ErrorAction SilentlyContinue
+}
+Stop-Process -Name "cloudflared" -Force -ErrorAction SilentlyContinue
+
+Write-Host "Starting Django on $PORT..."
+Start-Process python -ArgumentList "manage.py runserver 0.0.0.0:$PORT" -WindowStyle Minimized
+Start-Sleep -Seconds 5
 
 $TunnelLog = "$PSScriptRoot\cloudflare_temp_log.txt"
 if (Test-Path $TunnelLog) { Remove-Item $TunnelLog }
 
 Write-Host "Opening Tunnel..."
 $CloudflaredExe = "$PSScriptRoot\cloudflare_tunnel\cloudflared.exe"
-Start-Process $CloudflaredExe -ArgumentList "tunnel --url http://localhost:8000" -RedirectStandardError $TunnelLog -WindowStyle Minimized
+Start-Process $CloudflaredExe -ArgumentList "tunnel --url http://localhost:$PORT" -RedirectStandardError $TunnelLog -WindowStyle Minimized
 
 Write-Host "Waiting for URL..."
 $NewURL = ""
@@ -45,15 +51,16 @@ $FilesToUpdate = @("index.html", "track.html", "live.html", "archive_system\sett
 foreach ($File in $FilesToUpdate) {
     if (Test-Path $File) {
         $Content = Get-Content $File -Raw
-        $UpdatedContent = [regex]::Replace($Content, "https://[a-zA-Z0-9-]+\.trycloudflare\.com", $NewURL)
-        Set-Content -Path $File -Value $UpdatedContent -Encoding UTF8
+        $Content = [regex]::Replace($Content, "https://[a-zA-Z0-9-]+\.trycloudflare\.com", $NewURL)
+        $Content = $Content -replace "V5.5", "V6.5"
+        Set-Content -Path $File -Value $Content -Encoding UTF8
         Write-Host "Updated: $File"
     }
 }
 
 Write-Host "Pushing to GitHub..."
 git add .
-git commit -m "Auto-update tunnel URL to $NewURL"
+git commit -m "Update V6.5 - Port $PORT"
 git push origin main
 
 Write-Host "System is LIVE at: $NewURL"
