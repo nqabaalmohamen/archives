@@ -412,7 +412,12 @@
                 <i class="fas fa-balance-scale"></i>
             </div>
             <h1>نقابة المحامين بالفيوم</h1>
-            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V4.6 - Live Realtime)</p>
+            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V4.7 - Live Realtime)</p>
+        </div>
+
+        <!-- تنبيه العمل في الوضع المباشر -->
+        <div class="offline-banner" id="offline-banner">
+            <div class="m-dot"></div> النظام متصل الآن (بث مباشر)
         </div>
 
         <!-- واجهة النظام غير متاح (Premium) -->
@@ -687,7 +692,8 @@ async function loadTracking(isSilent = false) {
                     console.log("Status Updated Live!");
                 }
             }
-            document.getElementById('offline-banner').classList.remove('active');
+            const banner = document.getElementById('offline-banner');
+            if (banner) banner.classList.remove('active');
         } else {
             if (!isSilent) showError(data.error || 'لم يتم العثور على هذه المعاملة.');
         }
