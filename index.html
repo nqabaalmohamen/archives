@@ -327,7 +327,7 @@
                 <i class="fas fa-balance-scale"></i>
             </div>
             <h1>نقابة المحامين بالفيوم</h1>
-            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V4.1 - Final)</p>
+            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V5.0 - Ultimate)</p>
         </div>
 
         <!-- إشعار الاتصال -->
@@ -559,21 +559,19 @@ async function loadTracking() {
     show('loading-card');
 
     try {
-        const res = await fetch(`${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}&v=${Date.now()}&ngrok-skip-browser-warning=1`, {
+        const targetUrl = `${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}&v=${Date.now()}&ngrok-skip-browser-warning=1`;
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+        
+        const res = await fetch(proxyUrl, {
             method: 'GET',
-            headers: { 
-                'Accept': 'application/json'
-            },
-            signal: AbortSignal.timeout(15000)
+            signal: AbortSignal.timeout(20000)
         });
 
-        if (!res.ok) {
-            const data = await res.json().catch(() => ({}));
-            showError(data.error || 'حدث خطأ أثناء تحميل البيانات.');
-            return;
-        }
+        if (!res.ok) throw new Error('Network response was not ok');
+        
+        const proxyData = await res.json();
+        const data = JSON.parse(proxyData.contents);
 
-        const data = await res.json();
         if (data.success) {
             renderTransaction(data.transaction);
         } else {
