@@ -680,20 +680,14 @@ function renderTransaction(t) {
 
     buildStepper(t.current_status);
 
-    // تنبيه النواقص
+    // تنبيه النواقص (يظهر فقط في حالة تحت المراجعة)
     const missingAlert = document.getElementById('missing-info-alert');
     const missingText = document.getElementById('missing-info-text');
-    if (t.missing_info) {
+    if (t.missing_info && t.current_status === 'under_review') {
         missingText.textContent = t.missing_info;
         missingAlert.style.display = 'block';
-        // إذا كانت الحالة تحت المراجعة، اجعل التنبيه أكثر بروزاً
-        if (t.current_status === 'under_review') {
-            missingAlert.style.borderColor = '#ef4444';
-            missingAlert.style.background = '#fef2f2';
-        } else {
-            missingAlert.style.borderColor = '#f59e0b';
-            missingAlert.style.background = '#fffbeb';
-        }
+        missingAlert.style.borderColor = '#ef4444';
+        missingAlert.style.background = '#fef2f2';
     } else {
         missingAlert.style.display = 'none';
     }
