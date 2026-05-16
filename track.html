@@ -625,13 +625,20 @@ function renderTransaction(t) {
     document.getElementById('i-tracking-num').textContent  = t.tracking_number;
     document.getElementById('i-created-at').textContent    = t.created_at;
 
+    const regRow = document.getElementById('i-reg-row');
     if (t.registration_number) {
         document.getElementById('i-reg-num').textContent = t.registration_number;
-        document.getElementById('i-reg-row').style.display = 'flex';
+        regRow.style.display = 'flex';
+    } else {
+        regRow.style.display = 'none';
     }
+
+    const descRow = document.getElementById('i-desc-row');
     if (t.description) {
         document.getElementById('i-desc').textContent = t.description;
-        document.getElementById('i-desc-row').style.display = 'flex';
+        descRow.style.display = 'flex';
+    } else {
+        descRow.style.display = 'none';
     }
 
     buildStepper(t.current_status);
@@ -651,6 +658,8 @@ async function shareStatus() {
 // ══ تحميل البيانات عند فتح الصفحة ══
 let lastStatus = null;
 let lastUpdate = null;
+let lastDesc   = null;
+let lastTitle  = null;
 
 async function loadTracking(isSilent = false) {
     const params = new URLSearchParams(window.location.search);
@@ -685,13 +694,20 @@ async function loadTracking(isSilent = false) {
         const data = await res.json();
         if (data.success) {
             const t = data.transaction;
-            // تحديث الواجهة فقط إذا تغيرت الحالة أو تاريخ التحديث
-            if (t.current_status !== lastStatus || t.updated_at !== lastUpdate) {
+            // تحديث الواجهة فقط إذا تغيرت الحالة أو التاريخ أو الوصف أو العنوان
+            const hasChanged = t.current_status !== lastStatus || 
+                               t.updated_at !== lastUpdate || 
+                               t.description !== lastDesc || 
+                               t.title !== lastTitle;
+
+            if (hasChanged) {
                 lastStatus = t.current_status;
                 lastUpdate = t.updated_at;
+                lastDesc   = t.description;
+                lastTitle  = t.title;
                 renderTransaction(t);
                 if (isSilent) {
-                    console.log("Status Updated Live!");
+                    console.log("Data Updated Live!");
                 }
             }
             const banner = document.getElementById('offline-banner');
