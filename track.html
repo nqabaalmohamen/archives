@@ -327,7 +327,7 @@
                 <i class="fas fa-balance-scale"></i>
             </div>
             <h1>نقابة المحامين بالفيوم</h1>
-            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V5.0 - Ultimate)</p>
+            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V6.0 - Protocol Bypass)</p>
         </div>
 
         <!-- إشعار الاتصال -->
@@ -440,7 +440,7 @@
 // ═══════════════════════════════════════════════════════════
 //  ⚙️  إعداد رابط الـ API  ← غيّر هذا بعد إعداد Cloudflare
 // ═══════════════════════════════════════════════════════════
-const API_BASE = "https://goldfish-banked-valley.ngrok-free.dev";
+const API_BASE = "https://easy-dragons-sing.loca.lt";
 // مثال: const API_BASE = "https://archive-track.trycloudflare.com";
 // ═══════════════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════════
@@ -559,18 +559,17 @@ async function loadTracking() {
     show('loading-card');
 
     try {
-        const targetUrl = `${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}&v=${Date.now()}&ngrok-skip-browser-warning=1`;
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-        
-        const res = await fetch(proxyUrl, {
+        const res = await fetch(`${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}&v=${Date.now()}`, {
             method: 'GET',
+            headers: { 
+                'Accept': 'application/json',
+                'Bypass-Tunnel-Reminder': 'true'
+            },
             signal: AbortSignal.timeout(20000)
         });
 
         if (!res.ok) throw new Error('Network response was not ok');
-        
-        const proxyData = await res.json();
-        const data = JSON.parse(proxyData.contents);
+        const data = await res.json();
 
         if (data.success) {
             renderTransaction(data.transaction);
