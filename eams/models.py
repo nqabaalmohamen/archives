@@ -92,6 +92,7 @@ class Transaction(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name="آخر تحديث")
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="بواسطة")
     secure_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, verbose_name="رمز الأمان")
+    missing_info = models.TextField(blank=True, null=True, verbose_name="ملاحظات للنواقص (تظهر لصاحب الشأن)")
 
     def __str__(self):
         return f"{self.tracking_number} - {self.title}"

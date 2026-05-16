@@ -139,6 +139,10 @@
                             {% endfor %}
                         </select>
                     </div>
+                    <label style="font-size: 13px; font-weight: 900; color: #000; margin-bottom: 10px; display: block; margin-top: 15px;">نواقص المعاملة (تنبيه لصاحب الشأن):</label>
+                    <div class="input-wrapper" style="margin-bottom: 15px;">
+                        <textarea name="missing_info" class="form-control" placeholder="اكتب النواقص هنا إذا كانت الحالة 'تحت المراجعة'..." style="font-weight: 700; min-height: 80px; border: 2px solid #000; border-radius: 12px; padding: 10px;">{{ transaction.missing_info|default:'' }}</textarea>
+                    </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer;">
                         تحديث الحالة
                     </button>
