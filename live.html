@@ -12,7 +12,7 @@
     <style>
         /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
            âڑ™ï¸ڈ  ط¥ط¹ط¯ط§ط¯ ط§ظ„ظ…ط·ظˆظ‘ط±: ط¶ط¹ ط±ط§ط¨ط· Cloudflare Tunnel ظ‡ظ†ط§
-           ظ…ط«ط§ظ„: https://burning-merely-social-base.trycloudflare.com
+           ظ…ط«ط§ظ„: https://unavailable-hobbies-pal-mapping.trycloudflare.com
         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
 
         :root {
@@ -555,8 +555,8 @@
 // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
 //  âڑ™ï¸ڈ  ط¥ط¹ط¯ط§ط¯ ط±ط§ط¨ط· ط§ظ„ظ€ API  â†گ ط؛ظٹظ‘ط± ظ‡ط°ط§ ط¨ط¹ط¯ ط¥ط¹ط¯ط§ط¯ Cloudflare
 // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
-const API_BASE = "https://burning-merely-social-base.trycloudflare.com";
-// ظ…ط«ط§ظ„: const API_BASE = "https://burning-merely-social-base.trycloudflare.com";
+const API_BASE = "https://unavailable-hobbies-pal-mapping.trycloudflare.com";
+// ظ…ط«ط§ظ„: const API_BASE = "https://unavailable-hobbies-pal-mapping.trycloudflare.com";
 // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
 // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
 
@@ -718,74 +718,98 @@ async function loadTracking(isSilent = false) {
 
     if (!tr) { show('welcome-card'); return; }
 
-    const cachedData = localStorage.getItem(cache_ + tr);
+    // Check cache first to prevent flickering
+    const cacheKey = "cache_" + tr;
+    const cachedData = localStorage.getItem(cacheKey);
+    
     if (cachedData && !isSilent && !lastStatus) {
-        const parsed = JSON.parse(cachedData);
-        renderTransaction(parsed.transaction);
+        try {
+            const parsed = JSON.parse(cachedData);
+            renderTransaction(parsed.transaction);
+        } catch(e) {}
     } else if (!isSilent && !lastStatus) {
         show('loading-card');
     }
 
     try {
-        const res = await fetch(${API_BASE}/api/track/?tr= + encodeURIComponent(tr) + &v= + Date.now() + &cf-skip-browser-warning=1, {
+        // Use a timeout to detect offline status quickly
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        const res = await fetch(API_BASE + "/api/track/?tr=" + encodeURIComponent(tr) + "&v=" + Date.now() + "&cf-skip-browser-warning=1", {
             method: 'GET',
             headers: { 'Accept': 'application/json' },
-            signal: AbortSignal.timeout(15000)
+            signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
 
         if (!res.ok) throw new Error("Offline");
 
         const data = await res.json();
         if (data.success) {
             const t = data.transaction;
-            localStorage.setItem(cache_ + tr, JSON.stringify({
+            
+            // Save to Cache
+            localStorage.setItem(cacheKey, JSON.stringify({
                 transaction: t,
                 timestamp: new Date().toLocaleString('ar-EG')
             }));
 
             const hasChanged = t.current_status !== lastStatus || t.updated_at !== lastUpdate || t.description !== lastDesc || t.title !== lastTitle || t.missing_info !== lastMissingInfo;
             if (hasChanged) {
-                const oldStatus = lastStatus;
                 lastStatus = t.current_status;
                 lastUpdate = t.updated_at;
                 lastDesc   = t.description;
                 lastTitle  = t.title;
                 lastMissingInfo = t.missing_info;
                 renderTransaction(t);
-                if (oldStatus && oldStatus !== t.current_status) notifyStatusChange(t.status_display);
             }
             
+            // Reset Offline indicators
             const banner = document.getElementById('offline-banner');
             if (banner) {
                 banner.classList.remove('active');
                 banner.style.background = ""; banner.style.color = ""; banner.style.borderColor = "";
-                banner.innerHTML = <div class="m-dot"></div> ط§ظ„ظ†ط¸ط§ظ… ظ…طھطµظ„ ط§ظ„ط¢ظ† (ط¨ط« ظ…ط¨ط§ط´ط±);
+                banner.innerHTML = '<div class="m-dot"></div> ط§ظ„ظ†ط¸ط§ظ… ظ…طھطµظ„ ط§ظ„ط¢ظ† (ط¨ط« ظ…ط¨ط§ط´ط±)';
             }
             const liveText = document.querySelector('.live-text');
             if (liveText) { liveText.textContent = "ظ…طھط§ط¨ط¹ط© ظ…ط¨ط§ط´ط±ط© ط§ظ„ط¢ظ†"; liveText.style.color = "#10b981"; }
             const liveDot = document.querySelector('.live-dot');
             if (liveDot) { liveDot.style.background = "#10b981"; liveDot.style.boxShadow = "0 0 10px #10b981"; liveDot.style.animation = "livePulse 1.5s infinite"; }
+
         } else {
             if (!isSilent) showError(data.error || 'ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ظ‡ط°ظ‡ ط§ظ„ظ…ط¹ط§ظ…ظ„ط©.');
         }
     } catch (err) {
-        console.warn("Offline Mode - Loading from Cache");
-        const cache = localStorage.getItem(cache_ + tr);
-        if (cache) {
-            const parsed = JSON.parse(cache);
-            renderTransaction(parsed.transaction);
-            const banner = document.getElementById('offline-banner');
-            if (banner) {
-                banner.innerHTML = <i class="fas fa-wifi-slash"></i> ط¹ط±ط¶ ط¢ط®ط± ط¨ظٹط§ظ†ط§طھ ظ…ط³ط¬ظ„ط© (ط§ظ„ظ†ط¸ط§ظ… ط؛ظٹط± ظ…طھطµظ„ ط­ط§ظ„ظٹط§ظ‹);
-                banner.classList.add('active');
-                banner.style.background = "rgba(239, 68, 68, 0.15)";
-                banner.style.color = "#fca5a5";
-                banner.style.borderColor = "rgba(239, 68, 68, 0.4)";
-            }
-            const liveText = document.querySelector('.live-text');
-            if (liveText) { liveText.textContent = "ط¨ظٹط§ظ†ط§طھ ظ…ط­ظپظˆط¸ط© - " + parsed.timestamp; liveText.style.color = "#94a3b8"; }
-            const liveDot = document.querySelector('.live-dot');
-            if (liveDot) { liveDot.style.background = "#94a3b8"; liveDot.style.boxShadow = "none"; liveDot.style.animation = "none"; }
+        console.warn("Offline Mode - Showing Cache");
+        
+        if (cachedData) {
+            try {
+                const parsed = JSON.parse(cachedData);
+                renderTransaction(parsed.transaction);
+                
+                const banner = document.getElementById('offline-banner');
+                if (banner) {
+                    banner.innerHTML = '<i class="fas fa-wifi-slash"></i> ط¹ط±ط¶ ط¢ط®ط± ط¨ظٹط§ظ†ط§طھ ظ…ط³ط¬ظ„ط© (ط§ظ„ظ†ط¸ط§ظ… ط؛ظٹط± ظ…طھطµظ„ ط­ط§ظ„ظٹط§ظ‹)';
+                    banner.classList.add('active');
+                    banner.style.background = "rgba(239, 68, 68, 0.15)";
+                    banner.style.color = "#fca5a5";
+                    banner.style.borderColor = "rgba(239, 68, 68, 0.4)";
+                }
+                
+                const liveText = document.querySelector('.live-text');
+                if (liveText) {
+                    liveText.textContent = "ط¨ظٹط§ظ†ط§طھ ظ…ط¤ط±ط´ظپط© - " + parsed.timestamp;
+                    liveText.style.color = "#94a3b8";
+                }
+                const liveDot = document.querySelector('.live-dot');
+                if (liveDot) {
+                    liveDot.style.background = "#94a3b8";
+                    liveDot.style.boxShadow = "none";
+                    liveDot.style.animation = "none";
+                }
+            } catch(e) {}
         } else {
             if (!isSilent) show('maintenance-card');
         }
@@ -796,6 +820,8 @@ setInterval(() => { loadTracking(true); }, 10000);
 </script>
 </body>
 </html>
+
+
 
 
 
