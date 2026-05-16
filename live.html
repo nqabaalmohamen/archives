@@ -661,8 +661,7 @@ async function loadTracking(isSilent = false) {
         const res = await fetch(`${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}&v=${Date.now()}&cf-skip-browser-warning=1`, {
             method: 'GET',
             headers: { 
-                'Accept': 'application/json',
-                'cf-skip-browser-warning': 'true'
+                'Accept': 'application/json'
             },
             signal: AbortSignal.timeout(10000)
         });
