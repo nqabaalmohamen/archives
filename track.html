@@ -412,7 +412,7 @@
                 <i class="fas fa-balance-scale"></i>
             </div>
             <h1>نقابة المحامين بالفيوم</h1>
-            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V5.0 - Live Realtime)</p>
+            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V5.5 - Live Realtime)</p>
         </div>
 
         <!-- تنبيه العمل في الوضع المباشر -->
@@ -547,12 +547,13 @@ const API_BASE = "https://symphony-preference-nominated-playing.trycloudflare.co
 
 const steps = [
     { key: 'received',     label: 'تم الاستلام',    sub: 'تم تسجيل المعاملة بنجاح',    icon: 'fa-inbox' },
+    { key: 'sent_to_dept', label: 'القسم المختص',  sub: 'تم توجيه المعاملة للإدارة المختصة', icon: 'fa-paper-plane' },
     { key: 'under_review', label: 'تحت المراجعة',   sub: 'دراسة وفحص المعاملة',         icon: 'fa-search' },
     { key: 'in_progress',  label: 'جاري التنفيذ',   sub: 'اتخاذ الإجراءات اللازمة',      icon: 'fa-cog' },
     { key: 'completed',    label: 'تم الانتهاء',    sub: 'جاهزة للاستلام / منتهية',     icon: 'fa-check' },
 ];
 
-const stepOrder = { received: 0, under_review: 1, in_progress: 2, completed: 3 };
+const stepOrder = { received: 0, sent_to_dept: 1, under_review: 2, in_progress: 3, completed: 4 };
 
 function getStepIndex(status) {
     return stepOrder[status] ?? -1;

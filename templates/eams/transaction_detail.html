@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}متابعة معاملة: {{ transaction.tracking_number }} | نظام الأرشيف{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Header Section -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; gap: 20px; flex-wrap: wrap;">
+        <div style="text-align: right;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                <span style="background: #f1f5f9; color: #000; padding: 6px 18px; border-radius: 12px; font-family: monospace; font-weight: 900; font-size: 18px; border: 2px solid #000;">
+                    {{ transaction.tracking_number }}
+                </span>
+                <h1 style="font-size: 28px; font-weight: 900; color: #000; margin: 0;">{{ transaction.title }}</h1>
+            </div>
+            <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                <span style="background: #e0f2fe; color: #0369a1; padding: 10px 20px; border-radius: 12px; font-weight: 800; font-size: 16px; border: 2px solid #0369a1; display: inline-flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-user" style="font-size: 20px;"></i>
+                    <span>صاحب الشأن:</span>
+                    <span style="color: #000; font-size: 26px; font-weight: 900;">{{ transaction.client_name }}</span>
+                </span>
+                {% if transaction.registration_number %}
+                <span style="background: #f1f5f9; color: #475569; padding: 6px 14px; border-radius: 10px; font-weight: 800; font-size: 14px; border: 1px solid #cbd5e1; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-id-card"></i>
+                    <span>رقم القيد:</span>
+                    <span style="color: #000;">{{ transaction.registration_number }}</span>
+                </span>
+                {% endif %}
+            </div>
+            <p style="color: #64748b; font-size: 15px; font-weight: 700;">أنشئت في: {{ transaction.created_at|date:"Y/m/d h:i A" }} بواسطة {{ transaction.created_by.profile.full_name|default:transaction.created_by.username }}</p>
+        </div>
+        
+        <div style="display: flex; gap: 12px;">
+            <a href="{% url 'document_create' %}?transaction_id={{ transaction.id }}" class="btn btn-primary" style="padding: 12px 20px; border-radius: 14px; display: flex; align-items: center; gap: 10px; border: none; cursor: pointer; text-decoration: none; color: #fff; font-weight: 800;">
+                <i class="fas fa-file-import"></i>
+                <span>أرشفة مستند جديد لهذه المعاملة</span>
+            </a>
+            <button hx-get="{% url 'transaction_print' transaction.pk %}" hx-target="#htmxModalBody" class="btn" style="background: #1a1a2e; color: #fff; padding: 12px 20px; border-radius: 14px; display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; border: 2px solid #1a1a2e; cursor: pointer;">
+                <i class="fas fa-print"></i>
+                <span>طباعة المعاملة</span>
+            </button>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 25px;">
+        <!-- Left Side: Document History -->
+        <div>
+            <div id="document-history-container" 
+                 hx-get="{% url 'transaction_detail' transaction.pk %}" 
+                 hx-trigger="documentListChanged from:body" 
+                 hx-select="#document-history-container" 
+                 hx-swap="outerHTML">
+                <div style="background: #fff; border: 2px solid #000; border-radius: 24px; padding: 25px; margin-bottom: 25px;">
+                    <h3 style="font-weight: 900; color: #000; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">
+                        <i class="fas fa-history" style="color: #6366f1;"></i>
+                        سجل المستندات والحركات
+                    </h3>
+                    
+                    {% if documents %}
+                    <div class="timeline" style="position: relative; padding-right: 30px;">
+                        <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 4px; background: #f1f5f9; border-radius: 2px;"></div>
+                        
+                        {% for doc in documents %}
+                        <div style="position: relative; margin-bottom: 30px;">
+                            <div style="position: absolute; right: -36px; top: 0; width: 16px; height: 16px; background: #fff; border: 4px solid {% if doc.doc_type == 'incoming' %}#10b981{% elif doc.doc_type == 'outgoing' %}#f59e0b{% else %}#6366f1{% endif %}; border-radius: 50%; z-index: 1;"></div>
+                            
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                                        <span style="font-weight: 900; color: #000;">{{ doc.title }}</span>
+                                        <span class="badge" style="font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: 800; background: {% if doc.doc_type == 'incoming' %}#dcfce7; color: #166534{% elif doc.doc_type == 'outgoing' %}#fef3c7; color: #92400e{% else %}#e0f2fe; color: #0369a1{% endif %};">
+                                            {{ doc.get_doc_type_display }}
+                                        </span>
+                                    </div>
+                                    <div style="font-size: 12px; color: #64748b; font-weight: 700;">
+                                        رقم الأرشفة: {{ doc.reference_number }} | التاريخ: {{ doc.uploaded_at|date:"Y/m/d h:i A" }}
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="{% url 'document_detail' doc.pk %}" class="btn" style="background: #fff; border: 1px solid #cbd5e1; color: #475569; padding: 6px 12px; border-radius: 8px; font-size: 12px;">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="{% url 'document_download' doc.pk %}" class="btn" style="background: #f1f5f9 !important; color: #000 !important; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: 1px solid #000;">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div style="text-align: center; padding: 40px;">
+                        <div style="font-size: 40px; color: #e2e8f0; margin-bottom: 15px;"><i class="fas fa-folder-open"></i></div>
+                        <p style="color: #94a3b8; font-weight: 700;">لا توجد مستندات مرتبطة بهذه المعاملة حتى الآن.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div style="background: #fff; border: 2px solid #000; border-radius: 24px; padding: 25px;">
+                <h3 style="font-weight: 900; color: #000; margin-bottom: 15px; display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-info-circle" style="color: #6366f1;"></i>
+                    وصف المعاملة
+                </h3>
+                <div style="color: #475569; font-weight: 700; line-height: 1.6; white-space: pre-wrap;">{{ transaction.description|default:"لا يوجد وصف إضافي." }}</div>
+            </div>
+        </div>
+
+        <!-- Right Side: Status & QR -->
+        <div>
+            <!-- Status Card -->
+            <div style="background: #fff; border: 3px solid #000; border-radius: 24px; padding: 25px; margin-bottom: 25px; box-shadow: 10px 10px 0px 0px rgba(0,0,0,1);">
+                <h3 style="font-weight: 900; color: #000; margin-bottom: 20px; text-align: center;">الحالة الحالية</h3>
+                
+                <div id="status-card-inner" 
+                     hx-get="{% url 'transaction_detail' transaction.pk %}" 
+                     hx-trigger="statusChanged from:body" 
+                     hx-select="#status-card-inner" 
+                     hx-swap="outerHTML">
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <div style="font-size: 20px; font-weight: 900; color: #000; background: #f8fafc; padding: 15px; border-radius: 16px; border: 2px solid #000;">
+                            {{ transaction.get_current_status_display }}
+                        </div>
+                        <p style="font-size: 12px; color: #64748b; margin-top: 10px; font-weight: 700;">آخر تحديث: {{ transaction.updated_at|date:"Y/m/d h:i A" }}</p>
+                    </div>
+                </div>
+
+                <form hx-post="{% url 'transaction_detail' transaction.pk %}" 
+                      hx-target="#status-card-inner"
+                      hx-select="#status-card-inner"
+                      hx-swap="outerHTML"
+                      style="border-top: 2px solid #f1f5f9; padding-top: 20px;">
+                    {% csrf_token %}
+                    <label style="font-size: 13px; font-weight: 900; color: #000; margin-bottom: 10px; display: block;">تحديث الحالة يدوياً:</label>
+                    <div class="input-wrapper" style="margin-bottom: 15px;">
+                        <select name="status" class="form-control" style="font-weight: 800;">
+                            {% for code, label in status_choices %}
+                            <option value="{{ code }}" {% if transaction.current_status == code %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer;">
+                        تحديث الحالة
+                    </button>
+                </form>
+            </div>
+
+            <!-- QR Code Card (White Theme) -->
+            <div style="background: #fff !important; color: #000 !important; border-radius: 24px; padding: 25px; text-align: center; border: 3px solid #000; box-shadow: 10px 10px 0px rgba(0,0,0,0.05);">
+                <h3 style="font-weight: 900; margin-bottom: 15px; color: #000 !important;">رابط التتبع السريع (أونلاين)</h3>
+                <div style="background: #f8fafc !important; padding: 15px; border-radius: 16px; display: inline-block; margin-bottom: 15px; border: 2px solid #000;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ tracking_url|urlencode }}&bgcolor=ffffff" alt="QR Code" style="display: block;">
+                </div>
+                <p style="font-size: 13px; font-weight: 800; color: #000 !important;">امسح الكود لتتبع حالة المعاملة من أي جهاز</p>
+                <div style="background: #f1f5f9 !important; padding: 12px; border-radius: 10px; font-family: monospace; font-size: 11px; word-break: break-all; color: #000 !important; border: 1px solid #000;">
+                    {{ tracking_url }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
