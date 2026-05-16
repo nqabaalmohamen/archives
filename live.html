@@ -710,6 +710,7 @@ let lastStatus = null;
 let lastUpdate = null;
 let lastDesc   = null;
 let lastTitle  = null;
+let lastMissingInfo = null;
 
 async function loadTracking(isSilent = false) {
     const params = new URLSearchParams(window.location.search);
@@ -744,11 +745,12 @@ async function loadTracking(isSilent = false) {
         const data = await res.json();
         if (data.success) {
             const t = data.transaction;
-            // تحديث الواجهة فقط إذا تغيرت الحالة أو التاريخ أو الوصف أو العنوان
+            // تحديث الواجهة فقط إذا تغيرت الحالة أو التاريخ أو الوصف أو العنوان أو النواقص
             const hasChanged = t.current_status !== lastStatus || 
                                t.updated_at !== lastUpdate || 
                                t.description !== lastDesc || 
-                               t.title !== lastTitle;
+                               t.title !== lastTitle ||
+                               t.missing_info !== lastMissingInfo;
 
             if (hasChanged) {
                 const oldStatus = lastStatus;
@@ -756,6 +758,7 @@ async function loadTracking(isSilent = false) {
                 lastUpdate = t.updated_at;
                 lastDesc   = t.description;
                 lastTitle  = t.title;
+                lastMissingInfo = t.missing_info;
                 renderTransaction(t);
 
                 // إذا تغيرت الحالة والصفحة مفتوحة بالفعل، أظهر إشعاراً
