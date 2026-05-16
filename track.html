@@ -327,7 +327,7 @@
                 <i class="fas fa-balance-scale"></i>
             </div>
             <h1>نقابة المحامين بالفيوم</h1>
-            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V3.1 Final)</p>
+            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V4.0 - Final)</p>
         </div>
 
         <!-- إشعار الاتصال -->
@@ -440,7 +440,7 @@
 // ═══════════════════════════════════════════════════════════
 //  ⚙️  إعداد رابط الـ API  ← غيّر هذا بعد إعداد Cloudflare
 // ═══════════════════════════════════════════════════════════
-const API_BASE = "https://3ec05426c3ae9f7c-154-178-253-178.serveousercontent.com";
+const API_BASE = "https://goldfish-banked-valley.ngrok-free.dev";
 // مثال: const API_BASE = "https://archive-track.trycloudflare.com";
 // ═══════════════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════════
@@ -559,7 +559,7 @@ async function loadTracking() {
     show('loading-card');
 
     try {
-        const res = await fetch(`${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}&v=${Date.now()}`, {
+        const res = await fetch(`${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}&v=${Date.now()}&ngrok-skip-browser-warning=1`, {
             method: 'GET',
             headers: { 
                 'Accept': 'application/json'
