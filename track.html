@@ -327,7 +327,7 @@
                 <i class="fas fa-balance-scale"></i>
             </div>
             <h1>نقابة المحامين بالفيوم</h1>
-            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V2.1)</p>
+            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية (V2.2)</p>
         </div>
 
         <!-- إشعار الاتصال -->
@@ -440,7 +440,7 @@
 // ═══════════════════════════════════════════════════════════
 //  ⚙️  إعداد رابط الـ API  ← غيّر هذا بعد إعداد Cloudflare
 // ═══════════════════════════════════════════════════════════
-const API_BASE = "https://goldfish-banked-valley.ngrok-free.dev";
+const API_BASE = "https://82a2a7c58066d873-154-178-253-178.serveousercontent.com";
 // مثال: const API_BASE = "https://archive-track.trycloudflare.com";
 // ═══════════════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════════
@@ -562,8 +562,7 @@ async function loadTracking() {
         const res = await fetch(`${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}&v=${Date.now()}`, {
             method: 'GET',
             headers: { 
-                'Accept': 'application/json',
-                'ngrok-skip-browser-warning': 'true'
+                'Accept': 'application/json'
             },
             signal: AbortSignal.timeout(15000)
         });
