@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تتبع المعاملة | نقابة المحامين بالفيوم</title>
+    <meta name="description" content="بوابة تتبع المعاملات الإلكترونية - نقابة المحامين بالفيوم">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ═══════════════════════════════════════
+           ⚙️  إعداد المطوّر: ضع رابط Cloudflare Tunnel هنا
+           مثال: https://archive-track.trycloudflare.com
+        ════════════════════════════════════════ */
+
+        :root {
+            --primary:  #1a1a2e;
+            --accent:   #6366f1;
+            --gold:     #f59e0b;
+            --success:  #10b981;
+            --danger:   #ef4444;
+            --bg:       #f0f4f8;
+            --text:     #1a1a2e;
+            --muted:    #64748b;
+            --border:   #e2e8f0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        /* ══ خلفية متحركة ══ */
+        .bg-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(160deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bg-wrapper::before,
+        .bg-wrapper::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.08;
+            animation: float 8s ease-in-out infinite;
+        }
+        .bg-wrapper::before { width: 500px; height: 500px; background: #6366f1; top: -150px; right: -150px; }
+        .bg-wrapper::after  { width: 350px; height: 350px; background: #f59e0b; bottom: -100px; left: -100px; animation-delay: 3s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50%       { transform: translateY(-20px) scale(1.05); }
+        }
+
+        /* ══ الحاوية ══ */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 30px 16px 60px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ══ رأس الصفحة ══ */
+        .page-header { text-align: center; padding-top: 10px; }
+
+        .logo-circle {
+            width: 72px; height: 72px;
+            background: rgba(255,255,255,0.12);
+            border: 2px solid rgba(255,255,255,0.25);
+            border-radius: 22px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; color: #f59e0b;
+            margin: 0 auto 14px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .page-header h1  { font-size: 22px; font-weight: 900; color: #fff; margin-bottom: 4px; }
+        .page-header .subtitle { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 600; }
+
+        /* ══ حالة التحميل ══ */
+        .loading-card {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 24px;
+            padding: 50px 22px;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            display: none;
+        }
+        .loading-card.active { display: block; }
+
+        .spinner {
+            width: 50px; height: 50px;
+            border: 4px solid rgba(255,255,255,0.2);
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-card p { color: rgba(255,255,255,0.7); font-weight: 700; font-size: 15px; }
+
+        /* ══ رسالة خطأ ══ */
+        .error-card {
+            background: rgba(239,68,68,0.15);
+            border: 1.5px solid rgba(239,68,68,0.4);
+            border-radius: 24px;
+            padding: 30px 22px;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            display: none;
+        }
+        .error-card.active { display: block; }
+        .error-card .err-icon { font-size: 40px; color: #fca5a5; margin-bottom: 14px; }
+        .error-card p { color: #fca5a5; font-weight: 700; font-size: 15px; line-height: 1.7; }
+
+        /* ══ بطاقة الترحيب ══ */
+        .welcome-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px dashed rgba(255,255,255,0.2);
+            border-radius: 24px;
+            padding: 40px 22px;
+            text-align: center;
+            display: none;
+        }
+        .welcome-card.active { display: block; }
+        .welcome-card .icon { font-size: 50px; margin-bottom: 16px; opacity: 0.5; }
+        .welcome-card p { font-size: 14px; color: rgba(255,255,255,0.6); font-weight: 700; line-height: 1.8; }
+        .welcome-card p.title { font-size: 18px; color: #fff; opacity: 0.9; margin-bottom: 8px; }
+
+        /* ══ بطاقة نتيجة المعاملة ══ */
+        .result-card {
+            background: #fff;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            animation: slideUp 0.5s ease-out;
+            display: none;
+        }
+        .result-card.active { display: block; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* رأس البطاقة */
+        .card-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            padding: 22px 22px 18px;
+            text-align: center;
+        }
+        .trk-chip {
+            display: inline-block;
+            background: rgba(245,158,11,0.2);
+            border: 1.5px solid #f59e0b;
+            border-radius: 8px;
+            padding: 4px 14px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px; font-weight: 900;
+            color: #f59e0b;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .card-title { font-size: 22px; font-weight: 900; color: #fff; margin-bottom: 4px; }
+        .card-subtitle { font-size: 13px; color: rgba(255,255,255,0.55); font-weight: 600; }
+
+        /* شريط الحالة */
+        .status-bar {
+            padding: 20px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            background: #f8fafc;
+        }
+        .status-label-sm { font-size: 13px; font-weight: 900; color: #6366f1; margin-bottom: 4px; }
+        .status-time     { font-size: 11px; color: #94a3b8; font-weight: 600; }
+
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 10px 20px; border-radius: 50px;
+            font-size: 15px; font-weight: 900;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; animation: pulse 2s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50%       { transform: scale(1.4); opacity: 0.7; }
+        }
+
+        /* ألوان الحالات */
+        .s-received        { background: #e0f2fe; color: #0369a1; }
+        .s-received        .status-dot { background: #0369a1; }
+        .s-under_review    { background: #fef3c7; color: #92400e; }
+        .s-under_review    .status-dot { background: #f59e0b; }
+        .s-in_progress     { background: #fef9c3; color: #854d0e; }
+        .s-in_progress     .status-dot { background: #eab308; }
+        .s-completed       { background: #dcfce7; color: #166534; }
+        .s-completed       .status-dot { background: #22c55e; animation: none; }
+        .s-sent            { background: #ede9fe; color: #5b21b6; }
+        .s-sent            .status-dot { background: #8b5cf6; }
+        .s-received_from_other { background: #e0f2fe; color: #0369a1; }
+        .s-received_from_other .status-dot { background: #0ea5e9; }
+
+        /* ══ الـ Stepper ══ */
+        .stepper-section { padding: 20px 22px; border-bottom: 1px solid var(--border); }
+        .stepper-title {
+            font-size: 12px; font-weight: 900; color: var(--muted);
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;
+        }
+        .stepper { display: flex; flex-direction: column; gap: 0; }
+
+        .step-item {
+            display: flex; align-items: flex-start; gap: 14px;
+            position: relative;
+        }
+        .step-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 15px; top: 32px;
+            width: 2px; height: calc(100% - 16px);
+            background: var(--border);
+        }
+        .step-item.done::after  { background: #22c55e; }
+        .step-item.active::after { background: var(--border); }
+
+        .step-icon {
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; flex-shrink: 0; position: relative; z-index: 1;
+        }
+        .step-icon.done   { background: #22c55e; color: #fff; }
+        .step-icon.active { background: #6366f1; color: #fff; box-shadow: 0 0 0 4px rgba(99,102,241,0.2); }
+        .step-icon.pending{ background: #f1f5f9; color: #94a3b8; border: 2px solid #e2e8f0; }
+
+        .step-content { padding-bottom: 18px; flex: 1; }
+        .step-name { font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 2px; }
+        .step-name.pending { color: var(--muted); font-weight: 600; }
+        .step-time { font-size: 11px; color: var(--muted); font-weight: 600; }
+
+        /* ══ معلومات المعاملة ══ */
+        .info-section { padding: 18px 22px; }
+        .info-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 9px 0; border-bottom: 1px solid #f8fafc;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-key {
+            font-size: 12px; font-weight: 800; color: var(--muted);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .info-val { font-size: 13px; font-weight: 700; color: var(--text); }
+
+        .desc-box {
+            flex-direction: column; align-items: flex-start !important;
+            gap: 8px; border-top: 1px dashed #eee; padding-top: 15px; margin-top: 5px;
+        }
+        .desc-text {
+            width: 100%; white-space: pre-wrap; line-height: 1.6;
+            background: #f8fafc; padding: 12px; border-radius: 8px;
+            border: 1px solid #e2e8f0; font-size: 13px;
+        }
+
+        /* ══ تذييل البطاقة ══ */
+        .card-footer {
+            background: #f8fafc;
+            border-top: 1px solid var(--border);
+            padding: 16px 22px;
+            text-align: center;
+        }
+        .card-footer p { font-size: 12px; color: var(--muted); font-weight: 700; }
+
+        .share-btn {
+            background: none; border: 1.5px dashed var(--accent);
+            color: var(--accent); font-family: 'Cairo', sans-serif;
+            font-weight: 800; font-size: 13px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            padding: 10px; border-radius: 12px; width: 100%; margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        .share-btn:hover { background: rgba(99,102,241,0.08); }
+
+        /* ══ تذييل الصفحة ══ */
+        .page-footer { text-align: center; }
+        .page-footer p { font-size: 12px; color: rgba(255,255,255,0.3); font-weight: 600; }
+
+        /* ══ إشعار Offline ══ */
+        .offline-banner {
+            background: rgba(245,158,11,0.15);
+            border: 1.5px solid rgba(245,158,11,0.4);
+            border-radius: 14px;
+            padding: 14px 16px;
+            color: #fcd34d;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            display: none;
+        }
+        .offline-banner.active { display: flex; }
+    </style>
+</head>
+<body>
+<div class="bg-wrapper">
+    <div class="container">
+
+        <!-- رأس الصفحة -->
+        <div class="page-header">
+            <div class="logo-circle">
+                <i class="fas fa-balance-scale"></i>
+            </div>
+            <h1>نقابة المحامين بالفيوم</h1>
+            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية</p>
+        </div>
+
+        <!-- إشعار الاتصال -->
+        <div class="offline-banner" id="offline-banner">
+            <i class="fas fa-wifi" style="font-size:18px; flex-shrink:0;"></i>
+            <span>النظام غير متاح حالياً، يرجى المحاولة لاحقاً أو التواصل مع النقابة.</span>
+        </div>
+
+        <!-- حالة التحميل -->
+        <div class="loading-card active" id="loading-card">
+            <div class="spinner"></div>
+            <p>جارٍ تحميل بيانات معاملتك...</p>
+        </div>
+
+        <!-- رسالة الخطأ -->
+        <div class="error-card" id="error-card">
+            <div class="err-icon"><i class="fas fa-exclamation-circle"></i></div>
+            <p id="error-msg">حدث خطأ ما</p>
+        </div>
+
+        <!-- بطاقة الترحيب (عند الدخول بدون tr) -->
+        <div class="welcome-card" id="welcome-card">
+            <div class="icon"><i class="fas fa-qrcode"></i></div>
+            <p class="title">بوابة التتبع الذكي</p>
+            <p>فضلاً قم بمسح رمز الـ QR الموجود على إيصال المعاملة<br>لمتابعة حالة طلبك بشكل مباشر وآمن</p>
+        </div>
+
+        <!-- بطاقة المعاملة (تُعرض بعد جلب البيانات) -->
+        <div class="result-card" id="result-card">
+
+            <!-- رأس البطاقة -->
+            <div class="card-header">
+                <div class="trk-chip">
+                    <i class="fas fa-file-invoice" style="margin-left:5px; font-size:11px;"></i>
+                    المعاملة رقم <span id="r-simple-num"></span>
+                </div>
+                <div class="card-title" id="r-client-name"></div>
+                <div class="card-subtitle">
+                    <i class="fas fa-briefcase" style="margin-left:4px;"></i>
+                    الموضوع: <span id="r-title"></span>
+                </div>
+            </div>
+
+            <!-- شريط الحالة -->
+            <div class="status-bar">
+                <div>
+                    <div class="status-label-sm">حالة الطلب الآن:</div>
+                    <div class="status-time">آخر تحديث: <span id="r-updated-at"></span></div>
+                </div>
+                <div class="status-pill" id="r-status-pill">
+                    <span class="status-dot"></span>
+                    <span id="r-status-text"></span>
+                </div>
+            </div>
+
+            <!-- مراحل التقدم -->
+            <div class="stepper-section">
+                <div class="stepper-title">
+                    <i class="fas fa-route" style="margin-left:5px;"></i>
+                    مراحل المعاملة
+                </div>
+                <div class="stepper" id="stepper-container"></div>
+            </div>
+
+            <!-- المعلومات -->
+            <div class="info-section">
+                <div class="info-row">
+                    <div class="info-key"><i class="fas fa-user"></i> صاحب الشأن</div>
+                    <div class="info-val" id="i-client-name"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-key"><i class="fas fa-hashtag"></i> رقم المعاملة</div>
+                    <div class="info-val" style="font-family:monospace; color:#6366f1; font-weight:900;" id="i-tracking-num"></div>
+                </div>
+                <div class="info-row" id="i-reg-row" style="display:none;">
+                    <div class="info-key"><i class="fas fa-id-card"></i> رقم القيد</div>
+                    <div class="info-val" id="i-reg-num"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-key"><i class="fas fa-calendar"></i> تاريخ التسجيل</div>
+                    <div class="info-val" id="i-created-at"></div>
+                </div>
+                <div class="info-row desc-box" id="i-desc-row" style="display:none;">
+                    <div class="info-key"><i class="fas fa-align-right"></i> وصف المعاملة</div>
+                    <div class="desc-text" id="i-desc"></div>
+                </div>
+            </div>
+
+            <!-- تذييل البطاقة -->
+            <div class="card-footer">
+                <button class="share-btn" onclick="shareStatus()">
+                    <i class="fas fa-share-alt"></i>
+                    مشاركة حالة المعاملة
+                </button>
+                <p>
+                    <i class="fas fa-shield-alt" style="margin-left:5px; color:#6366f1;"></i>
+                    هذه المعلومات خاصة بمعاملتك فقط
+                </p>
+            </div>
+        </div>
+
+        <!-- تذييل الصفحة -->
+        <div class="page-footer">
+            <p>نقابة المحامين بالفيوم &copy; <span id="year"></span></p>
+        </div>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  ⚙️  إعداد رابط الـ API  ← غيّر هذا بعد إعداد Cloudflare
+// ═══════════════════════════════════════════════════════════
+const API_BASE = "https://independently-eds-spray-reality.trycloudflare.com";
+// مثال: const API_BASE = "https://archive-track.trycloudflare.com";
+// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+
+document.getElementById('year').textContent = new Date().getFullYear();
+
+const steps = [
+    { key: 'received',     label: 'تم الاستلام',    sub: 'تم تسجيل المعاملة بنجاح',    icon: 'fa-inbox' },
+    { key: 'under_review', label: 'تحت المراجعة',   sub: 'دراسة وفحص المعاملة',         icon: 'fa-search' },
+    { key: 'in_progress',  label: 'جاري التنفيذ',   sub: 'اتخاذ الإجراءات اللازمة',      icon: 'fa-cog' },
+    { key: 'completed',    label: 'تم الانتهاء',    sub: 'جاهزة للاستلام / منتهية',     icon: 'fa-check' },
+];
+
+const stepOrder = { received: 0, under_review: 1, in_progress: 2, completed: 3 };
+
+function getStepIndex(status) {
+    return stepOrder[status] ?? -1;
+}
+
+function buildStepper(currentStatus) {
+    const container = document.getElementById('stepper-container');
+    const currentIdx = getStepIndex(currentStatus);
+    container.innerHTML = '';
+
+    steps.forEach((step, i) => {
+        let itemClass = 'pending', iconClass = 'pending';
+        let iconFA = step.icon;
+
+        if (i < currentIdx) {
+            itemClass = 'done'; iconClass = 'done'; iconFA = 'fa-check';
+        } else if (i === currentIdx) {
+            itemClass = 'active'; iconClass = 'active'; iconFA = 'fa-check';
+        }
+
+        container.innerHTML += `
+        <div class="step-item ${itemClass}">
+            <div class="step-icon ${iconClass}">
+                <i class="fas ${iconFA}"></i>
+            </div>
+            <div class="step-content" ${i === steps.length - 1 ? 'style="padding-bottom:0;"' : ''}>
+                <div class="step-name ${itemClass === 'pending' ? 'pending' : ''}">${step.label}</div>
+                <div class="step-time">${step.sub}</div>
+            </div>
+        </div>`;
+    });
+}
+
+function show(id) {
+    ['loading-card','error-card','welcome-card','result-card'].forEach(x => {
+        const el = document.getElementById(x);
+        if (el) el.classList.remove('active');
+    });
+    const target = document.getElementById(id);
+    if (target) target.classList.add('active');
+}
+
+function showError(msg) {
+    document.getElementById('error-msg').textContent = msg;
+    show('error-card');
+}
+
+function renderTransaction(t) {
+    // رأس البطاقة
+    document.getElementById('r-simple-num').textContent  = t.simple_number;
+    document.getElementById('r-client-name').textContent = t.client_name;
+    document.getElementById('r-title').textContent       = t.title;
+    document.getElementById('r-updated-at').textContent  = t.updated_at;
+
+    // حبة الحالة
+    const pill = document.getElementById('r-status-pill');
+    pill.className = `status-pill s-${t.current_status}`;
+    pill.querySelector('.status-dot').style.cssText = '';
+    document.getElementById('r-status-text').textContent = t.status_display;
+
+    // معلومات
+    document.getElementById('i-client-name').textContent   = t.client_name;
+    document.getElementById('i-tracking-num').textContent  = t.tracking_number;
+    document.getElementById('i-created-at').textContent    = t.created_at;
+
+    if (t.registration_number) {
+        document.getElementById('i-reg-num').textContent = t.registration_number;
+        document.getElementById('i-reg-row').style.display = 'flex';
+    }
+    if (t.description) {
+        document.getElementById('i-desc').textContent = t.description;
+        document.getElementById('i-desc-row').style.display = 'flex';
+    }
+
+    buildStepper(t.current_status);
+    show('result-card');
+}
+
+async function shareStatus() {
+    const url = window.location.href;
+    if (navigator.share) {
+        navigator.share({ title: 'متابعة معاملتي', text: 'تابع حالة معاملتي في نقابة المحامين بالفيوم', url });
+    } else {
+        await navigator.clipboard.writeText(url);
+        alert('تم نسخ رابط المتابعة ✓');
+    }
+}
+
+// ══ تحميل البيانات عند فتح الصفحة ══
+async function loadTracking() {
+    const params = new URLSearchParams(window.location.search);
+    const tr = params.get('tr');
+
+    if (!tr) { show('welcome-card'); return; }
+
+    if (!API_BASE || API_BASE === 'CLOUDFLARE_TUNNEL_URL_HERE') {
+        document.getElementById('offline-banner').classList.add('active');
+        showError('لم يتم ضبط رابط النظام بعد. يرجى التواصل مع النقابة.');
+        return;
+    }
+
+    show('loading-card');
+
+    try {
+        const res = await fetch(`${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' },
+            signal: AbortSignal.timeout(15000)
+        });
+
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            showError(data.error || 'حدث خطأ أثناء تحميل البيانات.');
+            return;
+        }
+
+        const data = await res.json();
+        if (data.success) {
+            renderTransaction(data.transaction);
+        } else {
+            showError(data.error || 'لم يتم العثور على هذه المعاملة.');
+        }
+    } catch (err) {
+        document.getElementById('offline-banner').classList.add('active');
+        showError('تعذّر الوصول للنظام، يرجى المحاولة مرة أخرى أو التواصل مع النقابة.');
+    }
+}
+
+loadTracking();
+</script>
+</body>
+</html>
