@@ -38,7 +38,7 @@ python update_url.py $NewURL
 
 Write-Host "Pushing to GitHub..."
 git add .
-git commit -m "V12.0 FINAL: Safe deployment using $NewURL"
+git commit -m "V12.1 FINAL: Safe deployment using $NewURL"
 git push origin main --force
 
 Write-Host ""
