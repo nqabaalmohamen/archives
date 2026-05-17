@@ -7,7 +7,7 @@ for f in files:
         with open(f, 'r', encoding='utf-8') as file:
             content = file.read()
             
-        content = content.replace("V5.5", "V12.1")
+        content = content.replace("V12.1", "V12.2")
         
         with open(f, 'w', encoding='utf-8') as file:
             file.write(content)

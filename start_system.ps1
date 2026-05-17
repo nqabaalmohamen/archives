@@ -40,6 +40,7 @@ Write-Host "Pushing to GitHub..."
 git add .
 git commit -m "V12.1 FINAL: Safe deployment using $NewURL"
 git push origin main --force
+git push origin main:gh-pages --force
 
 Write-Host ""
 Write-Host "===============================================" -ForegroundColor Green

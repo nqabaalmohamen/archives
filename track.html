@@ -546,7 +546,7 @@
 
         <!-- رقم الإصدار في أسفل الصفحة -->
         <div style="text-align: center; margin-top: 25px; padding-bottom: 20px; color: rgba(255,255,255,0.3); font-size: 11px; font-weight: 800; font-family: sans-serif;">
-            V12.1
+            V12.2
         </div>
     </div>
 </div>
@@ -706,6 +706,7 @@ async function shareStatus() {
 }
 
 // ══ تحميل البيانات عند فتح الصفحة ══
+
 let lastStatus = null;
 let lastUpdate = null;
 let lastDesc   = null;
@@ -718,83 +719,99 @@ async function loadTracking(isSilent = false) {
 
     if (!tr) { show('welcome-card'); return; }
 
-    if (!API_BASE || API_BASE === 'CLOUDFLARE_TUNNEL_URL_HERE') {
-        show('maintenance-card');
-        return;
+    // Check cache first to prevent flickering
+    const cacheKey = "cache_" + tr;
+    const cachedData = localStorage.getItem(cacheKey);
+    
+    if (cachedData && !isSilent && !lastStatus) {
+        try {
+            const parsed = JSON.parse(cachedData);
+            renderTransaction(parsed.transaction);
+        } catch(e) {}
+    } else if (!isSilent && !lastStatus) {
+        show('loading-card');
     }
 
-    if (!isSilent) show('loading-card');
-
     try {
-        const res = await fetch(`${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}&v=${Date.now()}&cf-skip-browser-warning=1`, {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        const res = await fetch(API_BASE + "/api/track/?tr=" + encodeURIComponent(tr) + "&v=" + Date.now() + "&cf-skip-browser-warning=1", {
             method: 'GET',
-            headers: { 
-                'Accept': 'application/json'
-            },
-            signal: AbortSignal.timeout(30000)
+            headers: { 'Accept': 'application/json' },
+            signal: controller.signal
         });
 
-        if (!res.ok) {
-            if (!isSilent) {
-                const data = await res.json().catch(() => ({}));
-                showError(data.error || 'حدث خطأ أثناء تحميل البيانات.');
-            }
-            return;
-        }
+        clearTimeout(timeoutId);
+
+        if (!res.ok) throw new Error("Offline");
 
         const data = await res.json();
         if (data.success) {
             const t = data.transaction;
-            // تحديث الواجهة فقط إذا تغيرت الحالة أو التاريخ أو الوصف أو العنوان أو النواقص
-            const hasChanged = t.current_status !== lastStatus || 
-                               t.updated_at !== lastUpdate || 
-                               t.description !== lastDesc || 
-                               t.title !== lastTitle ||
-                               t.missing_info !== lastMissingInfo;
+            
+            localStorage.setItem(cacheKey, JSON.stringify({
+                transaction: t,
+                timestamp: new Date().toLocaleString('ar-EG')
+            }));
 
+            const hasChanged = t.current_status !== lastStatus || t.updated_at !== lastUpdate || t.description !== lastDesc || t.title !== lastTitle || t.missing_info !== lastMissingInfo;
             if (hasChanged) {
-                const oldStatus = lastStatus;
                 lastStatus = t.current_status;
                 lastUpdate = t.updated_at;
                 lastDesc   = t.description;
                 lastTitle  = t.title;
                 lastMissingInfo = t.missing_info;
                 renderTransaction(t);
-
-                // إذا تغيرت الحالة والصفحة مفتوحة بالفعل، أظهر إشعاراً
-                if (oldStatus && oldStatus !== t.current_status) {
-                    notifyStatusChange(t.status_display);
-                }
-
-                if (isSilent) {
-                    console.log("Data Updated Live!");
-                }
             }
+            
             const banner = document.getElementById('offline-banner');
-            if (banner) banner.classList.remove('active');
+            if (banner) {
+                banner.classList.remove('active');
+                banner.style.display = 'none';
+            }
+            const liveText = document.querySelector('.live-text');
+            if (liveText) { liveText.textContent = "متابعة مباشرة الآن"; liveText.style.color = "#10b981"; }
+            const liveDot = document.querySelector('.live-dot');
+            if (liveDot) { liveDot.style.background = "#10b981"; liveDot.style.boxShadow = "0 0 10px #10b981"; liveDot.style.animation = "livePulse 1.5s infinite"; }
+
         } else {
             if (!isSilent) showError(data.error || 'لم يتم العثور على هذه المعاملة.');
         }
     } catch (err) {
-        console.error("Fetch Error:", err);
-        if (!isSilent) {
-            show('maintenance-card');
-            // إظهار سبب الخطأ للدي باج
-            const errDetail = document.getElementById('error-detail');
-            if (errDetail) errDetail.textContent = `Error: ${err.message}`;
+        console.warn("Offline Mode - Showing Cache");
+        
+        if (cachedData) {
+            try {
+                const parsed = JSON.parse(cachedData);
+                renderTransaction(parsed.transaction);
+                
+                const banner = document.getElementById('offline-banner');
+                if (banner) {
+                    banner.classList.remove('active');
+                    banner.style.display = 'none';
+                }
+                
+                const liveText = document.querySelector('.live-text');
+                if (liveText) {
+                    liveText.textContent = "بيانات مؤرشفة - " + parsed.timestamp;
+                    liveText.style.color = "#94a3b8";
+                }
+                const liveDot = document.querySelector('.live-dot');
+                if (liveDot) {
+                    liveDot.style.background = "#94a3b8";
+                    liveDot.style.boxShadow = "none";
+                    liveDot.style.animation = "none";
+                }
+            } catch(e) {}
         } else {
-            console.warn("Live update failed, will retry...");
+            if (!isSilent) show('maintenance-card');
         }
     }
 }
-
-// تحميل أولي
 loadTracking();
+setInterval(() => { loadTracking(true); }, 10000);
 
-// نبض التحديث (كل 5 ثوانٍ)
-setInterval(() => {
-    loadTracking(true);
-}, 5000);
 </script>
 </body>
 </html>
