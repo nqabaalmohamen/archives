@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -10,10 +10,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
-           âڑ™ï¸ڈ  ط¥ط¹ط¯ط§ط¯ ط§ظ„ظ…ط·ظˆظ‘ط±: ط¶ط¹ ط±ط§ط¨ط· Cloudflare Tunnel ظ‡ظ†ط§
-           ظ…ط«ط§ظ„: https://limousines-fog-barrel-director.trycloudflare.com
-        â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
+        /* ═══════════════════════════════════════
+           ⚙️  إعداد المطوّر: ضع رابط Cloudflare Tunnel هنا
+           مثال: https://archive-track.trycloudflare.com
+        ════════════════════════════════════════ */
 
         :root {
             --primary:  #1a1a2e;
@@ -38,7 +38,7 @@
             overflow-x: hidden;
         }
 
-        /* â•گâ•گ ط§ظ„طھط­ط³ظٹظ†ط§طھ ط§ظ„ط¬ظ…ط§ظ„ظٹط© â•گâ•گ */
+        /* ══ التحسينات الجمالية ══ */
         .glass-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(15px);
@@ -48,7 +48,7 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.2);
         }
 
-        /* â•گâ•گ ط®ظ„ظپظٹط© ظ…طھط­ط±ظƒط© â•گâ•گ */
+        /* ══ خلفية متحركة ══ */
         .bg-wrapper {
             min-height: 100vh;
             background: linear-gradient(160deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
@@ -72,7 +72,7 @@
             50%       { transform: translateY(-20px) scale(1.05); }
         }
 
-        /* â•گâ•گ ط§ظ„ط­ط§ظˆظٹط© â•گâ•گ */
+        /* ══ الحاوية ══ */
         .container {
             position: relative;
             z-index: 1;
@@ -84,7 +84,7 @@
             gap: 20px;
         }
 
-        /* â•گâ•گ ط±ط£ط³ ط§ظ„طµظپط­ط© â•گâ•گ */
+        /* ══ رأس الصفحة ══ */
         .page-header { text-align: center; padding-top: 10px; }
 
         .logo-circle {
@@ -101,7 +101,7 @@
         .page-header h1  { font-size: 22px; font-weight: 900; color: #fff; margin-bottom: 4px; }
         .page-header .subtitle { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 600; }
 
-        /* â•گâ•گ ط­ط§ظ„ط© ط§ظ„طھط­ظ…ظٹظ„ â•گâ•گ */
+        /* ══ حالة التحميل ══ */
         .loading-card {
             background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.15);
@@ -125,7 +125,7 @@
 
         .loading-card p { color: rgba(255,255,255,0.7); font-weight: 700; font-size: 15px; }
 
-        /* â•گâ•گ ط±ط³ط§ظ„ط© ط®ط·ط£ ظˆظ†ط¸ط§ظ… ط؛ظٹط± ظ…طھط§ط­ (Premium) â•گâ•گ */
+        /* ══ رسالة خطأ ونظام غير متاح (Premium) ══ */
         .maintenance-card {
             background: rgba(255, 255, 255, 0.07);
             backdrop-filter: blur(25px);
@@ -181,7 +181,7 @@
         .error-card .err-icon { font-size: 40px; color: #fca5a5; margin-bottom: 14px; }
         .error-card p { color: #fca5a5; font-weight: 700; font-size: 15px; line-height: 1.7; }
 
-        /* â•گâ•گ ط¨ط·ط§ظ‚ط© ط§ظ„طھط±ط­ظٹط¨ â•گâ•گ */
+        /* ══ بطاقة الترحيب ══ */
         .welcome-card {
             background: rgba(255,255,255,0.06);
             border: 1px dashed rgba(255,255,255,0.2);
@@ -195,7 +195,7 @@
         .welcome-card p { font-size: 14px; color: rgba(255,255,255,0.6); font-weight: 700; line-height: 1.8; }
         .welcome-card p.title { font-size: 18px; color: #fff; opacity: 0.9; margin-bottom: 8px; }
 
-        /* â•گâ•گ ط¨ط·ط§ظ‚ط© ظ†طھظٹط¬ط© ط§ظ„ظ…ط¹ط§ظ…ظ„ط© â•گâ•گ */
+        /* ══ بطاقة نتيجة المعاملة ══ */
         .result-card {
             background: #fff;
             border-radius: 28px;
@@ -211,7 +211,7 @@
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* ط±ط£ط³ ط§ظ„ط¨ط·ط§ظ‚ط© */
+        /* رأس البطاقة */
         .card-header {
             background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
             padding: 22px 22px 18px;
@@ -232,7 +232,7 @@
         .card-title { font-size: 22px; font-weight: 900; color: #fff; margin-bottom: 4px; }
         .card-subtitle { font-size: 13px; color: rgba(255,255,255,0.55); font-weight: 600; }
 
-        /* ط´ط±ظٹط· ط§ظ„ط­ط§ظ„ط© */
+        /* شريط الحالة */
         .status-bar {
             padding: 20px 22px;
             display: flex;
@@ -257,7 +257,7 @@
             50%       { transform: scale(1.4); opacity: 0.7; }
         }
 
-        /* ط£ظ„ظˆط§ظ† ط§ظ„ط­ط§ظ„ط§طھ */
+        /* ألوان الحالات */
         .s-received        { background: #e0f2fe; color: #0369a1; }
         .s-received        .status-dot { background: #0369a1; }
         .s-sent_to_dept    { background: #ede9fe; color: #5b21b6; }
@@ -273,7 +273,7 @@
         .s-received_from_other { background: #e0f2fe; color: #0369a1; }
         .s-received_from_other .status-dot { background: #0ea5e9; }
 
-        /* â•گâ•گ ط§ظ„ظ€ Stepper â•گâ•گ */
+        /* ══ الـ Stepper ══ */
         .stepper-section { padding: 20px 22px; border-bottom: 1px solid var(--border); }
         .stepper-title {
             font-size: 12px; font-weight: 900; color: var(--muted);
@@ -309,7 +309,7 @@
         .step-name.pending { color: var(--muted); font-weight: 600; }
         .step-time { font-size: 11px; color: var(--muted); font-weight: 600; }
 
-        /* â•گâ•گ ظ…ط¤ط´ط± ط§ظ„ظ…طھط§ط¨ط¹ط© ط§ظ„ظ…ط¨ط§ط´ط±ط© â•گâ•گ */
+        /* ══ مؤشر المتابعة المباشرة ══ */
         .live-status {
             display: flex;
             align-items: center;
@@ -341,7 +341,7 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        /* â•گâ•گ ظ…ط¹ظ„ظˆظ…ط§طھ ط§ظ„ظ…ط¹ط§ظ…ظ„ط© â•گâ•گ */
+        /* ══ معلومات المعاملة ══ */
         .info-section { padding: 18px 22px; }
         .info-row {
             display: flex; justify-content: space-between; align-items: center;
@@ -364,7 +364,7 @@
             border: 1px solid #e2e8f0; font-size: 13px;
         }
 
-        /* â•گâ•گ طھط°ظٹظٹظ„ ط§ظ„ط¨ط·ط§ظ‚ط© â•گâ•گ */
+        /* ══ تذييل البطاقة ══ */
         .card-footer {
             background: #f8fafc;
             border-top: 1px solid var(--border);
@@ -383,11 +383,11 @@
         }
         .share-btn:hover { background: rgba(99,102,241,0.08); }
 
-        /* â•گâ•گ طھط°ظٹظٹظ„ ط§ظ„طµظپط­ط© â•گâ•گ */
+        /* ══ تذييل الصفحة ══ */
         .page-footer { text-align: center; }
         .page-footer p { font-size: 12px; color: rgba(255,255,255,0.3); font-weight: 600; }
 
-        /* â•گâ•گ ط¥ط´ط¹ط§ط± Offline â•گâ•گ */
+        /* ══ إشعار Offline ══ */
         .offline-banner {
             background: rgba(245,158,11,0.15);
             border: 1.5px solid rgba(245,158,11,0.4);
@@ -408,7 +408,7 @@
 <div class="bg-wrapper">
     <div class="container">
 
-        <!-- ط±ط£ط³ ط§ظ„طµظپط­ط© -->
+        <!-- رأس الصفحة -->
         <div class="page-header">
             <div class="logo-circle">
                 <i class="fas fa-balance-scale"></i>
@@ -417,52 +417,52 @@
             <p class="subtitle">بوابة تتبع المعاملات الإلكترونية</p>
         </div>
 
-        <!-- طھظ†ط¨ظٹظ‡ ط§ظ„ط¹ظ…ظ„ ظپظٹ ط§ظ„ظˆط¶ط¹ ط§ظ„ظ…ط¨ط§ط´ط± -->
+        <!-- تنبيه العمل في الوضع المباشر -->
         <div class="offline-banner" id="offline-banner">
             <div class="m-dot"></div> النظام متصل الآن (بث مباشر)
         </div>
 
-        <!-- ظˆط§ط¬ظ‡ط© ط§ظ„ظ†ط¸ط§ظ… ط؛ظٹط± ظ…طھط§ط­ (Premium) -->
+        <!-- واجهة النظام غير متاح (Premium) -->
         <div class="maintenance-card" id="maintenance-card">
             <div class="m-icon"><i class="fas fa-balance-scale"></i></div>
             <div class="m-status"><div class="m-dot"></div> Offline</div>
             <h2>نقابة المحامين بالفيوم</h2>
             <p>
-                النظام غير متاح حالياًطŒ ظٹط±ط¬ظ‰ ط§ظ„ظ…ط­ط§ظˆظ„ط© ظ„ط§ط­ظ‚ط§ظ‹ ط£ظˆ ط§ظ„طھظˆط§طµظ„ ظ…ط¹ ط§ظ„ظ†ظ‚ط§ط¨ط©.<br>
-                <span class="description">تعذّر الوصول للنظامطŒ ظٹط±ط¬ظ‰ ط§ظ„ظ…ط­ط§ظˆظ„ط© ظ…ط±ط© ط£ط®ط±ظ‰ ط£ظˆ ط§ظ„طھظˆط§طµظ„ ظ…ط¹ ط§ظ„ظ†ظ‚ط§ط¨ط©.</span>
+                النظام غير متاح حالياً، يرجى المحاولة لاحقاً أو التواصل مع النقابة.<br>
+                <span class="description">تعذّر الوصول للنظام، يرجى المحاولة مرة أخرى أو التواصل مع النقابة.</span>
             </p>
             <button class="retry-btn" onclick="location.reload()">
                 <i class="fas fa-sync-alt"></i> إعادة المحاولة
             </button>
         </div>
 
-        <!-- ط­ط§ظ„ط© ط§ظ„طھط­ظ…ظٹظ„ -->
+        <!-- حالة التحميل -->
         <div class="loading-card active" id="loading-card">
             <div class="spinner"></div>
             <p>جارٍ تحميل بيانات معاملتك...</p>
         </div>
 
-        <!-- ط±ط³ط§ظ„ط© ط§ظ„ط®ط·ط£ -->
+        <!-- رسالة الخطأ -->
         <div class="error-card" id="error-card">
             <div class="err-icon"><i class="fas fa-exclamation-circle"></i></div>
             <p id="error-msg">حدث خطأ ما</p>
         </div>
 
-        <!-- ط¨ط·ط§ظ‚ط© ط§ظ„طھط±ط­ظٹط¨ (ط¹ظ†ط¯ ط§ظ„ط¯ط®ظˆظ„ ط¨ط¯ظˆظ† tr) -->
+        <!-- بطاقة الترحيب (عند الدخول بدون tr) -->
         <div class="welcome-card" id="welcome-card">
             <div class="icon"><i class="fas fa-qrcode"></i></div>
             <p class="title">بوابة التتبع الذكي</p>
-            <p>فضلاً قم بمسح رمز الـ QR ط§ظ„ظ…ظˆط¬ظˆط¯ ط¹ظ„ظ‰ ط¥ظٹطµط§ظ„ ط§ظ„ظ…ط¹ط§ظ…ظ„ط©<br>ظ„ظ…طھط§ط¨ط¹ط© ط­ط§ظ„ط© ط·ظ„ط¨ظƒ ط¨ط´ظƒظ„ ظ…ط¨ط§ط´ط± ظˆط¢ظ…ظ†</p>
+            <p>فضلاً قم بمسح رمز الـ QR الموجود على إيصال المعاملة<br>لمتابعة حالة طلبك بشكل مباشر وآمن</p>
         </div>
 
-        <!-- ط¨ط·ط§ظ‚ط© ط§ظ„ظ…ط¹ط§ظ…ظ„ط© (طھظڈط¹ط±ط¶ ط¨ط¹ط¯ ط¬ظ„ط¨ ط§ظ„ط¨ظٹط§ظ†ط§طھ) -->
+        <!-- بطاقة المعاملة (تُعرض بعد جلب البيانات) -->
         <div class="result-card" id="result-card">
             <div class="live-status" style="margin-top: 15px;">
                 <div class="live-dot"></div>
                 <div class="live-text">متابعة مباشرة الآن</div>
             </div>
 
-            <!-- طھظ†ط¨ظٹظ‡ ط§ظ„ظ†ظˆط§ظ‚طµ -->
+            <!-- تنبيه النواقص -->
             <div id="missing-info-alert" style="display:none; padding: 20px; border-bottom: 1px solid #fee2e2;">
                 <div style="display: flex; gap: 15px; align-items: flex-start; background: #fff1f2; padding: 15px; border-radius: 15px; border: 1.5px solid #fda4af;">
                     <i class="fas fa-exclamation-circle" style="color:#e11d48; font-size:20px; margin-top:2px;"></i>
@@ -473,7 +473,7 @@
                 </div>
             </div>
 
-            <!-- ط±ط£ط³ ط§ظ„ط¨ط·ط§ظ‚ط© -->
+            <!-- رأس البطاقة -->
             <div class="card-header">
                 <div class="trk-chip">
                     <i class="fas fa-file-invoice" style="margin-left:5px; font-size:11px;"></i>
@@ -486,7 +486,7 @@
                 </div>
             </div>
 
-            <!-- ط´ط±ظٹط· ط§ظ„ط­ط§ظ„ط© -->
+            <!-- شريط الحالة -->
             <div class="status-bar">
                 <div>
                     <div class="status-label-sm">حالة الطلب الآن:</div>
@@ -498,7 +498,7 @@
                 </div>
             </div>
 
-            <!-- ظ…ط±ط§ط­ظ„ ط§ظ„طھظ‚ط¯ظ… -->
+            <!-- مراحل التقدم -->
             <div class="stepper-section">
                 <div class="stepper-title">
                     <i class="fas fa-route" style="margin-left:5px;"></i>
@@ -507,7 +507,7 @@
                 <div class="stepper" id="stepper-container"></div>
             </div>
 
-            <!-- ط§ظ„ظ…ط¹ظ„ظˆظ…ط§طھ -->
+            <!-- المعلومات -->
             <div class="info-section">
                 <div class="info-row">
                     <div class="info-key"><i class="fas fa-user"></i> صاحب الشأن</div>
@@ -531,7 +531,7 @@
                 </div>
             </div>
 
-            <!-- طھط°ظٹظٹظ„ ط§ظ„ط¨ط·ط§ظ‚ط© -->
+            <!-- تذييل البطاقة -->
             <div class="card-footer">
                 <button class="share-btn" onclick="shareStatus()">
                     <i class="fas fa-share-alt"></i>
@@ -544,7 +544,7 @@
             </div>
         </div>
 
-        <!-- ط±ظ‚ظ… ط§ظ„ط¥طµط¯ط§ط± ظپظٹ ط£ط³ظپظ„ ط§ظ„طµظپط­ط© -->
+        <!-- رقم الإصدار في أسفل الصفحة -->
         <div style="text-align: center; margin-top: 25px; padding-bottom: 20px; color: rgba(255,255,255,0.3); font-size: 11px; font-weight: 800; font-family: sans-serif;">
             V12.1
         </div>
@@ -552,13 +552,13 @@
 </div>
 
 <script>
-// â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
-//  âڑ™ï¸ڈ  ط¥ط¹ط¯ط§ط¯ ط±ط§ط¨ط· ط§ظ„ظ€ API  â†گ ط؛ظٹظ‘ط± ظ‡ط°ط§ ط¨ط¹ط¯ ط¥ط¹ط¯ط§ط¯ Cloudflare
-// â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
-const API_BASE = "https://limousines-fog-barrel-director.trycloudflare.com";
-// ظ…ط«ط§ظ„: const API_BASE = "https://limousines-fog-barrel-director.trycloudflare.com";
-// â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
-// â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+// ═══════════════════════════════════════════════════════════
+//  ⚙️  إعداد رابط الـ API  ← غيّر هذا بعد إعداد Cloudflare
+// ═══════════════════════════════════════════════════════════
+const API_BASE = "https://symphony-preference-nominated-playing.trycloudflare.com";
+// مثال: const API_BASE = "https://archive-track.trycloudflare.com";
+// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 
 
 
@@ -566,8 +566,8 @@ const steps = [
     { key: 'received',     label: 'تم الاستلام',    sub: 'تم تسجيل المعاملة بنجاح',    icon: 'fa-inbox' },
     { key: 'sent_to_dept', label: 'تم الإرسال للقسم المختص',  sub: 'تم توجيه المعاملة للإدارة المختصة', icon: 'fa-paper-plane' },
     { key: 'under_review', label: 'تحت المراجعة',   sub: 'دراسة وفحص المعاملة',         icon: 'fa-search' },
-    { key: 'in_progress',  label: 'جاري التنفيذ',   sub: 'ط§طھط®ط§ط° ط§ظ„ط¥ط¬ط±ط§ط،ط§طھ ط§ظ„ظ„ط§ط²ظ…ط©',      icon: 'fa-cog' },
-    { key: 'completed',    label: 'طھظ… ط§ظ„ط§ظ†طھظ‡ط§ط،',    sub: 'جاهزة للاستلام / منتهية',     icon: 'fa-check' },
+    { key: 'in_progress',  label: 'جاري التنفيذ',   sub: 'اتخاذ الإجراءات اللازمة',      icon: 'fa-cog' },
+    { key: 'completed',    label: 'تم الانتهاء',    sub: 'جاهزة للاستلام / منتهية',     icon: 'fa-check' },
 ];
 
 const stepOrder = { received: 0, sent_to_dept: 1, under_review: 2, in_progress: 3, completed: 4 };
@@ -614,7 +614,7 @@ function show(id) {
 }
 
 function notifyStatusChange(newStatusText) {
-    // ط¥ط´ط¹ط§ط± ط¨ط³ظٹط·
+    // إشعار بسيط
     const toast = document.createElement('div');
     toast.style.cssText = `
         position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
@@ -623,10 +623,10 @@ function notifyStatusChange(newStatusText) {
         display: flex; align-items: center; gap: 10px; border: 2px solid #6366f1;
         animation: slideDown 0.5s ease-out;
     `;
-    toast.innerHTML = `<i class="fas fa-bell" style="color:#f59e0b;"></i> طھظ… طھط­ط¯ظٹط« ط­ط§ظ„ط© ظ…ط¹ط§ظ…ظ„طھظƒظ… ط¥ظ„ظ‰: ${newStatusText}`;
+    toast.innerHTML = `<i class="fas fa-bell" style="color:#f59e0b;"></i> تم تحديث حالة معاملتكم إلى: ${newStatusText}`;
     document.body.appendChild(toast);
     
-    // طµظˆطھ طھظ†ط¨ظٹظ‡ ط®ظپظٹظپ
+    // صوت تنبيه خفيف
     try {
         const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
         audio.volume = 0.5;
@@ -645,19 +645,19 @@ function showError(msg) {
 }
 
 function renderTransaction(t) {
-    // ط±ط£ط³ ط§ظ„ط¨ط·ط§ظ‚ط©
+    // رأس البطاقة
     document.getElementById('r-simple-num').textContent  = t.simple_number;
     document.getElementById('r-client-name').textContent = t.client_name;
     document.getElementById('r-title').textContent       = t.title;
     document.getElementById('r-updated-at').textContent  = t.updated_at;
 
-    // ط­ط¨ط© ط§ظ„ط­ط§ظ„ط©
+    // حبة الحالة
     const pill = document.getElementById('r-status-pill');
     pill.className = `status-pill s-${t.current_status}`;
     pill.querySelector('.status-dot').style.cssText = '';
     document.getElementById('r-status-text').textContent = t.status_display;
 
-    // ظ…ط¹ظ„ظˆظ…ط§طھ
+    // معلومات
     document.getElementById('i-client-name').textContent   = t.client_name;
     document.getElementById('i-tracking-num').textContent  = t.tracking_number;
     document.getElementById('i-created-at').textContent    = t.created_at;
@@ -680,7 +680,7 @@ function renderTransaction(t) {
 
     buildStepper(t.current_status);
 
-    // طھظ†ط¨ظٹظ‡ ط§ظ„ظ†ظˆط§ظ‚طµ (ظٹط¸ظ‡ط± ظپظ‚ط· ظپظٹ ط­ط§ظ„ط© تحت المراجعة)
+    // تنبيه النواقص (يظهر فقط في حالة تحت المراجعة)
     const missingAlert = document.getElementById('missing-info-alert');
     const missingText = document.getElementById('missing-info-text');
     if (t.missing_info && t.current_status === 'under_review') {
@@ -698,14 +698,14 @@ function renderTransaction(t) {
 async function shareStatus() {
     const url = window.location.href;
     if (navigator.share) {
-        navigator.share({ title: 'ظ…طھط§ط¨ط¹ط© ظ…ط¹ط§ظ…ظ„طھظٹ', text: 'طھط§ط¨ط¹ ط­ط§ظ„ط© ظ…ط¹ط§ظ…ظ„طھظٹ ظپظٹ نقابة المحامين بالفيوم', url });
+        navigator.share({ title: 'متابعة معاملتي', text: 'تابع حالة معاملتي في نقابة المحامين بالفيوم', url });
     } else {
         await navigator.clipboard.writeText(url);
-        alert('طھظ… ظ†ط³ط® ط±ط§ط¨ط· ط§ظ„ظ…طھط§ط¨ط¹ط© âœ“');
+        alert('تم نسخ رابط المتابعة ✓');
     }
 }
 
-// â•گâ•گ طھط­ظ…ظٹظ„ ط§ظ„ط¨ظٹط§ظ†ط§طھ ط¹ظ†ط¯ ظپطھط­ ط§ظ„طµظپط­ط© â•گâ•گ
+// ══ تحميل البيانات عند فتح الصفحة ══
 let lastStatus = null;
 let lastUpdate = null;
 let lastDesc   = null;
@@ -718,32 +718,40 @@ async function loadTracking(isSilent = false) {
 
     if (!tr) { show('welcome-card'); return; }
 
-    const cachedData = localStorage.getItem(cache_ + tr);
-    if (cachedData && !isSilent && !lastStatus) {
-        const parsed = JSON.parse(cachedData);
-        renderTransaction(parsed.transaction);
-    } else if (!isSilent && !lastStatus) {
-        show('loading-card');
+    if (!API_BASE || API_BASE === 'CLOUDFLARE_TUNNEL_URL_HERE') {
+        show('maintenance-card');
+        return;
     }
 
+    if (!isSilent) show('loading-card');
+
     try {
-        const res = await fetch(${API_BASE}/api/track/?tr= + encodeURIComponent(tr) + &v= + Date.now() + &cf-skip-browser-warning=1, {
+        const res = await fetch(`${API_BASE}/api/track/?tr=${encodeURIComponent(tr)}&v=${Date.now()}&cf-skip-browser-warning=1`, {
             method: 'GET',
-            headers: { 'Accept': 'application/json' },
-            signal: AbortSignal.timeout(15000)
+            headers: { 
+                'Accept': 'application/json'
+            },
+            signal: AbortSignal.timeout(30000)
         });
 
-        if (!res.ok) throw new Error("Offline");
+        if (!res.ok) {
+            if (!isSilent) {
+                const data = await res.json().catch(() => ({}));
+                showError(data.error || 'حدث خطأ أثناء تحميل البيانات.');
+            }
+            return;
+        }
 
         const data = await res.json();
         if (data.success) {
             const t = data.transaction;
-            localStorage.setItem(cache_ + tr, JSON.stringify({
-                transaction: t,
-                timestamp: new Date().toLocaleString('ar-EG')
-            }));
+            // تحديث الواجهة فقط إذا تغيرت الحالة أو التاريخ أو الوصف أو العنوان أو النواقص
+            const hasChanged = t.current_status !== lastStatus || 
+                               t.updated_at !== lastUpdate || 
+                               t.description !== lastDesc || 
+                               t.title !== lastTitle ||
+                               t.missing_info !== lastMissingInfo;
 
-            const hasChanged = t.current_status !== lastStatus || t.updated_at !== lastUpdate || t.description !== lastDesc || t.title !== lastTitle || t.missing_info !== lastMissingInfo;
             if (hasChanged) {
                 const oldStatus = lastStatus;
                 lastStatus = t.current_status;
@@ -752,51 +760,42 @@ async function loadTracking(isSilent = false) {
                 lastTitle  = t.title;
                 lastMissingInfo = t.missing_info;
                 renderTransaction(t);
-                if (oldStatus && oldStatus !== t.current_status) notifyStatusChange(t.status_display);
+
+                // إذا تغيرت الحالة والصفحة مفتوحة بالفعل، أظهر إشعاراً
+                if (oldStatus && oldStatus !== t.current_status) {
+                    notifyStatusChange(t.status_display);
+                }
+
+                if (isSilent) {
+                    console.log("Data Updated Live!");
+                }
             }
-            
             const banner = document.getElementById('offline-banner');
-            if (banner) {
-                banner.classList.remove('active');
-                banner.style.background = ""; banner.style.color = ""; banner.style.borderColor = "";
-                banner.innerHTML = <div class="m-dot"></div> النظام متصل الآن (بث مباشر);
-            }
-            const liveText = document.querySelector('.live-text');
-            if (liveText) { liveText.textContent = "متابعة مباشرة الآن"; liveText.style.color = "#10b981"; }
-            const liveDot = document.querySelector('.live-dot');
-            if (liveDot) { liveDot.style.background = "#10b981"; liveDot.style.boxShadow = "0 0 10px #10b981"; liveDot.style.animation = "livePulse 1.5s infinite"; }
+            if (banner) banner.classList.remove('active');
         } else {
-            if (!isSilent) showError(data.error || 'ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ظ‡ط°ظ‡ ط§ظ„ظ…ط¹ط§ظ…ظ„ط©.');
+            if (!isSilent) showError(data.error || 'لم يتم العثور على هذه المعاملة.');
         }
     } catch (err) {
-        console.warn("Offline Mode - Loading from Cache");
-        const cache = localStorage.getItem(cache_ + tr);
-        if (cache) {
-            const parsed = JSON.parse(cache);
-            renderTransaction(parsed.transaction);
-            const banner = document.getElementById('offline-banner');
-            if (banner) {
-                banner.innerHTML = <i class="fas fa-wifi-slash"></i> عرض آخر بيانات مسجلة (النظام غير متصل حالياً);
-                banner.classList.add('active');
-                banner.style.background = "rgba(239, 68, 68, 0.15)";
-                banner.style.color = "#fca5a5";
-                banner.style.borderColor = "rgba(239, 68, 68, 0.4)";
-            }
-            const liveText = document.querySelector('.live-text');
-            if (liveText) { liveText.textContent = "ط¨ظٹط§ظ†ط§طھ ظ…ط­ظپظˆط¸ط© - " + parsed.timestamp; liveText.style.color = "#94a3b8"; }
-            const liveDot = document.querySelector('.live-dot');
-            if (liveDot) { liveDot.style.background = "#94a3b8"; liveDot.style.boxShadow = "none"; liveDot.style.animation = "none"; }
+        console.error("Fetch Error:", err);
+        if (!isSilent) {
+            show('maintenance-card');
+            // إظهار سبب الخطأ للدي باج
+            const errDetail = document.getElementById('error-detail');
+            if (errDetail) errDetail.textContent = `Error: ${err.message}`;
         } else {
-            if (!isSilent) show('maintenance-card');
+            console.warn("Live update failed, will retry...");
         }
     }
 }
+
+// تحميل أولي
 loadTracking();
-setInterval(() => { loadTracking(true); }, 10000);
+
+// نبض التحديث (كل 5 ثوانٍ)
+setInterval(() => {
+    loadTracking(true);
+}, 5000);
 </script>
 </body>
 </html>
-
-
-
 
