@@ -124,8 +124,8 @@ for f in files:
         if pattern.search(content):
             content = pattern.sub(cache_js, content)
             
-            # Make sure to update the V5.5 -> V11.0 FINAL
-            content = content.replace("V5.5", "V11.0 FINAL")
+            # Make sure to update the V5.0 -> V12.0 FINAL
+            content = content.replace("V5.0", "V12.0 FINAL")
             
             with open(f, 'w', encoding='utf-8') as file:
                 file.write(content)

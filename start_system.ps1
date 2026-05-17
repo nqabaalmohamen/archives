@@ -1,7 +1,8 @@
 $ErrorActionPreference = "SilentlyContinue"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $PORT = 8002
-$Version = "V11.0 FINAL"
+
+Write-Host "--- SYSTEM STARTUP ---" -ForegroundColor Cyan
 
 Write-Host "Cleaning up..."
 Stop-Process -Name cloudflared -Force
@@ -9,7 +10,8 @@ $Existing = Get-NetTCPConnection -LocalPort $PORT
 if ($Existing) { Stop-Process -Id $Existing.OwningProcess -Force }
 
 Write-Host "Starting Django..."
-Start-Process python -ArgumentList "manage.py runserver 0.0.0.0:$PORT" -WindowStyle Minimized
+Start-Process python -ArgumentList "manage.py runserver 0.0.0.0:$PORT" -WindowStyle Normal
+
 Start-Sleep -Seconds 5
 
 $TunnelLog = "$PSScriptRoot\cloudflare_temp_log.txt"
@@ -28,31 +30,25 @@ for ($i=0; $i -lt 30; $i++) {
     Start-Sleep 1
 }
 
-if (-not $NewURL) { Write-Host "Error"; pause; exit }
-Write-Host "Link: $NewURL"
+if (-not $NewURL) { Write-Host "Error connecting to tunnel"; pause; exit }
+Write-Host "Link: $NewURL" -ForegroundColor Green
 
-$Files = @("index.html", "track.html", "live.html", "archive_system\settings.py")
-$Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+# Update URL using Python to preserve Arabic UTF-8
+python update_url.py $NewURL
 
-foreach ($f in $Files) {
-    if (Test-Path $f) {
-        # READ with proper UTF8
-        $c = [System.IO.File]::ReadAllText((Get-Item $f).FullName, $Utf8NoBom)
-        
-        $c = [regex]::Replace($c, "https://[a-zA-Z0-9-]+\.trycloudflare\.com", $NewURL)
-        $c = [regex]::Replace($c, "V[0-9]+\.[0-9]+(\s*FINAL)?(\s*\([^\)]+\))?", $Version)
-        
-        # WRITE with proper UTF8 without BOM
-        [System.IO.File]::WriteAllText((Get-Item $f).FullName, $c, $Utf8NoBom)
-    }
-}
-
+Write-Host "Pushing to GitHub..."
 git add .
-git commit -m "V11.0 FINAL: Safe deployment using $NewURL"
+git commit -m "V12.0 FINAL: Safe deployment using $NewURL"
 git push origin main --force
 
-Write-Host "LIVE: $NewURL"
-Read-Host "Press Enter to Stop"
+Write-Host ""
+Write-Host "===============================================" -ForegroundColor Green
+Write-Host "✅ SYSTEM IS NOW FULLY OPERATIONAL" -ForegroundColor Green
+Write-Host "🌐 PUBLIC LINK: $NewURL" -ForegroundColor Cyan
+Write-Host "===============================================" -ForegroundColor Green
+Write-Host ""
+Write-Host "Keep this window and the Django window open."
+Read-Host "Press Enter to SHUT DOWN everything..."
 
 Stop-Process -Name cloudflared -Force
 $Existing = Get-NetTCPConnection -LocalPort $PORT
