@@ -1072,14 +1072,14 @@ def transaction_detail(request, pk):
     transaction = get_object_or_404(Transaction, pk=pk)
     documents = transaction.documents.all().order_by('-uploaded_at')
 
-    # ✅ Online Tracking URL Logic
+    # ✅ Online Tracking URL Logic (GitHub Pages with dynamic tunnel URL)
     from django.conf import settings
+    github_pages_url = getattr(settings, 'REMOTE_TRACKING_URL', 'https://nqabaalmohamen.github.io/archives/').rstrip('/')
     tunnel_url = getattr(settings, 'CLOUDFLARE_TUNNEL_URL', '').rstrip('/')
     if tunnel_url and 'trycloudflare.com' in tunnel_url:
-        tracking_url = f"{tunnel_url}/track/?tr={transaction.secure_token}"
+        tracking_url = f"{github_pages_url}/track.html?tr={transaction.secure_token}&ap={tunnel_url}"
     else:
-        github_pages_url = getattr(settings, 'REMOTE_TRACKING_URL', 'https://nqabaalmohamen.github.io/archives/').rstrip('/')
-        tracking_url = f"{github_pages_url}/?tr={transaction.secure_token}"
+        tracking_url = f"{github_pages_url}/track.html?tr={transaction.secure_token}"
 
     context = {
         'transaction': transaction,
@@ -1129,16 +1129,14 @@ def transaction_print(request, pk):
     """عرض صفحة طباعة المعاملة في نافذة منفصلة مع QR Code"""
     transaction = get_object_or_404(Transaction, pk=pk)
     documents = transaction.documents.all().order_by('-uploaded_at')
+    # ✅ Online Tracking URL Logic (GitHub Pages with dynamic tunnel URL)
     from django.conf import settings
-
-    # ✅ استخدام رابط النفق المباشر الفعال لتفادي مشاكل الاتصال بالإنترنت ومزامنة جيت هاب
+    github_pages_url = getattr(settings, 'REMOTE_TRACKING_URL', 'https://nqabaalmohamen.github.io/archives/').rstrip('/')
     tunnel_url = getattr(settings, 'CLOUDFLARE_TUNNEL_URL', '').rstrip('/')
     if tunnel_url and 'trycloudflare.com' in tunnel_url:
-        tracking_url = f"{tunnel_url}/track/?tr={transaction.secure_token}"
+        tracking_url = f"{github_pages_url}/track.html?tr={transaction.secure_token}&ap={tunnel_url}"
     else:
-        github_pages_url = getattr(settings, 'REMOTE_TRACKING_URL',
-                                   'https://nqabaalmohamen.github.io/archives/').rstrip('/')
-        tracking_url = f"{github_pages_url}/?tr={transaction.secure_token}"
+        tracking_url = f"{github_pages_url}/track.html?tr={transaction.secure_token}"
 
     # توليد صورة QR بجودة عالية
     qr_url = (

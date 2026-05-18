@@ -719,6 +719,15 @@ async function loadTracking(isSilent = false) {
 
     if (!tr) { show('welcome-card'); return; }
 
+    // تحديد رابط الـ API بشكل ديناميكي من المعاملات لتجنب مشاكل توقف النفق
+    let activeApiBase = params.get('ap');
+    if (activeApiBase) {
+        activeApiBase = activeApiBase.replace(/\/$/, '');
+        localStorage.setItem("api_base_" + tr, activeApiBase);
+    } else {
+        activeApiBase = localStorage.getItem("api_base_" + tr) || API_BASE;
+    }
+
     // Check cache first to prevent flickering
     const cacheKey = "cache_" + tr;
     const cachedData = localStorage.getItem(cacheKey);
@@ -736,7 +745,7 @@ async function loadTracking(isSilent = false) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-        const res = await fetch(API_BASE + "/api/track/?tr=" + encodeURIComponent(tr) + "&v=" + Date.now() + "&cf-skip-browser-warning=1", {
+        const res = await fetch(activeApiBase + "/api/track/?tr=" + encodeURIComponent(tr) + "&v=" + Date.now() + "&cf-skip-browser-warning=1", {
             method: 'GET',
             headers: { 'Accept': 'application/json' },
             signal: controller.signal
