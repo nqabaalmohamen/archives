@@ -36,11 +36,13 @@ Write-Host "Link: $NewURL" -ForegroundColor Green
 # Update URL using Python to preserve Arabic UTF-8
 python update_url.py $NewURL
 
-Write-Host "Pushing to GitHub..."
-git add .
-git commit -m "V12.1 FINAL: Safe deployment using $NewURL"
-git push origin main --force
-git push origin main:gh-pages --force
+# ✅ لم نعد بحاجة لرفع التحديثات لـ GitHub في كل تشغيل للنظام بفضل التوجيه الديناميكي المبتكر (Dynamic Query URL Routing)
+# هذا يحل مشكلة توقف/بطء التشغيل بسبب حظر جدار الحماية المحلي لـ GitHub ويجعل النظام يفتح فوراً!
+# Write-Host "Pushing to GitHub..."
+# git add .
+# git commit -m "V12.1 FINAL: Safe deployment using $NewURL"
+# git push origin main --force
+# git push origin main:gh-pages --force
 
 Write-Host ""
 Write-Host "===============================================" -ForegroundColor Green
