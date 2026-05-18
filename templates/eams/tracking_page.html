@@ -557,6 +557,13 @@
             .step-icon.done, .step-icon.active { background: #6366f1 !important; color: #fff !important; -webkit-print-color-adjust: exact; }
             @page { size: auto; margin: 5mm; }
         }
+        
+        /* مؤشر المتابعة المباشرة */
+        @keyframes livePulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -586,6 +593,11 @@
                     <i class="fas fa-file-invoice" style="margin-left:5px; font-size:11px;"></i>
                     المعاملة رقم {{ transaction.simple_number }}
                 </div>
+                <!-- مؤشر المتابعة المباشرة -->
+                <div class="live-status" id="live-status-indicator" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(16, 185, 129, 0.15); border: 1.5px solid rgba(16, 185, 129, 0.3); padding: 5px 14px; border-radius: 50px; margin: 0 auto 15px; width: fit-content;">
+                    <div class="live-dot" style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; animation: livePulse 1.5s infinite;"></div>
+                    <div class="live-text" style="color: #10b981; font-size: 11px; font-weight: 800; letter-spacing: 0.5px;">متابعة مباشرة الآن</div>
+                </div>
                 <div class="card-title" style="font-size: 24px;">{{ transaction.client_name }}</div>
                 <div class="card-date">
                     <i class="fas fa-briefcase" style="margin-left:4px;"></i>
@@ -604,6 +616,17 @@
                 <div class="status-pill s-{{ transaction.current_status }}" style="font-size: 18px; padding: 10px 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                     <span class="status-dot"></span>
                     {{ transaction.get_current_status_display }}
+                </div>
+            </div>
+
+            <!-- تنبيه النواقص -->
+            <div id="missing-info-alert" style="padding: 20px; border-bottom: 1px solid #fee2e2; {% if transaction.current_status == 'under_review' and transaction.missing_info %}display: block;{% else %}display: none;{% endif %}">
+                <div style="display: flex; gap: 15px; align-items: flex-start; background: #fff1f2; padding: 15px; border-radius: 15px; border: 1.5px solid #fda4af;">
+                    <i class="fas fa-exclamation-circle" style="color:#e11d48; font-size:20px; margin-top:2px;"></i>
+                    <div>
+                        <div style="font-weight:900; color:#9f1239; font-size:14px; margin-bottom:4px;">تنبيه هـام من الإدارة:</div>
+                        <div id="missing-info-text" style="font-weight:700; color:#be123c; font-size:13px; line-height:1.5;">{{ transaction.missing_info }}</div>
+                    </div>
                 </div>
             </div>
 
@@ -841,6 +864,153 @@
             document.body.removeChild(el);
             alert('تم نسخ رابط التتبع للجهاز بنجاح!');
         }
+    }
+
+    // ==========================================
+    // ⚡ نظام المتابعة الفورية وتحديث البيانات المباشر
+    // ==========================================
+    let lastStatus = "{{ transaction.current_status }}";
+    let lastUpdate = "{{ transaction.updated_at|date:'Y/m/d - h:i A' }}";
+    let lastDesc   = `{{ transaction.description|default:''|escapejs }}`;
+    let lastTitle  = `{{ transaction.title|escapejs }}`;
+    let lastMissingInfo = `{{ transaction.missing_info|default:''|escapejs }}`;
+    const secureToken = "{{ transaction.secure_token }}";
+
+    const steps = [
+        { key: 'received',     label: 'تم الاستلام',    sub: 'تم تسجيل المعاملة بنجاح',    icon: 'fa-inbox' },
+        { key: 'under_review', label: 'تحت المراجعة',   sub: 'دراسة وفحص المعاملة',         icon: 'fa-search' },
+        { key: 'in_progress',  label: 'جاري التنفيذ',   sub: 'اتخاذ الإجراءات اللازمة',      icon: 'fa-cog' },
+        { key: 'completed',    label: 'تم الانتهاء',    sub: 'جاهزة للاستلام / منتهية',     icon: 'fa-check' },
+    ];
+
+    const stepOrder = { received: 0, under_review: 1, in_progress: 2, completed: 3 };
+
+    function getStepIndex(status) {
+        return stepOrder[status] ?? -1;
+    }
+
+    function buildStepper(currentStatus) {
+        const container = document.querySelector('.stepper');
+        if (!container) return;
+        const currentIdx = getStepIndex(currentStatus);
+        container.innerHTML = '';
+
+        steps.forEach((step, i) => {
+            let itemClass = 'pending', iconClass = 'pending';
+            let iconFA = step.icon;
+
+            if (i < currentIdx) {
+                itemClass = 'done'; iconClass = 'done'; iconFA = 'fa-check';
+            } else if (i === currentIdx) {
+                itemClass = 'active'; iconClass = 'active'; iconFA = 'fa-check';
+            }
+
+            container.innerHTML += `
+            <div class="step-item ${itemClass}">
+                <div class="step-icon ${iconClass}">
+                    <i class="fas ${iconFA}"></i>
+                </div>
+                <div class="step-content" ${i === steps.length - 1 ? 'style="padding-bottom:0;"' : ''}>
+                    <div class="step-name ${itemClass === 'pending' ? 'pending' : ''}">${step.label}</div>
+                    <div class="step-time">${step.sub}</div>
+                </div>
+            </div>`;
+        });
+    }
+
+    function notifyStatusChange(newStatusText) {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #1a1a2e; color: #fff; padding: 15px 25px; border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 10000; font-weight: 900;
+            display: flex; align-items: center; gap: 10px; border: 2px solid #6366f1;
+            direction: rtl; font-family: 'Cairo', sans-serif;
+            animation: slideDown 0.5s ease-out;
+        `;
+        toast.innerHTML = `<i class="fas fa-bell" style="color:#f59e0b;"></i> تم تحديث حالة معاملتكم إلى: ${newStatusText}`;
+        document.body.appendChild(toast);
+        
+        try {
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+            audio.volume = 0.5;
+            audio.play();
+        } catch(e){}
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => toast.remove(), 500);
+        }, 4000);
+    }
+
+    function updateTransactionUI(t) {
+        // تحديث حبة الحالة
+        const pill = document.querySelector('.status-pill');
+        if (pill) {
+            pill.className = `status-pill s-${t.current_status}`;
+            pill.innerHTML = `<span class="status-dot"></span> ${t.status_display}`;
+        }
+
+        // تحديث آخر تحديث
+        const timeContainer = document.querySelector('.status-bar div div:last-child');
+        if (timeContainer) {
+            timeContainer.textContent = `آخر تحديث: ${t.updated_at}`;
+        }
+
+        // تحديث العنوان والوصف إذا تغيروا
+        const descVal = document.querySelector('.info-row div.info-val[style*="white-space"]');
+        if (descVal && t.description) {
+            descVal.textContent = t.description;
+        }
+
+        // تحديث تنبيه النواقص
+        const alertDiv = document.getElementById('missing-info-alert');
+        const missingText = document.getElementById('missing-info-text');
+        if (alertDiv && missingText) {
+            if (t.missing_info && t.current_status === 'under_review') {
+                missingText.textContent = t.missing_info;
+                alertDiv.style.display = 'block';
+            } else {
+                alertDiv.style.display = 'none';
+            }
+        }
+
+        // تحديث الـ Stepper
+        buildStepper(t.current_status);
+    }
+
+    async function checkLiveStatus() {
+        if (!secureToken) return;
+        try {
+            const res = await fetch(`/api/track/?tr=${encodeURIComponent(secureToken)}&v=${Date.now()}`);
+            if (!res.ok) return;
+            const data = await res.json();
+            if (data.success) {
+                const t = data.transaction;
+                const hasChanged = t.current_status !== lastStatus || t.updated_at !== lastUpdate || t.description !== lastDesc || t.title !== lastTitle || t.missing_info !== lastMissingInfo;
+                if (hasChanged) {
+                    const statusUpdated = t.current_status !== lastStatus;
+                    lastStatus = t.current_status;
+                    lastUpdate = t.updated_at;
+                    lastDesc   = t.description;
+                    lastTitle  = t.title;
+                    lastMissingInfo = t.missing_info;
+
+                    updateTransactionUI(t);
+
+                    if (statusUpdated) {
+                        notifyStatusChange(t.status_display);
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("خطأ في جلب التحديث المباشر:", e);
+        }
+    }
+
+    if (secureToken) {
+        setInterval(checkLiveStatus, 5000);
     }
 
     // Fallback إذا فشل تحميل صورة QR
