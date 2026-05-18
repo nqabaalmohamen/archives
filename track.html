@@ -467,8 +467,19 @@
                 <div style="display: flex; gap: 15px; align-items: flex-start; background: #fff1f2; padding: 15px; border-radius: 15px; border: 1.5px solid #fda4af;">
                     <i class="fas fa-exclamation-circle" style="color:#e11d48; font-size:20px; margin-top:2px;"></i>
                     <div>
-                        <div style="font-weight:900; color:#9f1239; font-size:14px; margin-bottom:4px;">تنبيه هـام من الإدارة:</div>
+                        <div style="font-weight:900; color:#9f1239; font-size:14px; margin-bottom:4px;">تنبيه هـام من نقابة المحامين بالفيوم:</div>
                         <div id="missing-info-text" style="font-weight:700; color:#be123c; font-size:13px; line-height:1.5;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تنبيه تعليمات الاستلام -->
+            <div id="completion-note-alert" style="display:none; padding: 20px; border-bottom: 1px solid #dcfce7;">
+                <div style="display: flex; gap: 15px; align-items: flex-start; background: #f0fdf4; padding: 15px; border-radius: 15px; border: 1.5px solid #86efac;">
+                    <i class="fas fa-check-circle" style="color:#16a34a; font-size:20px; margin-top:2px;"></i>
+                    <div>
+                        <div style="font-weight:900; color:#166534; font-size:14px; margin-bottom:4px;">تنبيه هـام من نقابة المحامين بالفيوم:</div>
+                        <div id="completion-note-text" style="font-weight:700; color:#15803d; font-size:13px; line-height:1.5;"></div>
                     </div>
                 </div>
             </div>
@@ -686,10 +697,18 @@ function renderTransaction(t) {
     if (t.missing_info && t.current_status === 'under_review') {
         missingText.textContent = t.missing_info;
         missingAlert.style.display = 'block';
-        missingAlert.style.borderColor = '#ef4444';
-        missingAlert.style.background = '#fef2f2';
     } else {
         missingAlert.style.display = 'none';
+    }
+
+    // تنبيه تعليمات الاستلام (يظهر فقط في حالة تم الانتهاء)
+    const completionAlert = document.getElementById('completion-note-alert');
+    const completionText = document.getElementById('completion-note-text');
+    if (t.completion_note && t.current_status === 'completed') {
+        completionText.textContent = t.completion_note;
+        completionAlert.style.display = 'block';
+    } else {
+        completionAlert.style.display = 'none';
     }
 
     show('result-card');
@@ -712,6 +731,7 @@ let lastUpdate = null;
 let lastDesc   = null;
 let lastTitle  = null;
 let lastMissingInfo = null;
+let lastCompletionNote = null;
 
 async function loadTracking(isSilent = false) {
     const params = new URLSearchParams(window.location.search);
@@ -778,13 +798,14 @@ async function loadTracking(isSilent = false) {
                 timestamp: new Date().toLocaleString('ar-EG')
             }));
 
-            const hasChanged = t.current_status !== lastStatus || t.updated_at !== lastUpdate || t.description !== lastDesc || t.title !== lastTitle || t.missing_info !== lastMissingInfo;
+            const hasChanged = t.current_status !== lastStatus || t.updated_at !== lastUpdate || t.description !== lastDesc || t.title !== lastTitle || t.missing_info !== lastMissingInfo || t.completion_note !== lastCompletionNote;
             if (hasChanged) {
                 lastStatus = t.current_status;
                 lastUpdate = t.updated_at;
                 lastDesc   = t.description;
                 lastTitle  = t.title;
                 lastMissingInfo = t.missing_info;
+                lastCompletionNote = t.completion_note;
                 renderTransaction(t);
             }
             

@@ -624,8 +624,19 @@
                 <div style="display: flex; gap: 15px; align-items: flex-start; background: #fff1f2; padding: 15px; border-radius: 15px; border: 1.5px solid #fda4af;">
                     <i class="fas fa-exclamation-circle" style="color:#e11d48; font-size:20px; margin-top:2px;"></i>
                     <div>
-                        <div style="font-weight:900; color:#9f1239; font-size:14px; margin-bottom:4px;">تنبيه هـام من الإدارة:</div>
+                        <div style="font-weight:900; color:#9f1239; font-size:14px; margin-bottom:4px;">تنبيه هـام من نقابة المحامين بالفيوم:</div>
                         <div id="missing-info-text" style="font-weight:700; color:#be123c; font-size:13px; line-height:1.5;">{{ transaction.missing_info }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تنبيه تعليمات الاستلام -->
+            <div id="completion-note-alert" style="padding: 20px; border-bottom: 1px solid #dcfce7; {% if transaction.current_status == 'completed' and transaction.completion_note %}display: block;{% else %}display: none;{% endif %}">
+                <div style="display: flex; gap: 15px; align-items: flex-start; background: #f0fdf4; padding: 15px; border-radius: 15px; border: 1.5px solid #86efac;">
+                    <i class="fas fa-check-circle" style="color:#16a34a; font-size:20px; margin-top:2px;"></i>
+                    <div>
+                        <div style="font-weight:900; color:#166534; font-size:14px; margin-bottom:4px;">تنبيه هـام من نقابة المحامين بالفيوم:</div>
+                        <div id="completion-note-text" style="font-weight:700; color:#15803d; font-size:13px; line-height:1.5;">{{ transaction.completion_note }}</div>
                     </div>
                 </div>
             </div>
@@ -874,6 +885,7 @@
     let lastDesc   = `{{ transaction.description|default:''|escapejs }}`;
     let lastTitle  = `{{ transaction.title|escapejs }}`;
     let lastMissingInfo = `{{ transaction.missing_info|default:''|escapejs }}`;
+    let lastCompletionNote = `{{ transaction.completion_note|default:''|escapejs }}`;
     const secureToken = "{{ transaction.secure_token }}";
 
     const steps = [
@@ -976,6 +988,18 @@
             }
         }
 
+        // تحديث تنبيه تعليمات الاستلام
+        const completionDiv = document.getElementById('completion-note-alert');
+        const completionText = document.getElementById('completion-note-text');
+        if (completionDiv && completionText) {
+            if (t.completion_note && t.current_status === 'completed') {
+                completionText.textContent = t.completion_note;
+                completionDiv.style.display = 'block';
+            } else {
+                completionDiv.style.display = 'none';
+            }
+        }
+
         // تحديث الـ Stepper
         buildStepper(t.current_status);
     }
@@ -988,7 +1012,7 @@
             const data = await res.json();
             if (data.success) {
                 const t = data.transaction;
-                const hasChanged = t.current_status !== lastStatus || t.updated_at !== lastUpdate || t.description !== lastDesc || t.title !== lastTitle || t.missing_info !== lastMissingInfo;
+                const hasChanged = t.current_status !== lastStatus || t.updated_at !== lastUpdate || t.description !== lastDesc || t.title !== lastTitle || t.missing_info !== lastMissingInfo || t.completion_note !== lastCompletionNote;
                 if (hasChanged) {
                     const statusUpdated = t.current_status !== lastStatus;
                     lastStatus = t.current_status;
@@ -996,6 +1020,7 @@
                     lastDesc   = t.description;
                     lastTitle  = t.title;
                     lastMissingInfo = t.missing_info;
+                    lastCompletionNote = t.completion_note;
 
                     updateTransactionUI(t);
 

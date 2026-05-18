@@ -1087,15 +1087,17 @@ def transaction_detail(request, pk):
     if request.method == 'POST':
         new_status = request.POST.get('status')
         new_missing_info = request.POST.get('missing_info', '')
+        new_completion_note = request.POST.get('completion_note', '')
         if new_status:
             transaction.current_status = new_status
-            transaction.missing_info = new_missing_info
+            transaction.missing_info = new_missing_info if new_status == 'under_review' else ''
+            transaction.completion_note = new_completion_note if new_status == 'completed' else ''
             transaction.save()
             AuditLog.objects.create(
                 user=request.user,
                 action='edit',
                 document_title=f"معاملة: {transaction.tracking_number}",
-                details=f"تحديث حالة المعاملة إلى: {transaction.get_current_status_display()} | النواقص: {new_missing_info if new_missing_info else 'لا يوجد'}"
+                details=f"تحديث حالة المعاملة إلى: {transaction.get_current_status_display()} | النواقص: {transaction.missing_info if transaction.missing_info else 'لا يوجد'} | تعليمات الاستلام: {transaction.completion_note if transaction.completion_note else 'لا يوجد'}"
             )
             messages.success(request, "تم تحديث حالة المعاملة بنجاح")
             if request.headers.get('HX-Request'):
@@ -1213,6 +1215,7 @@ def public_tracking_api(request):
             'title':               transaction.title,
             'description':         transaction.description or '',
             'missing_info':        transaction.missing_info or '',
+            'completion_note':     transaction.completion_note or '',
             'current_status':      transaction.current_status,
             'status_display':      status_display_map.get(transaction.current_status, transaction.current_status),
             'registration_number': transaction.registration_number or '',
