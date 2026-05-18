@@ -701,8 +701,8 @@
             <!-- معلومات أساسية (بدون تفاصيل داخلية) -->
             <div class="info-section">
                 <div class="info-row">
-                    <div class="info-key"><i class="fas fa-user"></i> صاحب الشأن</div>
-                    <div class="info-val">{{ transaction.client_name }}</div>
+                    <div class="info-key"><i class="fas fa-phone"></i> رقم الهاتف</div>
+                    <div class="info-val" style="direction: ltr; text-align: left; font-weight: 800;">{{ transaction.client_phone }}</div>
                 </div>
                 <div class="info-row">
                     <div class="info-key"><i class="fas fa-hashtag"></i> رقم المعاملة</div>
@@ -716,7 +716,7 @@
                 {% endif %}
                 <div class="info-row">
                     <div class="info-key"><i class="fas fa-calendar"></i> تاريخ التسجيل</div>
-                    <div class="info-val">{{ transaction.created_at|date:"Y/m/d" }}</div>
+                    <div class="info-val">{{ transaction.created_at|date:"Y/m/d - h:i A" }}</div>
                 </div>
                 {% if transaction.description %}
                 <div class="info-row" style="flex-direction: column; align-items: flex-start; gap: 8px; border-top: 1px dashed #eee; padding-top: 15px; margin-top: 5px;">

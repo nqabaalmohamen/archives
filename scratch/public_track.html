@@ -521,8 +521,8 @@
             <!-- المعلومات -->
             <div class="info-section">
                 <div class="info-row">
-                    <div class="info-key"><i class="fas fa-user"></i> صاحب الشأن</div>
-                    <div class="info-val" id="i-client-name"></div>
+                    <div class="info-key"><i class="fas fa-phone"></i> رقم الهاتف</div>
+                    <div class="info-val" style="direction: ltr; text-align: left; font-weight: 800;" id="i-client-phone"></div>
                 </div>
                 <div class="info-row">
                     <div class="info-key"><i class="fas fa-hashtag"></i> رقم المعاملة</div>
@@ -669,7 +669,7 @@ function renderTransaction(t) {
     document.getElementById('r-status-text').textContent = t.status_display;
 
     // معلومات
-    document.getElementById('i-client-name').textContent   = t.client_name;
+    document.getElementById('i-client-phone').textContent  = t.client_phone;
     document.getElementById('i-tracking-num').textContent  = t.tracking_number;
     document.getElementById('i-created-at').textContent    = t.created_at;
 
