@@ -1077,11 +1077,24 @@ def transaction_detail(request, pk):
     github_pages_url = getattr(settings, 'REMOTE_TRACKING_URL', 'https://nqabaalmohamen.github.io/archives/').rstrip('/')
     tracking_url = f"{github_pages_url}/track.html?tr={transaction.secure_token}"
 
+    # Generate offline-safe QR code locally using qrcode package
+    import qrcode
+    from io import BytesIO
+    import base64
+    qr = qrcode.QRCode(version=1, box_size=5, border=2)
+    qr.add_data(tracking_url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    qr_code_data_uri = f"data:image/png;base64,{base64.b64encode(buffered.getvalue()).decode('utf-8')}"
+
     context = {
         'transaction': transaction,
         'documents': documents,
         'status_choices': Transaction.STATUS_CHOICES,
         'tracking_url': tracking_url,
+        'qr_code_data_uri': qr_code_data_uri,
     }
 
     if request.method == 'POST':
@@ -1132,18 +1145,23 @@ def transaction_print(request, pk):
     github_pages_url = getattr(settings, 'REMOTE_TRACKING_URL', 'https://nqabaalmohamen.github.io/archives/').rstrip('/')
     tracking_url = f"{github_pages_url}/track.html?tr={transaction.secure_token}"
 
-    # توليد صورة QR بجودة عالية
-    qr_url = (
-        f"https://api.qrserver.com/v1/create-qr-code/"
-        f"?size=200x200&data={tracking_url}"
-        f"&bgcolor=ffffff&color=1a1a2e&margin=10"
-    )
+    # Generate offline-safe QR code locally using qrcode package
+    import qrcode
+    from io import BytesIO
+    import base64
+    qr = qrcode.QRCode(version=1, box_size=5, border=2)
+    qr.add_data(tracking_url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    qr_code_data_uri = f"data:image/png;base64,{base64.b64encode(buffered.getvalue()).decode('utf-8')}"
 
     context = {
         'transaction': transaction,
         'documents': documents,
         'tracking_url': tracking_url,
-        'qr_url': qr_url,
+        'qr_url': qr_code_data_uri,
         'printed_by': request.user.profile.full_name or request.user.username,
     }
     
