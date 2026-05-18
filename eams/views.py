@@ -1091,7 +1091,7 @@ def transaction_detail(request, pk):
         if new_status:
             transaction.current_status = new_status
             transaction.missing_info = new_missing_info if new_status == 'under_review' else ''
-            transaction.completion_note = (new_completion_note or 'تم الانتهاء من ماملتك برجاء التوجة الي النقابة للاستلام') if new_status == 'completed' else ''
+            transaction.completion_note = (new_completion_note or 'برجاء التوجة الي النقابة للاستلام') if new_status == 'completed' else ''
             transaction.save()
             AuditLog.objects.create(
                 user=request.user,

@@ -704,8 +704,8 @@ function renderTransaction(t) {
     // تنبيه تعليمات الاستلام (يظهر فقط في حالة تم الانتهاء)
     const completionAlert = document.getElementById('completion-note-alert');
     const completionText = document.getElementById('completion-note-text');
-    if (t.completion_note && t.current_status === 'completed') {
-        completionText.textContent = t.completion_note;
+    if (t.current_status === 'completed') {
+        completionText.textContent = t.completion_note || "برجاء التوجة الي النقابة للاستلام";
         completionAlert.style.display = 'block';
     } else {
         completionAlert.style.display = 'none';
@@ -739,29 +739,6 @@ async function loadTracking(isSilent = false) {
 
     if (!tr) { show('welcome-card'); return; }
 
-    // تحديد رابط الـ API بشكل ديناميكي وثابت من المخزن العام لتفادي مشاكل الروابط المتغيرة وتوقف السيرفر
-    let activeApiBase = API_BASE;
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000); // مهلة سريعة 4 ثوانٍ
-        
-        const kvRes = await fetch("https://api.keyval.org/get/nqaba_almohamen_fayoum_archive_tunnel_secure", {
-            signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        
-        if (kvRes.ok) {
-            const kvData = await kvRes.json();
-            if (kvData && kvData.val) {
-                activeApiBase = kvData.val.replace("https_", "https://").replace(/\/$/, '');
-                localStorage.setItem("nqaba_active_tunnel_url", activeApiBase);
-            }
-        }
-    } catch (e) {
-        console.warn("Could not fetch active tunnel from KeyVal storage, using cached URL.", e);
-        activeApiBase = localStorage.getItem("nqaba_active_tunnel_url") || API_BASE;
-    }
-
     // Check cache first to prevent flickering
     const cacheKey = "cache_" + tr;
     const cachedData = localStorage.getItem(cacheKey);
@@ -779,7 +756,7 @@ async function loadTracking(isSilent = false) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-        const res = await fetch(activeApiBase + "/api/track/?tr=" + encodeURIComponent(tr) + "&v=" + Date.now() + "&cf-skip-browser-warning=1", {
+        const res = await fetch(API_BASE + "/api/track/?tr=" + encodeURIComponent(tr) + "&v=" + Date.now() + "&cf-skip-browser-warning=1", {
             method: 'GET',
             headers: { 'Accept': 'application/json' },
             signal: controller.signal

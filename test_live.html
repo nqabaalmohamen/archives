@@ -704,8 +704,8 @@ function renderTransaction(t) {
     // تنبيه تعليمات الاستلام (يظهر فقط في حالة تم الانتهاء)
     const completionAlert = document.getElementById('completion-note-alert');
     const completionText = document.getElementById('completion-note-text');
-    if (t.completion_note && t.current_status === 'completed') {
-        completionText.textContent = t.completion_note;
+    if (t.current_status === 'completed') {
+        completionText.textContent = t.completion_note || "برجاء التوجة الي النقابة للاستلام";
         completionAlert.style.display = 'block';
     } else {
         completionAlert.style.display = 'none';
