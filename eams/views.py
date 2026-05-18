@@ -1221,7 +1221,12 @@ def public_tracking_api(request):
             'status_display':      status_display_map.get(transaction.current_status, transaction.current_status),
             'registration_number': transaction.registration_number or '',
             'created_at':          transaction.created_at.strftime('%Y/%m/%d'),
-            'updated_at':          transaction.updated_at.strftime('%Y/%m/%d - %H:%M'),
+            'updated_at':          (lambda dt: dt.strftime('%Y/%m/%d - %I:%M') + (' ص' if dt.hour < 12 else ' م'))(
+                                       __import__('zoneinfo').ZoneInfo and
+                                       transaction.updated_at.astimezone(
+                                           __import__('zoneinfo', fromlist=['ZoneInfo']).ZoneInfo('Africa/Cairo')
+                                       )
+                                   ),
         }
     })
 
