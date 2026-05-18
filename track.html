@@ -12,7 +12,7 @@
     <style>
         /* ═══════════════════════════════════════
            ⚙️  إعداد المطوّر: ضع رابط Cloudflare Tunnel هنا
-           مثال: https://trades-effort-display-gerald.trycloudflare.com
+           مثال: https://thereby-abroad-near-cancelled.trycloudflare.com
         ════════════════════════════════════════ */
 
         :root {
@@ -555,8 +555,8 @@
 // ═══════════════════════════════════════════════════════════
 //  ⚙️  إعداد رابط الـ API  ← غيّر هذا بعد إعداد Cloudflare
 // ═══════════════════════════════════════════════════════════
-const API_BASE = "https://trades-effort-display-gerald.trycloudflare.com";
-// مثال: const API_BASE = "https://trades-effort-display-gerald.trycloudflare.com";
+const API_BASE = "https://thereby-abroad-near-cancelled.trycloudflare.com";
+// مثال: const API_BASE = "https://thereby-abroad-near-cancelled.trycloudflare.com";
 // ═══════════════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════════
 
@@ -719,13 +719,27 @@ async function loadTracking(isSilent = false) {
 
     if (!tr) { show('welcome-card'); return; }
 
-    // تحديد رابط الـ API بشكل ديناميكي من المعاملات لتجنب مشاكل توقف النفق
-    let activeApiBase = params.get('ap');
-    if (activeApiBase) {
-        activeApiBase = activeApiBase.replace(/\/$/, '');
-        localStorage.setItem("api_base_" + tr, activeApiBase);
-    } else {
-        activeApiBase = localStorage.getItem("api_base_" + tr) || API_BASE;
+    // تحديد رابط الـ API بشكل ديناميكي وثابت من المخزن العام لتفادي مشاكل الروابط المتغيرة وتوقف السيرفر
+    let activeApiBase = API_BASE;
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000); // مهلة سريعة 4 ثوانٍ
+        
+        const kvRes = await fetch("https://api.keyval.org/get/nqaba_almohamen_fayoum_archive_tunnel_secure", {
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        
+        if (kvRes.ok) {
+            const kvData = await kvRes.json();
+            if (kvData && kvData.val) {
+                activeApiBase = kvData.val.replace("https_", "https://").replace(/\/$/, '');
+                localStorage.setItem("nqaba_active_tunnel_url", activeApiBase);
+            }
+        }
+    } catch (e) {
+        console.warn("Could not fetch active tunnel from KeyVal storage, using cached URL.", e);
+        activeApiBase = localStorage.getItem("nqaba_active_tunnel_url") || API_BASE;
     }
 
     // Check cache first to prevent flickering
