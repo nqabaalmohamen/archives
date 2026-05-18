@@ -148,7 +148,7 @@
                     <div id="completion-note-wrapper" style="display: {% if transaction.current_status == 'completed' %}block{% else %}none{% endif %};">
                         <label style="font-size: 13px; font-weight: 900; color: #000; margin-bottom: 10px; display: block; margin-top: 15px;">تعليمات استلام المعاملة (تنبيه لصاحب الشأن):</label>
                         <div class="input-wrapper" style="margin-bottom: 15px;">
-                            <textarea name="completion_note" class="form-control" placeholder="اكتب تعليمات الاستلام هنا (مثلاً: يرجى التوجه لمقر النقابة لاستلام الكارنيه)..." style="font-weight: 700; min-height: 80px; border: 2px solid #000; border-radius: 12px; padding: 10px;">{{ transaction.completion_note|default:'تم الانتهاء من معاملتك برجاء التوجة الي النقابة للاستلام' }}</textarea>
+                            <textarea name="completion_note" class="form-control" placeholder="اكتب تعليمات الاستلام هنا (مثلاً: يرجى التوجه لمقر النقابة لاستلام الكارنيه)..." style="font-weight: 700; min-height: 80px; border: 2px solid #000; border-radius: 12px; padding: 10px;">{{ transaction.completion_note|default:'تم الانتهاء من ماملتك برجاء التوجة الي النقابة للاستلام' }}</textarea>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer;">
@@ -189,7 +189,7 @@
             completionWrapper.style.display = 'block';
             const textarea = completionWrapper.querySelector('textarea');
             if (textarea && !textarea.value.trim()) {
-                textarea.value = "تم الانتهاء من معاملتك برجاء التوجة الي النقابة للاستلام";
+                textarea.value = "تم الانتهاء من ماملتك برجاء التوجة الي النقابة للاستلام";
             }
         } else {
             completionWrapper.style.display = 'none';
