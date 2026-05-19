@@ -88,6 +88,7 @@
                 <input type="hidden" name="category" id="hidden_category">
                 <input type="hidden" name="doc_type" id="hidden_doc_type">
                 <input type="hidden" name="user_id" id="hidden_user_id">
+                <input type="hidden" name="transaction_status" id="hidden_transaction_status">
                 <input type="hidden" name="start_date" id="hidden_start_date">
                 <input type="hidden" name="end_date" id="hidden_end_date">
                 <input type="hidden" name="q" id="hidden_q">
@@ -137,6 +138,15 @@
                         <option value="">كافة الموظفين</option>
                         {% for u in all_users %}
                         <option value="{{ u.id }}" {% if selected_user == u.id|stringformat:"s" %}selected{% endif %}>{{ u.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>حالة المعاملة (المنجز/قيد التنفيذ)</label>
+                    <select name="transaction_status" id="main_transaction_status" style="width: 100%; border-radius: 12px; border: 2.5px solid #000; outline: none; background: #f8fafc;">
+                        <option value="">كافة الحالات</option>
+                        {% for val, name in status_choices %}
+                        <option value="{{ val }}" {% if selected_status == val %}selected{% endif %}>{{ name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -279,43 +289,163 @@
         </div>
     </div>
 
-    <!-- Recent Transactions List -->
-    <div class="report-card" style="margin-bottom: 40px;">
-        <h3 style="font-size: 20px; font-weight: 900; margin-bottom: 20px; color: #000; border-bottom: 2px solid #000; padding-bottom: 10px;">
-            <i class="fas fa-list-alt"></i> آخر المعاملات (رقم المتابعة)
+    {% if report_type == 'all' or report_type == 'transaction' %}
+    <!-- Filtered Transactions List -->
+    <div class="report-card" style="margin-bottom: 40px; border: 3px solid #ec4899; box-shadow: 0 10px 25px rgba(236, 72, 153, 0.05);">
+        <h3 style="font-size: 22px; font-weight: 900; margin-bottom: 20px; color: #000; border-bottom: 3px solid #000; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <span><i class="fas fa-list-alt" style="color: #ec4899;"></i> قائمة المعاملات المصفاة بدقة (إجمالي: {{ total_transactions }})</span>
+            <span style="font-size: 14px; background: #ec4899; color: #fff; padding: 6px 16px; border-radius: 20px; font-weight: 800;">عرض كافة النتائج المطابقة للفلتر</span>
         </h3>
-        <div class="data-container table-responsive" style="border: none; box-shadow: none;">
-            <table style="width: 100%; border-collapse: collapse; min-width: 700px;">
+        <div class="data-container table-responsive" style="border: none; box-shadow: none; overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
                 <thead>
-                    <tr style="text-align: right; border-bottom: 3px solid #000;">
-                        <th style="padding: 12px; font-size: 15px;">رقم المتابعة</th>
-                        <th style="padding: 12px; font-size: 15px;">عنوان المعاملة</th>
-                        <th style="padding: 12px; font-size: 15px;">الحالة</th>
-                        <th style="padding: 12px; font-size: 15px;">تاريخ الإنشاء</th>
+                    <tr style="text-align: right; border-bottom: 3px solid #000; background-color: #f8fafc;">
+                        <th style="padding: 15px 12px; font-size: 16px; font-weight: 900; color: #000;">رقم المتابعة</th>
+                        <th style="padding: 15px 12px; font-size: 16px; font-weight: 900; color: #000;">عنوان المعاملة / صاحب الشأن</th>
+                        <th style="padding: 15px 12px; font-size: 16px; font-weight: 900; color: #000;">الموظف المسؤول</th>
+                        <th style="padding: 15px 12px; font-size: 16px; font-weight: 900; color: #000;">الحالة الحالية</th>
+                        <th style="padding: 15px 12px; font-size: 16px; font-weight: 900; color: #000;">الملفات المرتبطة</th>
+                        <th style="padding: 15px 12px; font-size: 16px; font-weight: 900; color: #000;">تاريخ الإنشاء</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for tr in transactions_recent %}
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 18px; font-weight: 900; color: #000; font-size: 16px;">{{ tr.tracking_number }}</td>
-                        <td style="padding: 18px; font-weight: 800; font-size: 16px;">{{ tr.title }}</td>
-                        <td style="padding: 18px; font-weight: 700; font-size: 16px;">
-                            <span class="badge" style="background: #ffffff; color: #000; border: 2px solid #000; padding: 5px 10px; border-radius: 8px;">{{ tr.get_current_status_display }}</span>
+                    {% for tr in transactions_list %}
+                    <tr style="border-bottom: 2px solid #e2e8f0; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f8fafc'" onmouseout="this.style.backgroundColor='transparent'">
+                        <td style="padding: 18px 12px; font-weight: 900; color: #6366f1; font-size: 16px;">
+                            <a href="{% url 'transaction_detail' tr.pk %}" style="text-decoration: none; color: inherit; border-bottom: 2px dashed #6366f1;">
+                                {{ tr.display_tracking_number }}
+                            </a>
                         </td>
-                        <td style="padding: 18px; color: #64748b; font-size: 15px; font-weight: 700;">{{ tr.created_at|date:"Y-m-d" }}</td>
+                        <td style="padding: 18px 12px; font-weight: 800; font-size: 16px; color: #000;">
+                            <div>{{ tr.title }}</div>
+                            <small style="color: #64748b; font-weight: 700; display: block; margin-top: 4px;"><i class="fas fa-user-circle"></i> صاحب الشأن: {{ tr.client_name }}</small>
+                        </td>
+                        <td style="padding: 18px 12px; font-weight: 800; font-size: 16px; color: #334155;">
+                            {% if tr.created_by %}
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="background: #e2e8f0; color: #0f172a; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900;">{{ tr.created_by.username|first|upper }}</span>
+                                    <span>{{ tr.created_by.profile.full_name|default:tr.created_by.username }}</span>
+                                </div>
+                                <small style="color: #64748b; margin-right: 36px; display: block; margin-top: 2px;">القسم: {{ tr.created_by.profile.department|default:"-" }}</small>
+                            {% else %}
+                                <span style="color: #94a3b8;">غير محدد</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 18px 12px; font-weight: 900; font-size: 15px;">
+                            {% if tr.current_status == 'completed' %}
+                                <span class="badge" style="background: #d1fae5; color: #065f46; border: 2px solid #059669; padding: 6px 12px; border-radius: 12px;"><i class="fas fa-check-circle"></i> تم الانتهاء</span>
+                            {% elif tr.current_status == 'in_progress' %}
+                                <span class="badge" style="background: #eff6ff; color: #1e40af; border: 2px solid #2563eb; padding: 6px 12px; border-radius: 12px;"><i class="fas fa-spinner fa-spin"></i> جاري التنفيذ</span>
+                            {% elif tr.current_status == 'under_review' %}
+                                <span class="badge" style="background: #fef3c7; color: #92400e; border: 2px solid #d97706; padding: 6px 12px; border-radius: 12px;"><i class="fas fa-eye"></i> تحت المراجعة</span>
+                            {% elif tr.current_status == 'sent_to_dept' %}
+                                <span class="badge" style="background: #f3e8ff; color: #6b21a8; border: 2px solid #8b5cf6; padding: 6px 12px; border-radius: 12px;"><i class="fas fa-paper-plane"></i> مرسل للقسم</span>
+                            {% else %}
+                                <span class="badge" style="background: #f1f5f9; color: #334155; border: 2px solid #64748b; padding: 6px 12px; border-radius: 12px;"><i class="fas fa-arrow-down"></i> تم الاستلام</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 18px 12px; font-weight: 800; font-size: 15px; color: #475569;">
+                            <span style="background: #f1f5f9; border: 1.5px solid #cbd5e1; padding: 4px 10px; border-radius: 8px; font-size: 14px;">
+                                <i class="fas fa-paperclip"></i> {{ tr.documents.count }} ملفات
+                            </span>
+                        </td>
+                        <td style="padding: 18px 12px; color: #64748b; font-size: 15px; font-weight: 800;">{{ tr.created_at|date:"Y-m-d H:i" }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" style="text-align: center; padding: 30px; color: #64748b;">لا توجد معاملات حديثة</td>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: #64748b; font-weight: 800; font-size: 18px;">
+                            <i class="fas fa-folder-open" style="font-size: 40px; display: block; margin-bottom: 10px; color: #cbd5e1;"></i>
+                            لا توجد معاملات مطابقة للبحث حالياً
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+    {% endif %}
+
+    {% if report_type == 'all' or report_type == 'archive' %}
+    <!-- Filtered Documents List -->
+    <div class="report-card" style="margin-bottom: 40px; border: 3px solid #10b981; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.05);">
+        <h3 style="font-size: 22px; font-weight: 900; margin-bottom: 20px; color: #000; border-bottom: 3px solid #000; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <span><i class="fas fa-file-alt" style="color: #10b981;"></i> قائمة الوثائق والملفات المصفاة (إجمالي: {{ total_docs }})</span>
+            <span style="font-size: 14px; background: #10b981; color: #fff; padding: 6px 16px; border-radius: 20px; font-weight: 800;">عرض كافة الملفات المؤرشفة للبحث</span>
+        </h3>
+        <div class="data-container table-responsive" style="border: none; box-shadow: none; overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
+                <thead>
+                    <tr style="text-align: right; border-bottom: 3px solid #000; background-color: #f8fafc;">
+                        <th style="padding: 15px 12px; font-size: 16px; font-weight: 900; color: #000;">رقم الأرشفة</th>
+                        <th style="padding: 15px 12px; font-size: 16px; font-weight: 900; color: #000;">عنوان الوثيقة</th>
+                        <th style="padding: 15px 12px; font-size: 16px; font-weight: 900; color: #000;">القسم / التصنيف</th>
+                        <th style="padding: 15px 12px; font-size: 16px; font-weight: 900; color: #000;">نوع الوثيقة</th>
+                        <th style="padding: 15px 12px; font-size: 16px; font-weight: 900; color: #000;">الموظف المودع</th>
+                        <th style="padding: 15px 12px; font-size: 16px; font-weight: 900; color: #000;">المعاملة المرتبطة</th>
+                        <th style="padding: 15px 12px; font-size: 16px; font-weight: 900; color: #000;">تاريخ الإيداع</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in documents %}
+                    <tr style="border-bottom: 2px solid #e2e8f0; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f8fafc'" onmouseout="this.style.backgroundColor='transparent'">
+                        <td style="padding: 18px 12px; font-weight: 900; color: #10b981; font-size: 16px;">
+                            <a href="{% url 'document_detail' doc.pk %}" style="text-decoration: none; color: inherit; border-bottom: 2px dashed #10b981;">
+                                {{ doc.reference_number }}
+                            </a>
+                        </td>
+                        <td style="padding: 18px 12px; font-weight: 800; font-size: 16px; color: #000;">
+                            <div>{{ doc.title }}</div>
+                            {% if doc.description %}
+                                <small style="color: #64748b; font-weight: 700; display: block; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px;" title="{{ doc.description }}">{{ doc.description }}</small>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 18px 12px; font-weight: 800; font-size: 16px; color: #475569;">
+                            <span style="background: #f8fafc; border: 1.5px solid #e2e8f0; padding: 4px 10px; border-radius: 8px;">
+                                {{ doc.category.name }}
+                            </span>
+                        </td>
+                        <td style="padding: 18px 12px; font-weight: 900; font-size: 15px;">
+                            {% if doc.doc_type == 'incoming' %}
+                                <span class="badge" style="background: #ecfdf5; color: #047857; border: 2px solid #10b981; padding: 4px 10px; border-radius: 8px;">وارد</span>
+                            {% elif doc.doc_type == 'outgoing' %}
+                                <span class="badge" style="background: #fffbeb; color: #b45309; border: 2px solid #f59e0b; padding: 4px 10px; border-radius: 8px;">صادر</span>
+                            {% else %}
+                                <span class="badge" style="background: #eef2ff; color: #4338ca; border: 2px solid #6366f1; padding: 4px 10px; border-radius: 8px;">داخلي</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 18px 12px; font-weight: 800; font-size: 16px; color: #334155;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="background: #e2e8f0; color: #0f172a; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900;">{{ doc.uploaded_by.username|first|upper }}</span>
+                                <span>{{ doc.uploaded_by.profile.full_name|default:doc.uploaded_by.username }}</span>
+                            </div>
+                        </td>
+                        <td style="padding: 18px 12px; font-weight: 800; font-size: 15px;">
+                            {% if doc.transaction %}
+                                <a href="{% url 'transaction_detail' doc.transaction.pk %}" style="text-decoration: none; color: #6366f1; font-weight: 900;">
+                                    {{ doc.transaction.display_tracking_number }}
+                                </a>
+                            {% else %}
+                                <span style="color: #94a3b8;">—</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 18px 12px; color: #64748b; font-size: 15px; font-weight: 800;">{{ doc.uploaded_at|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #64748b; font-weight: 800; font-size: 18px;">
+                            <i class="fas fa-folder-open" style="font-size: 40px; display: block; margin-bottom: 10px; color: #cbd5e1;"></i>
+                            لا توجد وثائق مطابقة للبحث حالياً
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Recent Logs Table -->
-    <div class="report-card">
+    <div class="report-card" style="margin-bottom: 40px;">
         <h3 style="font-size: 20px; font-weight: 900; margin-bottom: 20px; color: #000; border-bottom: 2px solid #000; padding-bottom: 10px;">
             <i class="fas fa-history"></i> آخر النشاطات المسجلة بدقة
         </h3>
@@ -350,6 +480,7 @@
         document.getElementById('hidden_category').value = document.getElementById('main_category').value;
         document.getElementById('hidden_doc_type').value = document.getElementById('main_doc_type').value;
         document.getElementById('hidden_user_id').value = document.getElementById('main_user_id').value;
+        document.getElementById('hidden_transaction_status').value = document.getElementById('main_transaction_status').value;
         document.getElementById('hidden_start_date').value = document.getElementById('main_start_date').value;
         document.getElementById('hidden_end_date').value = document.getElementById('main_end_date').value;
         document.getElementById('hidden_q').value = document.getElementById('main_q').value;

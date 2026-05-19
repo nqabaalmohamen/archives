@@ -4,7 +4,7 @@
             {% if transaction %}تعديل بيانات المعاملة{% else %}إنشاء رقم متابعة جديد{% endif %}
         </h2>
         <p style="color: #64748b; font-size: 14px; font-weight: 700; margin: 0;">
-            {% if transaction %}رقم المتابعة: {{ transaction.tracking_number }}{% else %}تسجيل بيانات المعاملة الجديدة{% endif %}
+            {% if transaction %}رقم المتابعة: {{ transaction.display_tracking_number }}{% else %}تسجيل بيانات المعاملة الجديدة{% endif %}
         </p>
     </div>
 

@@ -591,7 +591,7 @@
             <div class="card-header">
                 <div class="trk-chip">
                     <i class="fas fa-file-invoice" style="margin-left:5px; font-size:11px;"></i>
-                    المعاملة رقم {{ transaction.simple_number }}
+                    المعاملة رقم {{ transaction.display_tracking_number }}
                 </div>
                 <!-- مؤشر المتابعة المباشرة -->
                 <div class="live-status" id="live-status-indicator" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(16, 185, 129, 0.15); border: 1.5px solid rgba(16, 185, 129, 0.3); padding: 5px 14px; border-radius: 50px; margin: 0 auto 15px; width: fit-content;">
@@ -706,7 +706,7 @@
                 </div>
                 <div class="info-row">
                     <div class="info-key"><i class="fas fa-hashtag"></i> رقم المعاملة</div>
-                    <div class="info-val" style="font-family:monospace; color:#6366f1; font-weight:900;">{{ transaction.simple_number }}</div>
+                    <div class="info-val" style="font-family:monospace; color:#6366f1; font-weight:900;">{{ transaction.display_tracking_number }}</div>
                 </div>
                 {% if transaction.registration_number %}
                 <div class="info-row">
@@ -778,7 +778,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
                     <div class="dc-row">
                         <div class="dc-label">رقم المعاملة</div>
-                        <div class="dc-value" style="color: #6366f1;">{{ transaction.simple_number }}</div>
+                        <div class="dc-value" style="color: #6366f1;">{{ transaction.display_tracking_number }}</div>
                     </div>
                     <div class="dc-row">
                         <div class="dc-label">حالة الطلب الآن</div>
@@ -836,7 +836,7 @@
                 const a = document.createElement('a');
                 a.style.display = 'none';
                 a.href = url;
-                a.download = 'معاملة_رقم_{{ transaction.simple_number }}.png';
+                a.download = 'معاملة_رقم_{{ transaction.display_tracking_number }}.png';
                 document.body.appendChild(a);
                 a.click();
                 
@@ -862,7 +862,7 @@
         if (navigator.share) {
             navigator.share({
                 title: 'تتبع معاملتي - نقابة المحامين بالفيوم',
-                text: 'يمكنك تتبع حالة المعاملة: {{ transaction.tracking_number }} من خلال هذا الرابط',
+                text: 'يمكنك تتبع حالة المعاملة: {{ transaction.display_tracking_number }} من خلال هذا الرابط',
                 url: window.location.href,
             }).catch(console.error);
         } else {

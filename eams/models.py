@@ -108,6 +108,31 @@ class Transaction(models.Model):
                 return self.id
         return self.id
 
+    @property
+    def display_tracking_number(self):
+        """إرجاع رقم المتابعة بشكل مبسط وبدون البادئة مثل 2026-1"""
+        if self.tracking_number:
+            parts = self.tracking_number.split('-')
+            if len(parts) >= 3:
+                try:
+                    year = parts[1]
+                    seq = int(parts[2])
+                    return f"{year}-{seq}"
+                except (ValueError, IndexError):
+                    pass
+            elif len(parts) == 2:
+                try:
+                    if len(parts[0]) == 4 and parts[0].isdigit():
+                        return f"{parts[0]}-{int(parts[1])}"
+                except ValueError:
+                    pass
+        return self.tracking_number
+
+    @property
+    def short_tracking_number(self):
+        """إرجاع رقم المتابعة بشكل مبسط مثل 2026-1 للـ PDF"""
+        return self.display_tracking_number
+
     def save(self, *args, **kwargs):
         if not self.tracking_number:
             year = timezone.now().year
@@ -120,7 +145,7 @@ class Transaction(models.Model):
                     new_sequence = Transaction.objects.filter(created_at__year=year).count() + 1
             else:
                 new_sequence = Transaction.objects.filter(created_at__year=year).count() + 1
-            self.tracking_number = f"TRK-{year}-{new_sequence:04d}"
+            self.tracking_number = f"TRK-{year}-{new_sequence}"
         super().save(*args, **kwargs)
 
 class Document(models.Model):

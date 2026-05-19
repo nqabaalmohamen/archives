@@ -12,6 +12,59 @@ from django.urls import reverse_lazy
 from django.db import transaction as db_transaction
 
 
+def get_transaction_search_q(query):
+    import re
+    q_obj = Q()
+    query_clean = query.strip()
+    
+    # 1. UUID check
+    try:
+        import uuid as uuid_module
+        uuid_module.UUID(query_clean)
+        q_obj |= Q(secure_token=query_clean)
+        return q_obj
+    except (ValueError, TypeError):
+        pass
+    
+    # TRK-2026-1 or TRK-2026-0001 or 2026-1 or 2026-0001
+    m1 = re.match(r'^(?:TRK-)?(\d{4})[-/](\d+)$', query_clean, re.IGNORECASE)
+    if m1:
+        year = m1.group(1)
+        seq_str = m1.group(2)
+        seq_int = int(seq_str)
+        q_obj |= Q(tracking_number=f"TRK-{year}-{seq_int}")
+        q_obj |= Q(tracking_number=f"TRK-{year}-{seq_int:04d}")
+        q_obj |= Q(tracking_number=f"{year}-{seq_int}")
+        q_obj |= Q(tracking_number=f"{year}-{seq_int:04d}")
+        q_obj |= Q(tracking_number__iexact=query_clean)
+        return q_obj
+        
+    # flipped: 1-2026 or 0001-2026
+    m2 = re.match(r'^(\d+)[-/](\d{4})$', query_clean)
+    if m2:
+        seq_str = m2.group(1)
+        year = m2.group(2)
+        seq_int = int(seq_str)
+        q_obj |= Q(tracking_number=f"TRK-{year}-{seq_int}")
+        q_obj |= Q(tracking_number=f"TRK-{year}-{seq_int:04d}")
+        q_obj |= Q(tracking_number=f"{year}-{seq_int}")
+        q_obj |= Q(tracking_number=f"{year}-{seq_int:04d}")
+        q_obj |= Q(tracking_number__iexact=query_clean)
+        return q_obj
+
+    # simple integer sequence
+    if query_clean.isdigit():
+        seq_int = int(query_clean)
+        q_obj |= Q(tracking_number__endswith=f"-{seq_int}")
+        q_obj |= Q(tracking_number__endswith=f"-{seq_int:04d}")
+        q_obj |= Q(tracking_number=query_clean)
+        return q_obj
+
+    # Fallback
+    q_obj |= Q(tracking_number__icontains=query_clean)
+    return q_obj
+
+
 @login_required
 def dashboard(request):
     total_docs = Document.objects.count()
@@ -58,25 +111,17 @@ def dashboard_search(request):
 
     if query:
         if search_type == 'transaction':
-            # بحث ذكي: إذا كان المدخل رقماً، نبحث في نهاية رقم المتابعة لتجنب تداخل السنة
-            if query.isdigit():
-                transactions = Transaction.objects.filter(
-                    Q(tracking_number__endswith=query) | 
-                    Q(title__icontains=query) |
-                    Q(client_name__icontains=query)
-                ).order_by('-created_at')[:20]
-            else:
-                transactions = Transaction.objects.filter(
-                    Q(tracking_number__icontains=query) |
-                    Q(title__icontains=query) |
-                    Q(client_name__icontains=query)
-                ).order_by('-created_at')[:20]
+            transactions = Transaction.objects.filter(
+                get_transaction_search_q(query) |
+                Q(title__icontains=query) |
+                Q(client_name__icontains=query)
+            ).order_by('-created_at')[:20]
 
             for tr in transactions:
                 results.append({
                     'id': tr.pk,
                     'title': tr.title,
-                    'reference_number': tr.tracking_number,
+                    'reference_number': tr.short_tracking_number,
                     'doc_type': 'transaction',
                     'doc_type_label': tr.get_current_status_display(),
                     'doc_type_color': '#000000',
@@ -129,14 +174,10 @@ def quick_search(request):
     
     if query:
         if search_type == 'transaction':
-            # البحث عن معاملة (دعم البحث الذكي)
-            if query.isdigit():
-                transaction = Transaction.objects.filter(tracking_number__endswith=query).first()
-            else:
-                transaction = Transaction.objects.filter(
-                    Q(tracking_number__iexact=query) | 
-                    Q(title__icontains=query)
-                ).first()
+            transaction = Transaction.objects.filter(
+                get_transaction_search_q(query) | 
+                Q(title__icontains=query)
+            ).first()
             
             if transaction:
                 return redirect('transaction_detail', pk=transaction.pk)
@@ -608,6 +649,7 @@ def reports_view(request):
     category_id = request.GET.get('category')
     doc_type = request.GET.get('doc_type')
     user_id = request.GET.get('user_id')
+    transaction_status = request.GET.get('transaction_status')
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     search_q = request.GET.get('q')
@@ -618,6 +660,7 @@ def reports_view(request):
     if category_id: docs = docs.filter(category_id=category_id)
     if doc_type: docs = docs.filter(doc_type=doc_type)
     if user_id: docs = docs.filter(uploaded_by_id=user_id)
+    if transaction_status: docs = docs.filter(transaction__current_status=transaction_status)
     if search_q:
         docs = docs.filter(Q(title__icontains=search_q) | Q(reference_number__icontains=search_q))
     if start_date: docs = docs.filter(uploaded_at__date__gte=start_date)
@@ -626,7 +669,8 @@ def reports_view(request):
     # Filter Transactions
     transactions = Transaction.objects.all()
     if user_id: transactions = transactions.filter(created_by_id=user_id)
-    if search_q: transactions = transactions.filter(Q(title__icontains=search_q) | Q(tracking_number__icontains=search_q))
+    if transaction_status: transactions = transactions.filter(current_status=transaction_status)
+    if search_q: transactions = transactions.filter(Q(title__icontains=search_q) | get_transaction_search_q(search_q))
     if start_date: transactions = transactions.filter(created_at__date__gte=start_date)
     if end_date: transactions = transactions.filter(created_at__date__lte=end_date)
 
@@ -647,6 +691,7 @@ def reports_view(request):
         'total_transactions': transactions.count(),
         'transactions_completed': transactions.filter(current_status='completed').count(),
         'transactions_in_progress': transactions.filter(current_status__in=['under_review', 'in_progress', 'received', 'sent']).count(),
+        'transactions_list': transactions.order_by('-created_at'),
         'transactions_recent': transactions.order_by('-created_at')[:10],
         'completion_rate': (transactions.filter(current_status='completed').count() / transactions.count() * 100) if transactions.count() > 0 else 0,
         
@@ -664,10 +709,12 @@ def reports_view(request):
         'categories_stats': Category.objects.annotate(count=Count('documents', filter=Q(documents__in=docs))).order_by('-count'),
         'users_stats': User.objects.annotate(doc_count=Count('uploaded_documents', filter=Q(uploaded_documents__in=docs))).order_by('-doc_count')[:10],
         'doc_types': Document.TYPE_CHOICES,
+        'status_choices': Transaction.STATUS_CHOICES,
         'all_users': User.objects.all(),
         'selected_category': category_id,
         'selected_type': doc_type,
         'selected_user': user_id,
+        'selected_status': transaction_status,
         'start_date': start_date,
         'end_date': end_date,
         'q': search_q,
@@ -690,6 +737,7 @@ def reports_export_pdf(request):
     category_id = request.GET.get('category')
     doc_type = request.GET.get('doc_type')
     user_id = request.GET.get('user_id')
+    transaction_status = request.GET.get('transaction_status')
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     search_q = request.GET.get('q')
@@ -699,6 +747,7 @@ def reports_export_pdf(request):
     if category_id: docs = docs.filter(category_id=category_id)
     if doc_type: docs = docs.filter(doc_type=doc_type)
     if user_id: docs = docs.filter(uploaded_by_id=user_id)
+    if transaction_status: docs = docs.filter(transaction__current_status=transaction_status)
     if search_q:
         docs = docs.filter(Q(title__icontains=search_q) | Q(reference_number__icontains=search_q))
     if start_date: docs = docs.filter(uploaded_at__date__gte=start_date)
@@ -706,6 +755,7 @@ def reports_export_pdf(request):
 
     transactions = Transaction.objects.all()
     if user_id: transactions = transactions.filter(created_by_id=user_id)
+    if transaction_status: transactions = transactions.filter(current_status=transaction_status)
     if search_q: transactions = transactions.filter(Q(title__icontains=search_q) | Q(tracking_number__icontains=search_q))
     if start_date: transactions = transactions.filter(created_at__date__gte=start_date)
     if end_date: transactions = transactions.filter(created_at__date__lte=end_date)
@@ -724,6 +774,8 @@ def reports_export_pdf(request):
     
     if doc_type == 'incoming': report_title += " - الوارد"
     elif doc_type == 'outgoing': report_title += " - الصادر"
+
+    status_display = dict(Transaction.STATUS_CHOICES).get(transaction_status) if transaction_status else None
 
     context = {
         'report_title': report_title,
@@ -754,7 +806,9 @@ def reports_export_pdf(request):
         'logo_path': logo_path if logo_exists else None,
         'filters': {
             'start': start_date,
-            'end': end_date
+            'end': end_date,
+            'status': transaction_status,
+            'status_display': status_display
         }
     }
 
@@ -955,7 +1009,7 @@ def transaction_list(request):
     transactions = Transaction.objects.all()
     if query:
         transactions = transactions.filter(
-            Q(tracking_number__icontains=query) |
+            get_transaction_search_q(query) |
             Q(title__icontains=query) |
             Q(client_name__icontains=query) |
             Q(description__icontains=query)
@@ -1196,20 +1250,9 @@ def public_tracking_api(request):
     if not tracking_number:
         return _json_response({'success': False, 'error': 'رقم التتبع مطلوب'}, status=400)
 
-    transaction = None
-    if tracking_number.isdigit():
-        padded_num = f"{int(tracking_number):04d}"
-        transaction = Transaction.objects.filter(
-            Q(tracking_number__iexact=tracking_number) |
-            Q(tracking_number__endswith=f"-{padded_num}") |
-            Q(tracking_number__endswith=tracking_number)
-        ).order_by('-created_at').first()
-    else:
-        try:
-            uuid_module.UUID(str(tracking_number))
-            transaction = Transaction.objects.filter(secure_token=tracking_number).first()
-        except (ValueError, TypeError):
-            transaction = Transaction.objects.filter(tracking_number__iexact=tracking_number).first()
+    transaction = Transaction.objects.filter(
+        get_transaction_search_q(tracking_number)
+    ).order_by('-created_at').first()
 
     if not transaction:
         return _json_response({'success': False, 'error': 'عذراً، هذا الرابط غير صحيح أو انتهت صلاحيته.'}, status=404)
@@ -1227,7 +1270,7 @@ def public_tracking_api(request):
     return _json_response({
         'success': True,
         'transaction': {
-            'tracking_number':     transaction.tracking_number,
+            'tracking_number':     transaction.display_tracking_number,
             'simple_number':       transaction.simple_number,
             'client_name':         transaction.client_name,
             'client_phone':        transaction.client_phone,
@@ -1263,21 +1306,9 @@ def tracking_page(request):
             return render(request, 'eams/admin_tracking.html')
             
         import uuid
-        transaction = None
-        # محاولة البحث الذكي (دعم الأرقام البسيطة والرموز)
-        if tracking_number.isdigit():
-            padded_num = f"{int(tracking_number):04d}"
-            transaction = Transaction.objects.filter(
-                Q(tracking_number__iexact=tracking_number) |
-                Q(tracking_number__endswith=f"-{padded_num}") |
-                Q(tracking_number__endswith=tracking_number)
-            ).order_by('-created_at').first()
-        else:
-            try:
-                uuid.UUID(str(tracking_number))
-                transaction = Transaction.objects.filter(secure_token=tracking_number).first()
-            except (ValueError, TypeError):
-                transaction = Transaction.objects.filter(tracking_number__iexact=tracking_number).first()
+        transaction = Transaction.objects.filter(
+            get_transaction_search_q(tracking_number)
+        ).order_by('-created_at').first()
             
         if transaction:
             return redirect('transaction_detail', pk=transaction.pk)
@@ -1285,24 +1316,12 @@ def tracking_page(request):
             messages.warning(request, "لم يتم العثور على معاملة بهذا الرقم.")
             return redirect('dashboard')
 
-    # العرض العادي لأصحاب الشأن (المستخدمين غير المسجلين)
     transaction = None
     error = None
     if tracking_number:
-        import uuid
-        if tracking_number.isdigit():
-            padded_num = f"{int(tracking_number):04d}"
-            transaction = Transaction.objects.filter(
-                Q(tracking_number__iexact=tracking_number) |
-                Q(tracking_number__endswith=f"-{padded_num}") |
-                Q(tracking_number__endswith=tracking_number)
-            ).order_by('-created_at').first()
-        else:
-            try:
-                uuid.UUID(str(tracking_number))
-                transaction = Transaction.objects.filter(secure_token=tracking_number).first()
-            except (ValueError, TypeError):
-                transaction = Transaction.objects.filter(tracking_number__iexact=tracking_number).first()
+        transaction = Transaction.objects.filter(
+            get_transaction_search_q(tracking_number)
+        ).order_by('-created_at').first()
             
         if not transaction:
             error = "عذراً، هذا الرابط غير صحيح أو انتهت صلاحيته."

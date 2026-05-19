@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>طباعة المعاملة - {{ transaction.tracking_number }}</title>
+    <title>طباعة المعاملة - {{ transaction.display_tracking_number }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -422,7 +422,7 @@
         <div class="tracking-strip" style="height: 60px;">
             <div class="tracking-left">
                 <div class="track-label">إثبات تتبع حالة معاملة</div>
-                <div class="track-num">رقم المعاملة {{ transaction.simple_number }}</div>
+                <div class="track-num">رقم المعاملة {{ transaction.display_tracking_number }}</div>
             </div>
             <div style="display: flex; flex-direction: column; align-items: flex-end;">
                 <div style="font-size: 9px; font-weight: 900; color: #78350f; margin-bottom: 2px;">حالة الطلب الآن:</div>
@@ -557,7 +557,7 @@
                             class="qr-img"
                             id="qrImg"
                         >
-                        <div class="qr-trk" style="font-size: 14px;">رقم المعاملة: {{ transaction.simple_number }}</div>
+                        <div class="qr-trk" style="font-size: 14px;">رقم المعاملة: {{ transaction.display_tracking_number }}</div>
                         <div class="qr-hint">امسح الكود لمتابعة حالة معاملتك</div>
                     </div>
                 </div>

@@ -73,7 +73,7 @@
                             <select class="form-control" disabled style="background: #f8fafc; cursor: not-allowed; border-color: #cbd5e1; color: #64748b; font-weight: 900;">
                                 {% for tr in transactions %}
                                     {% if selected_transaction|add:"0" == tr.id %}
-                                        <option selected>{{ tr.tracking_number }} - {{ tr.title }} [صاحب الشأن: {{ tr.client_name }}]</option>
+                                        <option selected>{{ tr.display_tracking_number }} - {{ tr.title }} [صاحب الشأن: {{ tr.client_name }}]</option>
                                     {% endif %}
                                 {% endfor %}
                             </select>
@@ -85,7 +85,7 @@
                                 <option value="" {% if not doc.transaction_id and not selected_transaction %}selected{% endif %}>بدون معاملة (مستقل)</option>
                                 {% for tr in transactions %}
                                 <option value="{{ tr.id }}" {% if doc.transaction_id == tr.id %}selected{% endif %}>
-                                    {{ tr.tracking_number }} - {{ tr.title }} [صاحب الشأن: {{ tr.client_name }}]
+                                    {{ tr.display_tracking_number }} - {{ tr.title }} [صاحب الشأن: {{ tr.client_name }}]
                                 </option>
                                 {% endfor %}
                             </select>
