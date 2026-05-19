@@ -110,12 +110,28 @@ class Transaction(models.Model):
 
     @property
     def display_tracking_number(self):
-        """إرجاع رقم المتابعة بالكامل مثل TRK-2026-1 ليعرض في النظام"""
+        """إرجاع رقم المتابعة بالكامل مثل TRK-2026-1 وبدون الأصفار الزائدة"""
+        if self.tracking_number:
+            parts = self.tracking_number.split('-')
+            if len(parts) >= 3:
+                try:
+                    prefix = parts[0]
+                    year = parts[1]
+                    seq = int(parts[2])
+                    return f"{prefix}-{year}-{seq}"
+                except (ValueError, IndexError):
+                    pass
+            elif len(parts) == 2:
+                try:
+                    if len(parts[0]) == 4 and parts[0].isdigit():
+                        return f"TRK-{parts[0]}-{int(parts[1])}"
+                except ValueError:
+                    pass
         return self.tracking_number
 
     @property
     def short_tracking_number(self):
-        """إرجاع رقم المتابعة بشكل مبسط مثل 2026-1 للـ PDF"""
+        """إرجاع رقم المتابعة بشكل مبسط مثل 2026-1 للـ PDF وبدون الأصفار الزائدة"""
         if self.tracking_number:
             parts = self.tracking_number.split('-')
             if len(parts) >= 3:
