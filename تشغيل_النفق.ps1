@@ -46,5 +46,5 @@ Write-Host "⚠️  لا تُغلق هذه النافذة أثناء عمل ال
 Write-Host ""
 
 # ═══ تشغيل النفق ═══
-# يشير إلى النظام الذي يعمل على البورت 8000
-& $CloudflaredExe tunnel --url http://localhost:8000
+# يشير إلى نظام الأرشيف الذي يعمل على البورت 8002
+& $CloudflaredExe tunnel --url http://localhost:8002
