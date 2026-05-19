@@ -138,7 +138,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://192.168.1.29:8002',
     'http://localhost:8001',
     'http://127.0.0.1:8001',
-    'https://endorsement-resolution-corresponding-disabled.trycloudflare.com',
+    'https://bbs-designation-couple-salon.trycloudflare.com',
 ]
 
 # ط¥ط¹ط¯ط§ط¯ط§طھ CORS ظ„ظ„ط³ظ…ط§ط­ ط¨ط§ظ„ظˆطµظˆظ„ ظ…ظ† ط§ظ„ظ…طھطµظپط­ط§طھ ط§ظ„ط®ط§ط±ط¬ظٹط© (ط§ظ„ظ…ظˆط¨ط§ظٹظ„)
@@ -166,7 +166,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 REMOTE_TRACKING_URL = "https://nqabaalmohamen.github.io/archives/"
 
 # رابط Cloudflare Tunnel للـ API (يُحدَّث بعد تشغيل تشغيل_النفق.ps1)
-CLOUDFLARE_TUNNEL_URL = "https://endorsement-resolution-corresponding-disabled.trycloudflare.com"
+CLOUDFLARE_TUNNEL_URL = "https://bbs-designation-couple-salon.trycloudflare.com"
 
 ENABLE_REMOTE_SYNC = True
 
