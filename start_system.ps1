@@ -10,7 +10,11 @@ $Existing = Get-NetTCPConnection -LocalPort $PORT
 if ($Existing) { Stop-Process -Id $Existing.OwningProcess -Force }
 
 Write-Host "Starting Django..."
-Start-Process python -ArgumentList "manage.py runserver 0.0.0.0:$PORT" -WindowStyle Normal
+$IP = "192.168.1.37"
+$ActiveIP = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -notlike "127.*" -and $_.IPAddress -notlike "169.254.*" } | Select-Object -First 1).IPAddress
+if ($ActiveIP) { $IP = $ActiveIP }
+
+Start-Process python -ArgumentList "manage.py runserver $IP`:$PORT" -WindowStyle Normal
 
 Start-Sleep -Seconds 5
 
@@ -19,7 +23,7 @@ if (Test-Path $TunnelLog) { Remove-Item $TunnelLog }
 
 Write-Host "Connecting..."
 $Exe = "$PSScriptRoot\cloudflare_tunnel\cloudflared.exe"
-Start-Process $Exe -ArgumentList "tunnel --url http://127.0.0.1:$PORT" -RedirectStandardError $TunnelLog -WindowStyle Minimized
+Start-Process $Exe -ArgumentList "tunnel --url http://$IP`:$PORT" -RedirectStandardError $TunnelLog -WindowStyle Minimized
 
 $NewURL = ""
 for ($i=0; $i -lt 30; $i++) {
