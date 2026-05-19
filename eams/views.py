@@ -12,6 +12,18 @@ from django.urls import reverse_lazy
 from django.db import transaction as db_transaction
 
 
+def is_precise_code_search(query):
+    import re
+    q = query.strip()
+    if q.isdigit():
+        return True
+    if re.match(r'^(?:[a-zA-Z]+-)?\d{4}[-/]\d+$', q, re.IGNORECASE):
+        return True
+    if re.match(r'^\d+[-/]\d{4}$', q):
+        return True
+    return False
+
+
 def get_transaction_search_q(query):
     import re
     q_obj = Q()
@@ -65,6 +77,109 @@ def get_transaction_search_q(query):
     return q_obj
 
 
+def get_document_search_q(query):
+    import re
+    q_obj = Q()
+    query_clean = query.strip()
+    
+    # 1. Exact reference number match
+    q_obj |= Q(reference_number__iexact=query_clean)
+    
+    # 2. Check for Prefix-YYYY-Seq or Prefix-Seq (e.g., IN-2026-1, IN-1, IN-2026-0001)
+    m1 = re.match(r'^([a-zA-Z]+)[-/](\d{4})[-/](\d+)$', query_clean)
+    if m1:
+        prefix = m1.group(1).upper()
+        year = m1.group(2)
+        seq_int = int(m1.group(3))
+        q_obj |= Q(reference_number=f"{prefix}-{year}-{seq_int}")
+        q_obj |= Q(reference_number=f"{prefix}-{year}-{seq_int:04d}")
+        q_obj |= Q(reference_number__iexact=query_clean)
+        return q_obj
+        
+    m2 = re.match(r'^([a-zA-Z]+)[-/](\d+)$', query_clean)
+    if m2:
+        prefix = m2.group(1).upper()
+        seq_int = int(m2.group(2))
+        q_obj |= Q(reference_number__endswith=f"-{seq_int}")
+        q_obj |= Q(reference_number__endswith=f"-{seq_int:04d}")
+        q_obj |= Q(reference_number__icontains=f"{prefix}-") & (
+            Q(reference_number__endswith=f"-{seq_int}") | 
+            Q(reference_number__endswith=f"-{seq_int:04d}")
+        )
+        q_obj |= Q(reference_number__iexact=query_clean)
+        return q_obj
+
+    # 3. YYYY-Seq (e.g. 2026-1)
+    m3 = re.match(r'^(\d{4})[-/](\d+)$', query_clean)
+    if m3:
+        year = m3.group(1)
+        seq_int = int(m3.group(2))
+        q_obj |= Q(reference_number__contains=f"-{year}-{seq_int}")
+        q_obj |= Q(reference_number__contains=f"-{year}-{seq_int:04d}")
+        q_obj |= Q(reference_number__endswith=f"-{seq_int}")
+        q_obj |= Q(reference_number__endswith=f"-{seq_int:04d}")
+        return q_obj
+
+    # 4. Flipped Seq-YYYY (e.g., 1-2026)
+    m4 = re.match(r'^(\d+)[-/](\d{4})$', query_clean)
+    if m4:
+        seq_int = int(m4.group(1))
+        year = m4.group(2)
+        q_obj |= Q(reference_number__contains=f"-{year}-{seq_int}")
+        q_obj |= Q(reference_number__contains=f"-{year}-{seq_int:04d}")
+        return q_obj
+
+    # 5. Simple integer sequence
+    if query_clean.isdigit():
+        seq_int = int(query_clean)
+        q_obj |= Q(reference_number__endswith=f"-{seq_int}")
+        q_obj |= Q(reference_number__endswith=f"-{seq_int:04d}")
+        q_obj |= Q(reference_number=query_clean)
+        return q_obj
+
+    # Fallback
+    q_obj |= Q(reference_number__icontains=query_clean)
+    return q_obj
+
+
+def get_document_precise_search_q(query):
+    return get_document_search_q(query) | Q(transaction__in=Transaction.objects.filter(get_transaction_search_q(query)))
+
+
+def get_audit_log_precise_search_q(query):
+    import re
+    q_obj = Q()
+    query_clean = query.strip()
+    
+    m1 = re.match(r'^(?:[a-zA-Z]+-)?(\d{4})[-/](\d+)$', query_clean, re.IGNORECASE)
+    if m1:
+        year = m1.group(1)
+        seq_int = int(m1.group(2))
+        for suffix in [f"-{year}-{seq_int}", f"-{year}-{seq_int:04d}"]:
+            q_obj |= Q(document_title__contains=suffix) | Q(details__contains=suffix)
+        return q_obj
+        
+    m2 = re.match(r'^(\d+)[-/](\d{4})$', query_clean)
+    if m2:
+        seq_int = int(m2.group(1))
+        year = m2.group(2)
+        for suffix in [f"-{year}-{seq_int}", f"-{year}-{seq_int:04d}"]:
+            q_obj |= Q(document_title__contains=suffix) | Q(details__contains=suffix)
+        return q_obj
+
+    if query_clean.isdigit():
+        seq_int = int(query_clean)
+        from django.utils import timezone
+        current_year = timezone.now().year
+        for y in range(current_year - 5, current_year + 2):
+            for suffix in [f"-{y}-{seq_int}", f"-{y}-{seq_int:04d}"]:
+                q_obj |= Q(document_title__contains=suffix) | Q(details__contains=suffix)
+        return q_obj
+
+    q_obj |= Q(document_title__icontains=query_clean) | Q(details__icontains=query_clean)
+    return q_obj
+
+
 @login_required
 def dashboard(request):
     total_docs = Document.objects.count()
@@ -111,11 +226,14 @@ def dashboard_search(request):
 
     if query:
         if search_type == 'transaction':
-            transactions = Transaction.objects.filter(
-                get_transaction_search_q(query) |
-                Q(title__icontains=query) |
-                Q(client_name__icontains=query)
-            ).order_by('-created_at')[:20]
+            if is_precise_code_search(query):
+                transactions = Transaction.objects.filter(get_transaction_search_q(query)).order_by('-created_at')[:20]
+            else:
+                transactions = Transaction.objects.filter(
+                    get_transaction_search_q(query) |
+                    Q(title__icontains=query) |
+                    Q(client_name__icontains=query)
+                ).order_by('-created_at')[:20]
 
             for tr in transactions:
                 results.append({
@@ -134,15 +252,18 @@ def dashboard_search(request):
                     'is_transaction': True
                 })
         else:
-            docs = Document.objects.filter(
-                Q(title__icontains=query) |
-                Q(description__icontains=query) |
-                Q(reference_number__icontains=query) |
-                Q(category__name__icontains=query) |
-                Q(tags__name__icontains=query) |
-                Q(transaction__tracking_number__icontains=query) |
-                Q(transaction__client_name__icontains=query)
-            ).distinct().order_by('-uploaded_at')[:20]
+            if is_precise_code_search(query):
+                docs = Document.objects.filter(get_document_precise_search_q(query)).distinct().order_by('-uploaded_at')[:20]
+            else:
+                docs = Document.objects.filter(
+                    Q(title__icontains=query) |
+                    Q(description__icontains=query) |
+                    Q(reference_number__icontains=query) |
+                    Q(category__name__icontains=query) |
+                    Q(tags__name__icontains=query) |
+                    Q(transaction__tracking_number__icontains=query) |
+                    Q(transaction__client_name__icontains=query)
+                ).distinct().order_by('-uploaded_at')[:20]
 
             for doc in docs:
                 type_map = {'incoming': 'وارد', 'outgoing': 'صادر', 'internal': 'داخلي'}
@@ -174,11 +295,11 @@ def quick_search(request):
     
     if query:
         if search_type == 'transaction':
-            transaction = Transaction.objects.filter(
-                get_transaction_search_q(query) | 
-                Q(title__icontains=query)
-            ).first()
+            transaction_qs = Transaction.objects.filter(get_transaction_search_q(query))
+            if not transaction_qs.exists() and not is_precise_code_search(query):
+                transaction_qs = Transaction.objects.filter(Q(title__icontains=query) | Q(client_name__icontains=query))
             
+            transaction = transaction_qs.first()
             if transaction:
                 return redirect('transaction_detail', pk=transaction.pk)
             else:
@@ -186,17 +307,20 @@ def quick_search(request):
                 return redirect('dashboard')
         
         # البحث الافتراضي في الأرشيف
-        exact_match = Document.objects.filter(reference_number__iexact=query).first()
-        if exact_match:
-            return redirect('document_detail', pk=exact_match.pk)
+        match_qs = Document.objects.filter(get_document_precise_search_q(query))
+        if not match_qs.exists() and not is_precise_code_search(query):
+            match_qs = Document.objects.filter(
+                Q(title__icontains=query) | 
+                Q(reference_number__icontains=query) |
+                Q(description__icontains=query)
+            )
         
-        match = Document.objects.filter(
-            Q(title__icontains=query) | 
-            Q(reference_number__icontains=query)
-        ).first()
-        
+        match = match_qs.first()
         if match:
             return redirect('document_detail', pk=match.pk)
+        else:
+            messages.warning(request, f"لم يتم العثور على وثيقة مطابقة لـ '{query}'")
+            return redirect('dashboard')
 
     return redirect('dashboard')
 
@@ -279,11 +403,15 @@ def document_list(request):
     if doc_type:
         documents = documents.filter(doc_type=doc_type)
     if query:
-        documents = documents.filter(
-            Q(title__icontains=query) |
-            Q(description__icontains=query) |
-            Q(tags__name__icontains=query)
-        ).distinct()
+        if is_precise_code_search(query):
+            documents = documents.filter(get_document_precise_search_q(query)).distinct()
+        else:
+            documents = documents.filter(
+                Q(title__icontains=query) |
+                Q(description__icontains=query) |
+                Q(tags__name__icontains=query) |
+                Q(reference_number__icontains=query)
+            ).distinct()
     if category_id:
         documents = documents.filter(category_id=category_id)
 
@@ -561,11 +689,14 @@ def audit_log_view(request):
     logs = AuditLog.objects.all()
     
     if query:
-        logs = logs.filter(
-            Q(user__username__icontains=query) |
-            Q(document_title__icontains=query) |
-            Q(details__icontains=query)
-        )
+        if is_precise_code_search(query):
+            logs = logs.filter(get_audit_log_precise_search_q(query))
+        else:
+            logs = logs.filter(
+                Q(user__username__icontains=query) |
+                Q(document_title__icontains=query) |
+                Q(details__icontains=query)
+            )
     
     if start_date:
         logs = logs.filter(timestamp__date__gte=start_date)
@@ -662,7 +793,10 @@ def reports_view(request):
     if user_id: docs = docs.filter(uploaded_by_id=user_id)
     if transaction_status: docs = docs.filter(transaction__current_status=transaction_status)
     if search_q:
-        docs = docs.filter(Q(title__icontains=search_q) | Q(reference_number__icontains=search_q))
+        if is_precise_code_search(search_q):
+            docs = docs.filter(get_document_precise_search_q(search_q))
+        else:
+            docs = docs.filter(Q(title__icontains=search_q) | Q(reference_number__icontains=search_q))
     if start_date: docs = docs.filter(uploaded_at__date__gte=start_date)
     if end_date: docs = docs.filter(uploaded_at__date__lte=end_date)
 
@@ -670,7 +804,11 @@ def reports_view(request):
     transactions = Transaction.objects.all()
     if user_id: transactions = transactions.filter(created_by_id=user_id)
     if transaction_status: transactions = transactions.filter(current_status=transaction_status)
-    if search_q: transactions = transactions.filter(Q(title__icontains=search_q) | get_transaction_search_q(search_q))
+    if search_q:
+        if is_precise_code_search(search_q):
+            transactions = transactions.filter(get_transaction_search_q(search_q))
+        else:
+            transactions = transactions.filter(Q(title__icontains=search_q) | get_transaction_search_q(search_q))
     if start_date: transactions = transactions.filter(created_at__date__gte=start_date)
     if end_date: transactions = transactions.filter(created_at__date__lte=end_date)
 
@@ -749,14 +887,21 @@ def reports_export_pdf(request):
     if user_id: docs = docs.filter(uploaded_by_id=user_id)
     if transaction_status: docs = docs.filter(transaction__current_status=transaction_status)
     if search_q:
-        docs = docs.filter(Q(title__icontains=search_q) | Q(reference_number__icontains=search_q))
+        if is_precise_code_search(search_q):
+            docs = docs.filter(get_document_precise_search_q(search_q))
+        else:
+            docs = docs.filter(Q(title__icontains=search_q) | Q(reference_number__icontains=search_q))
     if start_date: docs = docs.filter(uploaded_at__date__gte=start_date)
     if end_date: docs = docs.filter(uploaded_at__date__lte=end_date)
 
     transactions = Transaction.objects.all()
     if user_id: transactions = transactions.filter(created_by_id=user_id)
     if transaction_status: transactions = transactions.filter(current_status=transaction_status)
-    if search_q: transactions = transactions.filter(Q(title__icontains=search_q) | Q(tracking_number__icontains=search_q))
+    if search_q:
+        if is_precise_code_search(search_q):
+            transactions = transactions.filter(get_transaction_search_q(search_q))
+        else:
+            transactions = transactions.filter(Q(title__icontains=search_q) | Q(tracking_number__icontains=search_q))
     if start_date: transactions = transactions.filter(created_at__date__gte=start_date)
     if end_date: transactions = transactions.filter(created_at__date__lte=end_date)
 
@@ -1008,12 +1153,15 @@ def transaction_list(request):
     
     transactions = Transaction.objects.all()
     if query:
-        transactions = transactions.filter(
-            get_transaction_search_q(query) |
-            Q(title__icontains=query) |
-            Q(client_name__icontains=query) |
-            Q(description__icontains=query)
-        )
+        if is_precise_code_search(query):
+            transactions = transactions.filter(get_transaction_search_q(query))
+        else:
+            transactions = transactions.filter(
+                get_transaction_search_q(query) |
+                Q(title__icontains=query) |
+                Q(client_name__icontains=query) |
+                Q(description__icontains=query)
+            )
     if status:
         transactions = transactions.filter(current_status=status)
         
