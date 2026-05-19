@@ -341,27 +341,63 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        /* ══ معلومات المعاملة ══ */
-        .info-section { padding: 18px 22px; }
+        /* ══ معلومات المعاملة (Premium Compact Grid) ══ */
+        .info-section {
+            padding: 16px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            background: #f8fafc;
+            border-top: 1px solid var(--border);
+        }
         .info-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 9px 0; border-bottom: 1px solid #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+            background: #fff;
+            padding: 10px 12px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
         }
-        .info-row:last-child { border-bottom: none; }
+        .info-row:hover {
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
         .info-key {
-            font-size: 12px; font-weight: 800; color: var(--muted);
-            display: flex; align-items: center; gap: 6px;
+            font-size: 11px; font-weight: 800; color: var(--muted);
+            display: flex; align-items: center; gap: 5px;
         }
-        .info-val { font-size: 13px; font-weight: 700; color: var(--text); }
-
+        .info-key i {
+            color: #6366f1;
+            font-size: 11px;
+        }
+        .info-val {
+            font-size: 12px; font-weight: 800; color: var(--text);
+            word-break: break-all;
+        }
         .desc-box {
-            flex-direction: column; align-items: flex-start !important;
-            gap: 8px; border-top: 1px dashed #eee; padding-top: 15px; margin-top: 5px;
+            grid-column: span 2;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            width: 100%;
+            background: #fff;
+            padding: 12px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
         }
         .desc-text {
-            width: 100%; white-space: pre-wrap; line-height: 1.6;
-            background: #f8fafc; padding: 12px; border-radius: 8px;
-            border: 1px solid #e2e8f0; font-size: 13px;
+            width: 100%;
+            white-space: pre-wrap;
+            line-height: 1.5;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #f1f5f9;
+            font-size: 12px;
+            color: var(--text);
         }
 
         /* ══ تذييل البطاقة ══ */
@@ -408,28 +444,20 @@
 <div class="bg-wrapper">
     <div class="container">
 
-        <!-- رأس الصفحة -->
-        <div class="page-header">
-            <div class="logo-circle">
-                <i class="fas fa-balance-scale"></i>
-            </div>
-            <h1>نقابة المحامين بالفيوم</h1>
-            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية</p>
-        </div>
-
         <!-- تنبيه العمل في الوضع المباشر -->
         <div class="offline-banner" id="offline-banner">
             <div class="m-dot"></div> النظام متصل الآن (بث مباشر)
         </div>
 
         <!-- واجهة النظام غير متاح (Premium) -->
-        <div class="maintenance-card" id="maintenance-card">
-            <div class="m-icon"><i class="fas fa-balance-scale"></i></div>
-            <div class="m-status"><div class="m-dot"></div> Offline</div>
-            <h2>نقابة المحامين بالفيوم</h2>
+        <div class="maintenance-card" id="maintenance-card" style="padding-top: 25px;">
+            <div style="font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 4px; text-align: center;">نقابة المحامين بالفيوم</div>
+            <div style="font-size: 11px; color: #f59e0b; font-weight: 800; margin-bottom: 25px; text-align: center;">بوابة تتبع المعاملات الإلكترونية</div>
+            <div class="m-status" style="margin-bottom: 20px;"><div class="m-dot"></div> Offline</div>
+            <h2>الخدمة غير متوفرة مؤقتاً</h2>
             <p>
                 النظام غير متاح حالياً، يرجى المحاولة لاحقاً أو التواصل مع النقابة.<br>
-                <span class="description">تعذّر الوصول للنظام، يرجى المحاولة مرة أخرى أو التواصل مع النقابة.</span>
+                <span class="description" style="font-size: 12px; color: rgba(255,255,255,0.5);">تعذّر الوصول للنظام، يرجى المحاولة مرة أخرى أو التواصل مع النقابة.</span>
             </p>
             <button class="retry-btn" onclick="location.reload()">
                 <i class="fas fa-sync-alt"></i> إعادة المحاولة
@@ -437,26 +465,38 @@
         </div>
 
         <!-- حالة التحميل -->
-        <div class="loading-card active" id="loading-card">
+        <div class="loading-card active" id="loading-card" style="padding-top: 25px;">
+            <div style="font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 4px; text-align: center;">نقابة المحامين بالفيوم</div>
+            <div style="font-size: 11px; color: #f59e0b; font-weight: 800; margin-bottom: 30px; text-align: center;">بوابة تتبع المعاملات الإلكترونية</div>
             <div class="spinner"></div>
             <p>جارٍ تحميل بيانات معاملتك...</p>
         </div>
 
         <!-- رسالة الخطأ -->
-        <div class="error-card" id="error-card">
-            <div class="err-icon"><i class="fas fa-exclamation-circle"></i></div>
+        <div class="error-card" id="error-card" style="padding-top: 25px;">
+            <div style="font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 4px; text-align: center;">نقابة المحامين بالفيوم</div>
+            <div style="font-size: 11px; color: #f59e0b; font-weight: 800; margin-bottom: 30px; text-align: center;">بوابة تتبع المعاملات الإلكترونية</div>
+            <div class="err-icon" style="font-size: 40px; margin-bottom: 12px;"><i class="fas fa-exclamation-circle"></i></div>
             <p id="error-msg">حدث خطأ ما</p>
         </div>
 
         <!-- بطاقة الترحيب (عند الدخول بدون tr) -->
-        <div class="welcome-card" id="welcome-card">
-            <div class="icon"><i class="fas fa-qrcode"></i></div>
+        <div class="welcome-card" id="welcome-card" style="padding-top: 25px;">
+            <div style="font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 4px; text-align: center;">نقابة المحامين بالفيوم</div>
+            <div style="font-size: 11px; color: #f59e0b; font-weight: 800; margin-bottom: 30px; text-align: center;">بوابة تتبع المعاملات الإلكترونية</div>
+            <div class="icon" style="font-size: 40px; margin-bottom: 12px;"><i class="fas fa-qrcode"></i></div>
             <p class="title">بوابة التتبع الذكي</p>
             <p>فضلاً قم بمسح رمز الـ QR الموجود على إيصال المعاملة<br>لمتابعة حالة طلبك بشكل مباشر وآمن</p>
         </div>
 
         <!-- بطاقة المعاملة (تُعرض بعد جلب البيانات) -->
         <div class="result-card" id="result-card">
+            <!-- ترويسة النقابة المدمجة -->
+            <div style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); padding: 18px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); text-align: center;">
+                <div style="font-size: 16px; font-weight: 900; color: #fff; letter-spacing: 0.5px;">نقابة المحامين بالفيوم</div>
+                <div style="font-size: 11px; color: #f59e0b; font-weight: 800; margin-top: 3px; letter-spacing: 0.3px;">بوابة تتبع المعاملات الإلكترونية</div>
+            </div>
+
             <div class="live-status" style="margin-top: 15px;">
                 <div class="live-dot"></div>
                 <div class="live-text">متابعة مباشرة الآن</div>
