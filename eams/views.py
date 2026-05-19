@@ -121,7 +121,7 @@ def dashboard_search(request):
                 results.append({
                     'id': tr.pk,
                     'title': tr.title,
-                    'reference_number': tr.short_tracking_number,
+                    'reference_number': tr.display_tracking_number,
                     'doc_type': 'transaction',
                     'doc_type_label': tr.get_current_status_display(),
                     'doc_type_color': '#000000',

@@ -110,7 +110,12 @@ class Transaction(models.Model):
 
     @property
     def display_tracking_number(self):
-        """إرجاع رقم المتابعة بشكل مبسط وبدون البادئة مثل 2026-1"""
+        """إرجاع رقم المتابعة بالكامل مثل TRK-2026-1 ليعرض في النظام"""
+        return self.tracking_number
+
+    @property
+    def short_tracking_number(self):
+        """إرجاع رقم المتابعة بشكل مبسط مثل 2026-1 للـ PDF"""
         if self.tracking_number:
             parts = self.tracking_number.split('-')
             if len(parts) >= 3:
@@ -127,11 +132,6 @@ class Transaction(models.Model):
                 except ValueError:
                     pass
         return self.tracking_number
-
-    @property
-    def short_tracking_number(self):
-        """إرجاع رقم المتابعة بشكل مبسط مثل 2026-1 للـ PDF"""
-        return self.display_tracking_number
 
     def save(self, *args, **kwargs):
         if not self.tracking_number:
