@@ -764,7 +764,25 @@ async function loadTracking(isSilent = false) {
 
         clearTimeout(timeoutId);
 
-        if (!res.ok) throw new Error("Offline");
+        if (!res.ok) {
+            if (res.status === 404) {
+                localStorage.removeItem(cacheKey);
+                lastStatus = null;
+                lastUpdate = null;
+                lastDesc   = null;
+                lastTitle  = null;
+                lastMissingInfo = null;
+                lastCompletionNote = null;
+                try {
+                    const errorData = await res.json();
+                    showError(errorData.error || 'عذراً، هذه المعاملة غير موجودة أو تم حذفها.');
+                } catch(e) {
+                    showError('عذراً، هذه المعاملة غير موجودة أو تم حذفها.');
+                }
+                return false;
+            }
+            throw new Error("Offline");
+        }
 
         const data = await res.json();
         if (data.success) {
@@ -797,7 +815,14 @@ async function loadTracking(isSilent = false) {
             if (liveDot) { liveDot.style.background = "#10b981"; liveDot.style.boxShadow = "0 0 10px #10b981"; liveDot.style.animation = "livePulse 1.5s infinite"; }
 
         } else {
-            if (!isSilent) showError(data.error || 'لم يتم العثور على هذه المعاملة.');
+            localStorage.removeItem(cacheKey);
+            lastStatus = null;
+            lastUpdate = null;
+            lastDesc   = null;
+            lastTitle  = null;
+            lastMissingInfo = null;
+            lastCompletionNote = null;
+            showError(data.error || 'عذراً، هذه المعاملة غير موجودة أو تم حذفها.');
         }
     } catch (err) {
         console.warn("Offline Mode - Showing Cache");
