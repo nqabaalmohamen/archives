@@ -533,7 +533,7 @@
                     <div class="info-val" id="i-reg-num"></div>
                 </div>
                 <div class="info-row">
-                    <div class="info-key"><i class="fas fa-calendar"></i> تاريخ التسجيل</div>
+                    <div class="info-key"><i class="fas fa-calendar"></i> تاريخ تسجيل المعاملة</div>
                     <div class="info-val" id="i-created-at"></div>
                 </div>
                 <div class="info-row desc-box" id="i-desc-row" style="display:none;">
@@ -840,7 +840,7 @@ async function loadTracking(isSilent = false) {
                 
                 const liveText = document.querySelector('.live-text');
                 if (liveText) {
-                    liveText.textContent = "بيانات مؤرشفة - " + parsed.timestamp;
+                    liveText.textContent = "قم بتحديث المتصفح او تأكد بأنك متصل بالانترنت - " + parsed.timestamp;
                     liveText.style.color = "#94a3b8";
                 }
                 const liveDot = document.querySelector('.live-dot');
