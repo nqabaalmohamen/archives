@@ -839,8 +839,8 @@ async function resolveActiveTunnel() {
         });
         if (res.ok) {
             const data = await res.json();
-            if (data && data.value) {
-                const url = data.value.replace("https_", "https://");
+            if (data && data.val) {
+                const url = data.val.replace("https_", "https://");
                 if (url.startsWith("https://")) {
                     API_BASE = url;
                     console.log("Dynamically resolved active tunnel API_BASE:", API_BASE);
