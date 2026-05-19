@@ -566,7 +566,7 @@
 // ═══════════════════════════════════════════════════════════
 //  ⚙️  إعداد رابط الـ API  ← غيّر هذا بعد إعداد Cloudflare
 // ═══════════════════════════════════════════════════════════
-const API_BASE = "https://sherman-python-races-metallic.trycloudflare.com";
+let API_BASE = "https://sherman-python-races-metallic.trycloudflare.com";
 // مثال: const API_BASE = "https://sherman-python-races-metallic.trycloudflare.com";
 // ═══════════════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════════
@@ -830,8 +830,34 @@ async function loadTracking(isSilent = false) {
         }
     }
 }
-loadTracking();
-setInterval(() => { loadTracking(true); }, 10000);
+// Dynamic Resolver: Fetch the active tunnel URL from keyval.org storage
+async function resolveActiveTunnel() {
+    try {
+        const res = await fetch("https://api.keyval.org/get/nqaba_almohamen_fayoum_archive_tunnel_secure", {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (data && data.value) {
+                const url = data.value.replace("https_", "https://");
+                if (url.startsWith("https://")) {
+                    API_BASE = url;
+                    console.log("Dynamically resolved active tunnel API_BASE:", API_BASE);
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Failed to resolve dynamic tunnel URL:", e);
+    }
+}
+
+async function startApp() {
+    await resolveActiveTunnel();
+    loadTracking();
+    setInterval(() => { loadTracking(true); }, 10000);
+}
+startApp();
 
 </script>
 </body>
