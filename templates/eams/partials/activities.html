@@ -16,8 +16,8 @@
         <span style="background: #eff6ff; color: #1e40af; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 900;">{{ log.get_action_display }}</span>
         {% endif %}
     </td>
-    <td style="padding: 15px 20px; font-weight: 700; font-size: 13px;">{{ log.document_title|default:"---" }}</td>
-    <td style="padding: 15px 20px; font-size: 12px; color: #64748b; font-weight: 700;">{{ log.details|truncatechars:50 }}</td>
+    <td style="padding: 15px 20px; font-weight: 700; font-size: 13px;">{{ log.display_document_title|default:"---" }}</td>
+    <td style="padding: 15px 20px; font-size: 12px; color: #64748b; font-weight: 700;">{{ log.display_details|truncatechars:50 }}</td>
 </tr>
 {% empty %}
 <tr>

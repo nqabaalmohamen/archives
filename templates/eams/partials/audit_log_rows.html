@@ -34,10 +34,10 @@
         {% endif %}
     </td>
     <td style="padding: 20px;">
-        <span style="font-weight: 800; color: #334155;">{{ log.document_title|default:"---" }}</span>
+        <span style="font-weight: 800; color: #334155;">{{ log.display_document_title|default:"---" }}</span>
     </td>
     <td style="padding: 20px;">
-        <p style="font-size: 13px; color: #64748b; font-weight: 700; max-width: 300px; line-height: 1.4;">{{ log.details }}</p>
+        <p style="font-size: 13px; color: #64748b; font-weight: 700; max-width: 300px; line-height: 1.4;">{{ log.display_details }}</p>
     </td>
 </tr>
 {% endfor %}

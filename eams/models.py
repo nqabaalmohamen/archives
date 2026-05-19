@@ -248,3 +248,17 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"{self.user} {self.action} {self.document_title} at {self.timestamp}"
+
+    @property
+    def display_document_title(self):
+        import re
+        if self.document_title:
+            return re.sub(r'TRK-(\d{4})-0*(\d+)', r'TRK-\1-\2', self.document_title)
+        return self.document_title
+
+    @property
+    def display_details(self):
+        import re
+        if self.details:
+            return re.sub(r'TRK-(\d{4})-0*(\d+)', r'TRK-\1-\2', self.details)
+        return self.details
