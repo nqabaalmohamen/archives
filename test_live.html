@@ -517,6 +517,25 @@
         </style>
 </head>
 <body>
+<!-- === Offline Notice Modal Overlay === -->
+<div id="offline-modal-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px;">
+    <div style="background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);border:1px solid rgba(245,158,11,0.5);border-radius:20px;padding:32px 28px 24px;max-width:430px;width:100%;text-align:center;box-shadow:0 0 60px rgba(245,158,11,0.2),0 24px 60px rgba(0,0,0,0.6);direction:rtl;">
+        <div style="font-size:50px;color:#f59e0b;margin-bottom:16px;"><i class="fas fa-exclamation-triangle"></i></div>
+        <h3 style="color:#fcd34d;font-size:16px;font-weight:900;margin:0 0 14px;line-height:1.5;">تنبيه: النظام غير متصل حالياً</h3>
+        <p style="color:rgba(255,255,255,0.78);font-size:13px;line-height:2;margin:0 0 22px;">
+            قم بتحديث المتصفح أو تأكيد بأنك متصل بالانترنت لتتابع المعاملة مباشرةً.<br><br>
+            إذا كنت متأكداً من تحديث المتصفح وأنك متصل بالانترنت، فهذا يعني أن النقابة
+            قد تكون خارج مواعيد العمل الرسمية
+            <strong style="color:#fcd34d;">من 9 ص إلى 2 م</strong>
+            أو في أيام الإجازات مثل الجمعة والإجازات الرسمية.
+        </p>
+        <button onclick="document.getElementById('offline-modal-overlay').style.display='none';" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#0f172a;border:none;border-radius:12px;padding:13px 36px;font-size:15px;font-weight:900;cursor:pointer;width:100%;box-shadow:0 4px 20px rgba(245,158,11,0.4);">
+            <i class="fas fa-check-circle" style="margin-left:6px;"></i> موافق &mdash; عرض آخر بيانات مؤرشفة
+        </button>
+        <div style="margin-top:14px;font-size:11px;color:rgba(255,255,255,0.35);">سيتم الاتصال تلقائياً عند عودة النظام للعمل</div>
+    </div>
+</div>
+
 <div class="bg-wrapper">
     <div class="container">
 
@@ -920,6 +939,8 @@ async function loadTracking(isSilent = false) {
                 renderTransaction(t);
             }
             
+            const om = document.getElementById('offline-modal-overlay');
+            if (om) { om.style.display = 'none'; }
             const banner = document.getElementById('offline-banner');
             if (banner) {
                 banner.classList.remove('active');
@@ -947,6 +968,11 @@ async function loadTracking(isSilent = false) {
             try {
                 const parsed = JSON.parse(cachedData);
                 renderTransaction(parsed.transaction);
+                // Show offline modal on first load
+                if (!isSilent) {
+                    const om = document.getElementById('offline-modal-overlay');
+                    if (om) { om.style.display = 'flex'; }
+                }
                 
                 // Show the offline modal overlay (only on first load, not silent poll)
                 if (!isSilent) {
