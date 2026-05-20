@@ -1,21 +1,12 @@
-2026-05-20T05:57:35Z INF Thank you for trying Cloudflare Tunnel. Doing so, without a Cloudflare account, is a quick way to experiment and try it out. However, be aware that these account-less Tunnels have no uptime guarantee, are subject to the Cloudflare Online Services Terms of Use (https://www.cloudflare.com/website-terms/), and Cloudflare reserves the right to investigate your use of Tunnels for violations of such terms. If you intend to use Tunnels in production you should use a pre-created named tunnel by following: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps
-2026-05-20T05:57:35Z INF Requesting new quick Tunnel on trycloudflare.com...
-2026-05-20T05:57:40Z INF +--------------------------------------------------------------------------------------------+
-2026-05-20T05:57:40Z INF |  Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):  |
-2026-05-20T05:57:40Z INF |  https://ratings-armstrong-performed-wives.trycloudflare.com                               |
-2026-05-20T05:57:40Z INF +--------------------------------------------------------------------------------------------+
-2026-05-20T05:57:40Z INF Cannot determine default configuration path. No file [config.yml config.yaml] in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp]
-2026-05-20T05:57:40Z INF Version 2026.3.0 (Checksum 59b12880b24af581cf5b1013db601c7d843b9b097e9c78aa5957c7f39f741885)
-2026-05-20T05:57:40Z INF GOOS: windows, GOVersion: go1.24.13, GoArch: amd64
-2026-05-20T05:57:40Z INF Settings: map[ha-connections:1 protocol:quic url:http://192.168.1.37:8002]
-2026-05-20T05:57:40Z INF cloudflared will not automatically update on Windows systems.
-2026-05-20T05:57:40Z INF Generated Connector ID: 45b02387-f37e-4c58-8f20-6cd8d0f0dce5
-2026-05-20T05:57:40Z INF Initial protocol quic
-2026-05-20T05:57:40Z INF ICMP proxy will use 192.168.1.37 as source for IPv4
-2026-05-20T05:57:40Z INF ICMP proxy will use fe80::10e9:159e:f521:fa63 in zone Ethernet as source for IPv6
-2026-05-20T05:57:40Z INF cloudflared does not support loading the system root certificate pool on Windows. Please use --origin-ca-pool <PATH> to specify the path to the certificate pool
-2026-05-20T05:57:40Z INF ICMP proxy will use 192.168.1.37 as source for IPv4
-2026-05-20T05:57:40Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.200.23
-2026-05-20T05:57:40Z INF ICMP proxy will use fe80::10e9:159e:f521:fa63 in zone Ethernet as source for IPv6
-2026-05-20T05:57:40Z INF Starting metrics server on 127.0.0.1:20241/metrics
-2026-05-20T05:57:40Z INF Registered tunnel connection connIndex=0 connection=ad1d63e2-fe2f-4175-9e0d-79f8768e5740 event=0 ip=198.41.200.23 location=mrs06 protocol=quic
+2026-05-20T06:18:50Z INF Thank you for trying Cloudflare Tunnel. Doing so, without a Cloudflare account, is a quick way to experiment and try it out. However, be aware that these account-less Tunnels have no uptime guarantee, are subject to the Cloudflare Online Services Terms of Use (https://www.cloudflare.com/website-terms/), and Cloudflare reserves the right to investigate your use of Tunnels for violations of such terms. If you intend to use Tunnels in production you should use a pre-created named tunnel by following: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps
+2026-05-20T06:18:50Z INF Requesting new quick Tunnel on trycloudflare.com...
+2026-05-20T06:18:56Z INF +--------------------------------------------------------------------------------------------+
+2026-05-20T06:18:56Z INF |  Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):  |
+2026-05-20T06:18:56Z INF |  https://undertake-generations-trout-rna.trycloudflare.com                                 |
+2026-05-20T06:18:56Z INF +--------------------------------------------------------------------------------------------+
+2026-05-20T06:18:56Z INF Cannot determine default configuration path. No file [config.yml config.yaml] in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp]
+2026-05-20T06:18:56Z INF Version 2026.3.0 (Checksum 59b12880b24af581cf5b1013db601c7d843b9b097e9c78aa5957c7f39f741885)
+2026-05-20T06:18:56Z INF GOOS: windows, GOVersion: go1.24.13, GoArch: amd64
+2026-05-20T06:18:56Z INF Settings: map[ha-connections:1 protocol:quic url:http://192.168.1.37:8002]
+2026-05-20T06:18:56Z INF cloudflared will not automatically update on Windows systems.
+2026-05-20T06:18:56Z INF Generated Connector ID: 48571dc0-55c4-4793-8a6b-8c7c59cd8c24
