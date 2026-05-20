@@ -11,7 +11,7 @@ new_catch = """} catch (err) {
                 
                 const banner = document.getElementById('offline-banner');
                 if (banner) {
-                    banner.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-left:8px;"></i> تنبيه: النظام غير متصل حالياً (قد تكون خارج مواعيد العمل الرسمية من 9 ص إلى 2 م أو غير متصل بالإنترنت)';
+                    banner.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-left:8px;"></i> تنبيه: النظام غير متصل حالياً ( قم بتحديث المتصفح او تأكيد بأنك متصل بالانترنت لتتابع معاملة مباشر اذا انتا متأكيد انك قمت بتحديث المتصفح و انك متصل بالانترنت فهذا يعني ان النقابة قد تكون خارج مواعيد العمل الرسمية من 9 ص إلى 2 م و الاجازات مثل الجمعة و الاجازات الرسمية )';
                     banner.style.background = "rgba(245,158,11,0.15)";
                     banner.style.color = "#fcd34d";
                     banner.style.borderColor = "rgba(245,158,11,0.4)";
