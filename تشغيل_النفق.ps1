@@ -47,4 +47,4 @@ Write-Host ""
 
 # ═══ تشغيل النفق ═══
 # يشير إلى نظام الأرشيف الذي يعمل على البورت 8002
-& $CloudflaredExe tunnel --url http://localhost:8002
+& $CloudflaredExe tunnel --protocol http2 --url http://localhost:8002

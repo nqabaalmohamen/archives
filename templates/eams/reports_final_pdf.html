@@ -169,31 +169,100 @@
     {% endif %}
 
     {% if report_type == 'all' or report_type == 'archive' %}
-    <h3 style="border-right: 5px solid #10b981; padding-right: 10px; margin-top: 30px;">بيانات الأرشفة الإلكترونية</h3>
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 15%;">رقم الأرشفة</th>
-                <th style="width: 35%;">العنوان / الموضوع</th>
-                <th style="width: 15%;">النوع</th>
-                <th style="width: 20%;">تاريخ ووقت الإيداع</th>
-                <th style="width: 15%;">الموظف</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for doc in documents %}
-            <tr>
-                <td style="font-weight: bold;">{{ doc.reference_number }}</td>
-                <td style="text-align: right;">{{ doc.title }}</td>
-                <td>{{ doc.get_doc_type_display }}</td>
-                <td>{{ doc.uploaded_at|date:"Y/m/d h:i A" }}</td>
-                <td>{{ doc.uploaded_by.username }}</td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="5">لا توجد بيانات</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        {% if total_docs == 0 %}
+            <h3 style="border-right: 5px solid #10b981; padding-right: 10px; margin-top: 30px;">بيانات الأرشفة الإلكترونية</h3>
+            <p style="text-align: center; font-size: 11pt; margin-top: 20px;">لا توجد مستندات مؤرشفة مطابقة لمعايير البحث.</p>
+        {% else %}
+            {% if incoming > 0 %}
+            <h3 style="border-right: 5px solid #10b981; padding-right: 10px; margin-top: 30px;">الأرشيف الوارد (المستندات الواردة)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 12%;">رقم الأرشفة</th>
+                        <th style="width: 25%;">العنوان / الموضوع</th>
+                        <th style="width: 8%;">النوع</th>
+                        <th style="width: 15%;">الموظف المستلم</th>
+                        <th style="width: 12%;">القسم</th>
+                        <th style="width: 13%;">رقم المعاملة</th>
+                        <th style="width: 15%;">تاريخ ووقت الإيداع</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in documents %}
+                        {% if doc.doc_type == 'incoming' %}
+                        <tr>
+                            <td style="font-weight: bold;">{{ doc.reference_number }}</td>
+                            <td style="text-align: right;">{{ doc.title }}</td>
+                            <td>{{ doc.get_doc_type_display }}</td>
+                            <td>{{ doc.recipient_name|default:doc.uploaded_by.profile.full_name|default:doc.uploaded_by.username }}</td>
+                            <td>{{ doc.recipient_department|default:"-" }}</td>
+                            <td>{{ doc.transaction.display_tracking_number|default:"-" }}</td>
+                            <td>{{ doc.uploaded_at|date:"Y/m/d h:i A" }}</td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            {% if outgoing > 0 %}
+            <h3 style="border-right: 5px solid #f59e0b; padding-right: 10px; margin-top: 30px;">الأرشيف الصادر (المستندات الصادرة)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 12%;">رقم الأرشفة</th>
+                        <th style="width: 13%;">رقم المعاملة</th>
+                        <th style="width: 25%;">العنوان / الموضوع</th>
+                        <th style="width: 10%;">النوع</th>
+                        <th style="width: 20%;">الموظف المرسل</th>
+                        <th style="width: 20%;">الموظف المستلم</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in documents %}
+                        {% if doc.doc_type == 'outgoing' %}
+                        <tr>
+                            <td style="font-weight: bold;">{{ doc.short_reference_number }}</td>
+                            <td>{{ doc.transaction.display_tracking_number|default:"-" }}</td>
+                            <td style="text-align: right;">{{ doc.title }}</td>
+                            <td>{{ doc.get_doc_type_display }}</td>
+                            <td>{{ doc.uploaded_by.profile.full_name|default:doc.uploaded_by.username }}</td>
+                            <td>{{ doc.recipient_name|default:"-" }}</td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            {% if internal > 0 %}
+            <h3 style="border-right: 5px solid #6366f1; padding-right: 10px; margin-top: 30px;">الأرشيف الداخلي (البريد الداخلي)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">رقم الأرشفة</th>
+                        <th style="width: 35%;">العنوان / الموضوع</th>
+                        <th style="width: 15%;">النوع</th>
+                        <th style="width: 20%;">الموظف</th>
+                        <th style="width: 15%;">تاريخ ووقت الإيداع</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in documents %}
+                        {% if doc.doc_type == 'internal' %}
+                        <tr>
+                            <td style="font-weight: bold;">{{ doc.reference_number }}</td>
+                            <td style="text-align: right;">{{ doc.title }}</td>
+                            <td>{{ doc.get_doc_type_display }}</td>
+                            <td>{{ doc.uploaded_by.profile.full_name|default:doc.uploaded_by.username }}</td>
+                            <td>{{ doc.uploaded_at|date:"Y/m/d h:i A" }}</td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        {% endif %}
     {% endif %}
 
     {% if report_type == 'all' or report_type == 'archive' %}
@@ -202,15 +271,19 @@
             <tr><th colspan="2">إحصائيات الأرشفة</th></tr>
         </thead>
         <tbody>
+            {% if incoming > 0 %}
             <tr><td>بريد وارد</td><td>{{ incoming }}</td></tr>
+            {% endif %}
+            {% if outgoing > 0 %}
             <tr><td>بريد صادر</td><td>{{ outgoing }}</td></tr>
+            {% endif %}
+            {% if internal > 0 %}
+            <tr><td>بريد داخلي</td><td>{{ internal }}</td></tr>
+            {% endif %}
             <tr class="total-row"><td>إجمالي الوثائق</td><td>{{ total_docs }}</td></tr>
         </tbody>
     </table>
     {% endif %}
 
-    <div class="report-footer-info">
-        تم استخراج التقرير في: {{ "now"|date:"Y/m/d h:i A" }}
-    </div>
 </body>
 </html>

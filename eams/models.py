@@ -212,8 +212,27 @@ class Document(models.Model):
             else:
                 new_sequence = Document.objects.filter(doc_type=self.doc_type, uploaded_at__year=year).count() + 1
             
-            self.reference_number = f"{prefix}-{year}-{new_sequence:04d}"
+            self.reference_number = f"{prefix}-{year}-{new_sequence}"
         super().save(*args, **kwargs)
+
+    @property
+    def short_reference_number(self):
+        """إرجاع رقم الأرشفة بشكل مبسط مثل 2026-1 وبدون البادئة"""
+        if self.reference_number:
+            parts = self.reference_number.split('-')
+            if len(parts) >= 3:
+                try:
+                    year = parts[1]
+                    seq = int(parts[2])
+                    return f"{year}-{seq}"
+                except (ValueError, IndexError):
+                    pass
+            elif len(parts) == 2:
+                try:
+                    return f"{parts[0]}-{int(parts[1])}"
+                except ValueError:
+                    pass
+        return self.reference_number
 
     def extension(self):
         if not self.file:

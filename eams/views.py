@@ -794,9 +794,31 @@ def reports_view(request):
     if transaction_status: docs = docs.filter(transaction__current_status=transaction_status)
     if search_q:
         if is_precise_code_search(search_q):
-            docs = docs.filter(get_document_precise_search_q(search_q))
+            docs = docs.filter(
+                get_document_precise_search_q(search_q) |
+                Q(title__icontains=search_q) |
+                Q(description__icontains=search_q) |
+                Q(recipient_name__icontains=search_q) |
+                Q(recipient_department__icontains=search_q) |
+                Q(uploaded_by__username__icontains=search_q) |
+                Q(uploaded_by__profile__full_name__icontains=search_q) |
+                Q(transaction__title__icontains=search_q) |
+                Q(transaction__client_name__icontains=search_q) |
+                Q(tags__name__icontains=search_q)
+            ).distinct()
         else:
-            docs = docs.filter(Q(title__icontains=search_q) | Q(reference_number__icontains=search_q))
+            docs = docs.filter(
+                Q(title__icontains=search_q) |
+                Q(reference_number__icontains=search_q) |
+                Q(description__icontains=search_q) |
+                Q(recipient_name__icontains=search_q) |
+                Q(recipient_department__icontains=search_q) |
+                Q(uploaded_by__username__icontains=search_q) |
+                Q(uploaded_by__profile__full_name__icontains=search_q) |
+                Q(transaction__title__icontains=search_q) |
+                Q(transaction__client_name__icontains=search_q) |
+                Q(tags__name__icontains=search_q)
+            ).distinct()
     if start_date: docs = docs.filter(uploaded_at__date__gte=start_date)
     if end_date: docs = docs.filter(uploaded_at__date__lte=end_date)
 
@@ -806,9 +828,27 @@ def reports_view(request):
     if transaction_status: transactions = transactions.filter(current_status=transaction_status)
     if search_q:
         if is_precise_code_search(search_q):
-            transactions = transactions.filter(get_transaction_search_q(search_q))
+            transactions = transactions.filter(
+                get_transaction_search_q(search_q) |
+                Q(title__icontains=search_q) |
+                Q(client_name__icontains=search_q) |
+                Q(client_phone__icontains=search_q) |
+                Q(registration_number__icontains=search_q) |
+                Q(description__icontains=search_q) |
+                Q(created_by__username__icontains=search_q) |
+                Q(created_by__profile__full_name__icontains=search_q)
+            ).distinct()
         else:
-            transactions = transactions.filter(Q(title__icontains=search_q) | get_transaction_search_q(search_q))
+            transactions = transactions.filter(
+                Q(title__icontains=search_q) |
+                Q(tracking_number__icontains=search_q) |
+                Q(client_name__icontains=search_q) |
+                Q(client_phone__icontains=search_q) |
+                Q(registration_number__icontains=search_q) |
+                Q(description__icontains=search_q) |
+                Q(created_by__username__icontains=search_q) |
+                Q(created_by__profile__full_name__icontains=search_q)
+            ).distinct()
     if start_date: transactions = transactions.filter(created_at__date__gte=start_date)
     if end_date: transactions = transactions.filter(created_at__date__lte=end_date)
 
@@ -888,9 +928,31 @@ def reports_export_pdf(request):
     if transaction_status: docs = docs.filter(transaction__current_status=transaction_status)
     if search_q:
         if is_precise_code_search(search_q):
-            docs = docs.filter(get_document_precise_search_q(search_q))
+            docs = docs.filter(
+                get_document_precise_search_q(search_q) |
+                Q(title__icontains=search_q) |
+                Q(description__icontains=search_q) |
+                Q(recipient_name__icontains=search_q) |
+                Q(recipient_department__icontains=search_q) |
+                Q(uploaded_by__username__icontains=search_q) |
+                Q(uploaded_by__profile__full_name__icontains=search_q) |
+                Q(transaction__title__icontains=search_q) |
+                Q(transaction__client_name__icontains=search_q) |
+                Q(tags__name__icontains=search_q)
+            ).distinct()
         else:
-            docs = docs.filter(Q(title__icontains=search_q) | Q(reference_number__icontains=search_q))
+            docs = docs.filter(
+                Q(title__icontains=search_q) |
+                Q(reference_number__icontains=search_q) |
+                Q(description__icontains=search_q) |
+                Q(recipient_name__icontains=search_q) |
+                Q(recipient_department__icontains=search_q) |
+                Q(uploaded_by__username__icontains=search_q) |
+                Q(uploaded_by__profile__full_name__icontains=search_q) |
+                Q(transaction__title__icontains=search_q) |
+                Q(transaction__client_name__icontains=search_q) |
+                Q(tags__name__icontains=search_q)
+            ).distinct()
     if start_date: docs = docs.filter(uploaded_at__date__gte=start_date)
     if end_date: docs = docs.filter(uploaded_at__date__lte=end_date)
 
@@ -899,9 +961,27 @@ def reports_export_pdf(request):
     if transaction_status: transactions = transactions.filter(current_status=transaction_status)
     if search_q:
         if is_precise_code_search(search_q):
-            transactions = transactions.filter(get_transaction_search_q(search_q))
+            transactions = transactions.filter(
+                get_transaction_search_q(search_q) |
+                Q(title__icontains=search_q) |
+                Q(client_name__icontains=search_q) |
+                Q(client_phone__icontains=search_q) |
+                Q(registration_number__icontains=search_q) |
+                Q(description__icontains=search_q) |
+                Q(created_by__username__icontains=search_q) |
+                Q(created_by__profile__full_name__icontains=search_q)
+            ).distinct()
         else:
-            transactions = transactions.filter(Q(title__icontains=search_q) | Q(tracking_number__icontains=search_q))
+            transactions = transactions.filter(
+                Q(title__icontains=search_q) |
+                Q(tracking_number__icontains=search_q) |
+                Q(client_name__icontains=search_q) |
+                Q(client_phone__icontains=search_q) |
+                Q(registration_number__icontains=search_q) |
+                Q(description__icontains=search_q) |
+                Q(created_by__username__icontains=search_q) |
+                Q(created_by__profile__full_name__icontains=search_q)
+            ).distinct()
     if start_date: transactions = transactions.filter(created_at__date__gte=start_date)
     if end_date: transactions = transactions.filter(created_at__date__lte=end_date)
 

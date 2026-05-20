@@ -23,7 +23,7 @@ if (Test-Path $TunnelLog) { Remove-Item $TunnelLog }
 
 Write-Host "Connecting..."
 $Exe = "$PSScriptRoot\cloudflare_tunnel\cloudflared.exe"
-Start-Process $Exe -ArgumentList "tunnel --url http://$IP`:$PORT" -RedirectStandardError $TunnelLog -WindowStyle Minimized
+Start-Process $Exe -ArgumentList "tunnel --protocol http2 --url http://$IP`:$PORT" -RedirectStandardError $TunnelLog -WindowStyle Minimized
 
 $NewURL = ""
 for ($i=0; $i -lt 30; $i++) {
