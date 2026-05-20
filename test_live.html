@@ -438,7 +438,83 @@
             display: none;
         }
         .offline-banner.active { display: flex; }
-    </style>
+    
+        /* ═══ Offline Notice Modal ═══ */
+        #offline-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.72);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeInModal 0.3s ease;
+        }
+        #offline-modal-overlay.show { display: flex; }
+        @keyframes fadeInModal {
+            from { opacity: 0; transform: scale(0.95); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        #offline-modal-box {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid rgba(245,158,11,0.45);
+            border-radius: 20px;
+            padding: 32px 28px 24px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(245,158,11,0.18), 0 24px 60px rgba(0,0,0,0.6);
+            direction: rtl;
+        }
+        #offline-modal-box .om-icon {
+            font-size: 48px;
+            color: #f59e0b;
+            margin-bottom: 14px;
+            animation: warnPulse 2s infinite;
+        }
+        @keyframes warnPulse {
+            0%,100% { text-shadow: 0 0 12px rgba(245,158,11,0.5); }
+            50%      { text-shadow: 0 0 30px rgba(245,158,11,0.9); }
+        }
+        #offline-modal-box h3 {
+            color: #fcd34d;
+            font-size: 15px;
+            font-weight: 900;
+            margin: 0 0 14px;
+            line-height: 1.5;
+        }
+        #offline-modal-box p {
+            color: rgba(255,255,255,0.75);
+            font-size: 13px;
+            line-height: 1.8;
+            margin: 0 0 22px;
+        }
+        #offline-modal-box button {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #0f172a;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 36px;
+            font-size: 15px;
+            font-weight: 900;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 20px rgba(245,158,11,0.4);
+        }
+        #offline-modal-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(245,158,11,0.55);
+        }
+        #offline-modal-box .om-note {
+            margin-top: 14px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.35);
+        }
+        </style>
 </head>
 <body>
 <div class="bg-wrapper">
@@ -872,14 +948,13 @@ async function loadTracking(isSilent = false) {
                 const parsed = JSON.parse(cachedData);
                 renderTransaction(parsed.transaction);
                 
-                const banner = document.getElementById('offline-banner');
-                if (banner) {
-                    banner.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-left:8px;"></i> تنبيه: النظام غير متصل حالياً ( قم بتحديث المتصفح او تأكيد بأنك متصل بالانترنت لتتابع معاملة مباشر اذا انتا متأكيد انك قمت بتحديث المتصفح و انك متصل بالانترنت فهذا يعني ان النقابة قد تكون خارج مواعيد العمل الرسمية من 9 ص إلى 2 م و الاجازات مثل الجمعة و الاجازات الرسمية )';
-                    banner.style.background = "rgba(245,158,11,0.15)";
-                    banner.style.color = "#fcd34d";
-                    banner.style.borderColor = "rgba(245,158,11,0.4)";
-                    banner.classList.add('active');
-                    banner.style.display = 'flex';
+                // Show the offline modal overlay (only on first load, not silent poll)
+                if (!isSilent) {
+                    const modal = document.getElementById('offline-modal-overlay');
+                    if (modal) {
+                        modal.style.display = 'flex';
+                        modal.classList.add('show');
+                    }
                 }
                 
                 const liveText = document.querySelector('.live-text');
@@ -892,6 +967,12 @@ async function loadTracking(isSilent = false) {
                     liveDot.style.background = "#f59e0b";
                     liveDot.style.boxShadow = "0 0 10px #f59e0b";
                     liveDot.style.animation = "livePulse 2s infinite";
+                }
+                
+                const banner = document.getElementById('offline-banner');
+                if (banner) {
+                    banner.classList.remove('active');
+                    banner.style.display = 'none';
                 }
             } catch(e) {}
         } else {
