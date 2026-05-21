@@ -1290,7 +1290,23 @@ def transaction_create(request):
             messages.success(request, f"تم إنشاء المعاملة بنجاح! رقم المتابعة: {transaction.tracking_number}")
             
             if request.headers.get('HX-Request'):
-                response = render(request, 'eams/partials/transaction_print_inner.html', {'transaction': transaction})
+                import qrcode
+                from io import BytesIO
+                import base64
+                qr = qrcode.QRCode(version=1, box_size=5, border=2)
+                qr.add_data(transaction.tracking_url)
+                qr.make(fit=True)
+                img = qr.make_image(fill_color="black", back_color="white")
+                buffered = BytesIO()
+                img.save(buffered, format="PNG")
+                qr_code_data_uri = f"data:image/png;base64,{base64.b64encode(buffered.getvalue()).decode('utf-8')}"
+
+                context = {
+                    'transaction': transaction,
+                    'tracking_url': transaction.tracking_url,
+                    'qr_url': qr_code_data_uri,
+                }
+                response = render(request, 'eams/partials/transaction_print_inner.html', context)
                 # We trigger list refresh and close modal after a delay or just show print
                 # Actually, let's just trigger refresh and show print in modal
                 response['HX-Trigger'] = 'transactionListChanged'
@@ -1351,7 +1367,11 @@ def transaction_update(request, pk):
 
 @login_required
 def transaction_detail(request, pk):
-    transaction = get_object_or_404(Transaction, pk=pk)
+    try:
+        transaction = Transaction.objects.get(pk=pk)
+    except Transaction.DoesNotExist:
+        messages.error(request, f"المعاملة رقم {pk} غير موجودة. ربما تم حذفها أو الرابط قديم. يرجى اختيار المعاملة من القائمة.")
+        return redirect('transaction_list')
     documents = transaction.documents.all().order_by('-uploaded_at')
 
     # ✅ Online Tracking URL Logic (GitHub Pages - Static Permanent Link)

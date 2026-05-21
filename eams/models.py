@@ -149,6 +149,12 @@ class Transaction(models.Model):
                     pass
         return self.tracking_number
 
+    @property
+    def tracking_url(self):
+        from django.conf import settings
+        github_pages_url = getattr(settings, 'REMOTE_TRACKING_URL', 'https://nqabaalmohamen.github.io/archives/').rstrip('/')
+        return f"{github_pages_url}/track.html?tr={self.secure_token}"
+
     def save(self, *args, **kwargs):
         if not self.tracking_number:
             year = timezone.now().year

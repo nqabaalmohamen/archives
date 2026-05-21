@@ -48,16 +48,19 @@
         </span>
     </td>
     <td style="padding: 15px 20px;">
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <a href="{% url 'transaction_detail' tr.pk %}" class="btn" style="background: #f1f5f9 !important; color: #000 !important; padding: 8px 15px; border-radius: 10px; font-size: 13px; font-weight: 900; border: 2px solid #000; box-shadow: 3px 3px 0px #000;">
                 <i class="fas fa-eye"></i> متابعة
             </a>
-            <button hx-get="{% url 'transaction_print' tr.pk %}" hx-target="#htmxModalBody" class="btn" style="background: #1a1a2e !important; color: #fff !important; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 900; border: 2px solid #1a1a2e; cursor: pointer;">
+            <a href="{% url 'transaction_print' tr.pk %}" target="_blank" class="btn" style="background: #1a1a2e !important; color: #fff !important; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 900; border: 2px solid #1a1a2e; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
                 <i class="fas fa-print"></i>
-            </button>
-            <button hx-get="{% url 'transaction_update' tr.pk %}" hx-target="#htmxModalBody" class="btn" style="background: #eff6ff !important; color: #1e40af !important; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 900; border: 2px solid #1e40af; cursor: pointer;">
+            </a>
+            <a href="#" onclick="sendWhatsApp(event, '{{ tr.client_phone }}', '{{ tr.client_name|escapejs }}', '{{ tr.title|escapejs }}', '{{ tr.display_tracking_number|escapejs }}', '{{ tr.tracking_url|escapejs }}')" class="btn" style="background: #25D366 !important; color: #fff !important; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 900; border: 2px solid #25D366; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;" title="إرسال عبر الواتساب">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+            <a href="{% url 'transaction_update' tr.pk %}" class="btn" style="background: #eff6ff !important; color: #1e40af !important; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 900; border: 2px solid #1e40af; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
                 <i class="fas fa-edit"></i> تعديل
-            </button>
+            </a>
             <a href="{% url 'document_create' %}?transaction_id={{ tr.id }}" class="btn" style="background: #10b981; color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 12px;">
                 <i class="fas fa-plus"></i>
             </a>

@@ -692,108 +692,182 @@ input[type="file"].form-control:hover::-webkit-file-upload-button {
 }
 
 @media (max-width: 768px) {
-    html,
-    body {
+    html, body {
         overflow-x: hidden !important;
         width: 100% !important;
-        position: relative;
         margin: 0;
         padding: 0;
         box-sizing: border-box;
     }
 
-    /* Prevent any element from being wider than the screen */
-    * {
-        max-width: 100vw !important;
+    *, *::before, *::after {
         box-sizing: border-box !important;
     }
 
+    /* ── Navbar ── */
     .topnav-container {
-        left: 0;
-        right: 0;
-        top: 0;
-        width: 100% !important;
-        padding: 5px;
+        left: 0 !important;
+        right: 0 !important;
+        top: 0 !important;
+        padding: 0 !important;
         position: fixed;
+        width: 100% !important;
     }
 
     .topnav {
-        height: 75px;
-        padding: 0 10px;
-        border-radius: 0;
-        border-left: none;
-        border-right: none;
-        border-top: none;
-        gap: 5px;
+        height: 65px !important;
+        padding: 0 10px !important;
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        border-top: none !important;
+        gap: 8px !important;
         width: 100% !important;
     }
 
+    /* Hide the live clock on mobile to save space */
+    .live-clock-container {
+        display: none !important;
+    }
+
+    /* Compact brand text */
+    .topnav-brand .brand-text {
+        max-width: 130px !important;
+    }
+    .brand-text .main-title {
+        font-size: 14px !important;
+    }
+    .brand-text .sub-title {
+        font-size: 10px !important;
+    }
+    .logo-container {
+        width: 50px !important;
+        height: 50px !important;
+    }
+
+    /* User meta text hidden on mobile */
+    .user-meta {
+        display: none !important;
+    }
+    .user-profile {
+        padding: 4px 8px !important;
+    }
+    .user-avatar {
+        width: 38px !important;
+        height: 38px !important;
+        font-size: 16px !important;
+    }
+
+    /* ── Main content padding ── */
     .main-content {
-        padding-top: 90px;
-        padding-left: 5px !important;
-        padding-right: 5px !important;
+        padding-top: 75px !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
         width: 100% !important;
         max-width: 100% !important;
         overflow-x: hidden !important;
     }
 
-    /* Global Fix for Grid and Flex layouts on mobile */
-    div[style*="display: grid"], 
-    .form-grid, 
-    .stats-grid {
-        display: block !important;
-        grid-template-columns: 1fr !important;
-        width: 100% !important;
-    }
-
-    div[style*="display: flex"] {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 15px !important;
-    }
-    
-    /* Specific exceptions for flex items that should stay row-like if small enough */
-    .topnav, .user-profile, .topnav-right {
-        flex-direction: row !important;
-        align-items: center !important;
-    }
-
-    /* Force tables to be scrollable horizontally within their container */
-    .table-responsive, 
-    .data-container,
-    .stat-card,
-    .report-card,
-    .form-card,
-    .chic-form {
-        width: 100% !important;
-        overflow-x: auto !important;
-        padding: 15px 10px !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        box-shadow: none !important;
-        border-radius: 12px !important;
-    }
-
-    table {
-        width: 100% !important;
-        min-width: 600px; /* Internal scroll only */
-    }
-
-    /* Scaling down oversized fonts and elements */
+    /* ── Typography scaling ── */
     h1 { font-size: 20px !important; }
     h2 { font-size: 18px !important; }
     h3 { font-size: 16px !important; }
-    
-    input, select, textarea {
-        font-size: 16px !important; /* Prevent iOS zoom and fit screen */
-    }
 
-    [style*="font-size: 28px"], 
+    [style*="font-size: 28px"],
     [style*="font-size: 26px"],
     [style*="font-size: 24px"] {
         font-size: 18px !important;
     }
+    [style*="font-size: 32px"] {
+        font-size: 22px !important;
+    }
 
+    input, select, textarea {
+        font-size: 16px !important;
+    }
+
+    /* ── Cards & containers ── */
+    .data-container, .stat-card, .report-card {
+        width: 100% !important;
+        padding: 15px 10px !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 14px !important;
+    }
+    .form-card, .chic-form {
+        width: 100% !important;
+        padding: 12px 10px !important;
+        border-radius: 12px !important;
+    }
+
+    /* ── Grid layouts → single column ── */
+    div[style*="display: grid"],
+    .form-grid, .stats-grid, .dashboard-grid {
+        display: block !important;
+        width: 100% !important;
+    }
+    .dashboard-grid {
+        gap: 12px !important;
+    }
+
+    /* ── Flex layouts → column ONLY for content areas, NOT nav/buttons ── */
+    .filter-card form,
+    .messages-container {
+        flex-direction: column !important;
+    }
+
+    /* Page header area (title + button) stays as row but wraps */
+    div[style*="justify-content: space-between"] {
+        flex-wrap: wrap !important;
+        gap: 12px !important;
+    }
+
+    /* ── Table: horizontally scrollable ── */
+    .table-container {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 14px !important;
+    }
+    table {
+        min-width: 650px !important;
+        width: 100% !important;
+    }
+
+    /* ── Scrollable table wrapper ── */
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 14px;
+        border: 2px solid #000;
+        background: #fff;
+        margin-bottom: 10px;
+    }
+
+    /* ── Filter bar form → stacked ── */
+    .filter-card form {
+        grid-template-columns: 1fr !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    .filter-card form .form-group {
+        min-width: 100% !important;
+    }
+    .filter-card form button[type="submit"] {
+        width: 100% !important;
+        height: 44px !important;
+    }
+
+    /* ── Stats row ── */
+    div[style*="grid-template-columns: repeat(auto-fit"] {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+    }
+
+    /* ── Action buttons in table rows: compact ── */
     .quick-action-btn {
         width: 100% !important;
         padding: 12px !important;
@@ -801,45 +875,11 @@ input[type="file"].form-control:hover::-webkit-file-upload-button {
         justify-content: center !important;
     }
 
-    .topnav-brand .brand-text {
-        max-width: 150px;
-    }
-}
-        border-width: 3px;
-        width: 100% !important;
-        box-sizing: border-box !important;
-        overflow-x: hidden;
-    }
-
-    .btn {
-        width: 100%;
-        justify-content: center;
-        padding: 14px;
-        font-size: 15px;
-    }
-
-    /* Table Responsiveness */
-    .table-responsive {
-        display: block;
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        border-radius: 15px;
-        border: 2px solid #000;
-        background: #fff;
-        margin-bottom: 10px;
-    }
-
-    .dashboard-grid {
-        grid-template-columns: 1fr !important;
-        gap: 15px !important;
-    }
-
+    /* Filters bar */
     .filters-bar form {
         flex-direction: column !important;
         align-items: stretch !important;
     }
-
     .filters-bar div {
         min-width: 100% !important;
     }

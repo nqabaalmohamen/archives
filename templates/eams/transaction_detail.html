@@ -35,15 +35,19 @@
             <p style="color: #64748b; font-size: 15px; font-weight: 700;">أنشئت في: {{ transaction.created_at|date:"Y/m/d h:i A" }} بواسطة {{ transaction.created_by.profile.full_name|default:transaction.created_by.username }}</p>
         </div>
         
-        <div style="display: flex; gap: 12px;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
             <a href="{% url 'document_create' %}?transaction_id={{ transaction.id }}" class="btn btn-primary" style="padding: 12px 20px; border-radius: 14px; display: flex; align-items: center; gap: 10px; border: none; cursor: pointer; text-decoration: none; color: #fff; font-weight: 800;">
                 <i class="fas fa-file-import"></i>
                 <span>أرشفة مستند جديد لهذه المعاملة</span>
             </a>
-            <button hx-get="{% url 'transaction_print' transaction.pk %}" hx-target="#htmxModalBody" class="btn" style="background: #1a1a2e; color: #fff; padding: 12px 20px; border-radius: 14px; display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; border: 2px solid #1a1a2e; cursor: pointer;">
+            <a href="{% url 'transaction_print' transaction.pk %}" target="_blank" class="btn" style="background: #1a1a2e; color: #fff; padding: 12px 20px; border-radius: 14px; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; border: 2px solid #1a1a2e; cursor: pointer;">
                 <i class="fas fa-print"></i>
                 <span>طباعة المعاملة</span>
-            </button>
+            </a>
+            <a href="#" onclick="sendWhatsApp(event, '{{ transaction.client_phone }}', '{{ transaction.client_name|escapejs }}', '{{ transaction.title|escapejs }}', '{{ transaction.display_tracking_number|escapejs }}', '{{ tracking_url|escapejs }}')" class="btn" style="background: #25D366 !important; color: #fff !important; padding: 12px 20px; border-radius: 14px; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; border: 2px solid #25D366; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);">
+                <i class="fab fa-whatsapp" style="font-size: 18px;"></i>
+                <span>إرسال للواتساب</span>
+            </a>
         </div>
     </div>
 
