@@ -172,10 +172,38 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const docTypeSelect = document.getElementById('id_doc_type');
+        const categorySelect = document.getElementById('id_category');
         const recipientFields = document.querySelectorAll('.recipient-field');
 
         function toggleRecipientFields() {
             const isIncoming = docTypeSelect.value === 'incoming';
+            
+            if (isIncoming) {
+                // البحث عن قسم الأرشيف لاختياره تلقائياً
+                let archiveOptionIndex = -1;
+                for(let i=0; i<categorySelect.options.length; i++) {
+                    const text = categorySelect.options[i].text.trim();
+                    if (text === "إدارة الأرشيف" || text === "إدارة الارشيف" || text === "الارشيف" || text === "الأرشيف" || text.includes("ارشيف") || text.includes("أرشيف")) {
+                        archiveOptionIndex = i;
+                        break;
+                    }
+                }
+                if(archiveOptionIndex !== -1) {
+                    categorySelect.selectedIndex = archiveOptionIndex;
+                    // جعل الحقل للقراءة فقط دون تعطيله (ليتم إرساله مع النموذج)
+                    categorySelect.style.pointerEvents = 'none';
+                    categorySelect.style.backgroundColor = '#f1f5f9';
+                    categorySelect.style.color = '#64748b';
+                    categorySelect.tabIndex = -1;
+                }
+            } else {
+                // إعادة الحقل للوضع الطبيعي إذا لم يكن وارد
+                categorySelect.style.pointerEvents = 'auto';
+                categorySelect.style.backgroundColor = '';
+                categorySelect.style.color = '';
+                categorySelect.tabIndex = 0;
+            }
+
             recipientFields.forEach(field => {
                 if (isIncoming) {
                     field.style.display = 'none';

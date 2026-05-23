@@ -99,6 +99,14 @@ class Transaction(models.Model):
         return f"{self.tracking_number} - {self.title}"
 
     @property
+    def creator_name(self):
+        if self.created_by:
+            if hasattr(self.created_by, 'profile') and self.created_by.profile.full_name:
+                return self.created_by.profile.full_name
+            return self.created_by.username
+        return "النظام"
+
+    @property
     def simple_number(self):
         """استخراج الرقم الأخير من الكود (مثلاً 0001 يصبح 1)"""
         if self.tracking_number and '-' in self.tracking_number:
@@ -148,6 +156,43 @@ class Transaction(models.Model):
                 except ValueError:
                     pass
         return self.tracking_number
+
+    @property
+    def get_whatsapp_url(self):
+        from urllib.parse import quote
+        
+        # Format the phone number
+        phone = str(self.client_phone or '').strip()
+        clean_phone = ''.join(filter(str.isdigit, phone))
+        if clean_phone.startswith('01'):
+            clean_phone = '2' + clean_phone
+        elif clean_phone.startswith('1'):
+            clean_phone = '20' + clean_phone
+        elif not clean_phone.startswith('20') and len(clean_phone) == 11 and clean_phone.startswith('0'):
+            clean_phone = '2' + clean_phone[1:]
+            
+        if not clean_phone or clean_phone == '000':
+            return "#" # Invalid phone
+
+        greeting = "يا أستاذة" if self.client_gender == 'female' else "يا أستاذ"
+        name = self.client_name or ""
+        title = self.title or ""
+        tracking_num = self.display_tracking_number
+        track_url = self.tracking_url
+
+        # The message is constructed safely server-side
+        message = (
+            f"تم تسجيل طلبكم بنجاح في نقابة المحامين بالفيوم\n\n"
+            f"مرحباً بك {greeting} / {name}\n\n"
+            f"بيانات الطلب: -\n"
+            f"الموضوع : {title}\n"
+            f"رقم المتابعة : {tracking_num}\n\n"
+            f"رابط التتبع الطلب اونلاين:\n"
+            f"{track_url}"
+        )
+
+        encoded_message = quote(message)
+        return f"https://api.whatsapp.com/send?phone={clean_phone}&text={encoded_message}"
 
     @property
     def tracking_url(self):
@@ -222,6 +267,14 @@ class Document(models.Model):
         super().save(*args, **kwargs)
 
     @property
+    def uploader_name(self):
+        if self.uploaded_by:
+            if hasattr(self.uploaded_by, 'profile') and self.uploaded_by.profile.full_name:
+                return self.uploaded_by.profile.full_name
+            return self.uploaded_by.username
+        return "النظام"
+
+    @property
     def short_reference_number(self):
         """إرجاع رقم الأرشفة بشكل مبسط مثل 2026-1 وبدون البادئة"""
         if self.reference_number:
@@ -273,6 +326,20 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"{self.user} {self.action} {self.document_title} at {self.timestamp}"
+
+    @property
+    def user_full_name(self):
+        if self.user:
+            if hasattr(self.user, 'profile') and self.user.profile.full_name:
+                return self.user.profile.full_name
+            return self.user.username
+        return "النظام"
+
+    @property
+    def user_initial(self):
+        if self.user:
+            return self.user.username[0].upper()
+        return "ن"
 
     @property
     def display_document_title(self):

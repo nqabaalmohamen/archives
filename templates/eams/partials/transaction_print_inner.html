@@ -44,7 +44,7 @@
         <a href="{% url 'transaction_print' transaction.pk %}" target="_blank" class="btn btn-primary" style="padding: 12px 30px; border-radius: 12px; font-weight: 900; display: flex; align-items: center; gap: 10px; text-decoration: none;">
             <i class="fas fa-print"></i> طباعة الإيصال الرسمي
         </a>
-        <a href="#" onclick="sendWhatsApp(event, '{{ transaction.client_phone }}', '{{ transaction.client_name|escapejs }}', '{{ transaction.title|escapejs }}', '{{ transaction.display_tracking_number|escapejs }}', '{{ tracking_url|escapejs }}')" class="btn" style="background: #25D366 !important; color: #fff !important; padding: 12px 30px; border-radius: 12px; font-weight: 900; display: flex; align-items: center; gap: 10px; text-decoration: none; border: 2px solid #25D366; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);">
+        <a href="{% if transaction.get_whatsapp_url == '#' %}javascript:alert('رقم الهاتف الخاص بصاحب الشأن غير مسجل أو غير صحيح!');{% else %}{{ transaction.get_whatsapp_url }}{% endif %}" target="{% if transaction.get_whatsapp_url != '#' %}_blank{% endif %}" class="btn" style="background: #25D366 !important; color: #fff !important; padding: 12px 30px; border-radius: 12px; font-weight: 900; display: flex; align-items: center; gap: 10px; text-decoration: none; border: 2px solid #25D366; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);">
             <i class="fab fa-whatsapp" style="font-size: 18px;"></i> إرسال للواتساب
         </a>
         <button onclick="closeHtmxModal()" class="btn" style="background: #f1f5f9; color: #475569; padding: 12px 25px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer;">

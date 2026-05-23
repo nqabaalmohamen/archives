@@ -4,7 +4,7 @@
         <div style="font-weight: 900; color: #000; font-size: 13px;">{{ log.timestamp|date:"H:i" }}</div>
         <div style="font-size: 11px; color: #64748b; font-weight: 700;">{{ log.timestamp|date:"Y-m-d" }}</div>
     </td>
-    <td style="padding: 15px 20px; font-weight: 800; font-size: 14px; color: #000;">{{ log.user.username }}</td>
+    <td style="padding: 15px 20px; font-weight: 800; font-size: 14px; color: #000;">{{ log.user_full_name }}</td>
     <td style="padding: 15px 20px;">
         {% if log.action == 'upload' %}
         <span style="background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 900;">{{ log.get_action_display }}</span>

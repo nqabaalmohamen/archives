@@ -116,11 +116,11 @@
                     <td style="text-align: right; font-size: 9pt;">
                         <strong>({{ tr.doc_count }}) ملفات:</strong><br>
                         {% for doc in tr.documents.all %}
-                            - {{ doc.reference_number }} (بواسطة: {{ doc.uploaded_by.profile.full_name|default:doc.uploaded_by.username }})<br>
+                            - {{ doc.reference_number }} (بواسطة: {{ doc.uploader_name }})<br>
                         {% endfor %}
                     </td>
                     <td>
-                        {{ tr.created_by.profile.full_name|default:tr.created_by.username }}<br>
+                        {{ tr.creator_name }}<br>
                         <small>({{ tr.created_by.profile.department|default:"-" }})</small>
                         <br><small>{{ tr.created_at|date:"Y/m/d h:i A" }}</small>
                     </td>
@@ -179,11 +179,11 @@
                 <thead>
                     <tr>
                         <th style="width: 12%;">رقم الأرشفة</th>
+                        <th style="width: 13%;">رقم المعاملة</th>
                         <th style="width: 25%;">العنوان / الموضوع</th>
                         <th style="width: 8%;">النوع</th>
                         <th style="width: 15%;">الموظف المستلم</th>
                         <th style="width: 12%;">القسم</th>
-                        <th style="width: 13%;">رقم المعاملة</th>
                         <th style="width: 15%;">تاريخ ووقت الإيداع</th>
                     </tr>
                 </thead>
@@ -192,11 +192,11 @@
                         {% if doc.doc_type == 'incoming' %}
                         <tr>
                             <td style="font-weight: bold;">{{ doc.reference_number }}</td>
+                            <td>{{ doc.transaction.display_tracking_number|default:"-" }}</td>
                             <td style="text-align: right;">{{ doc.title }}</td>
                             <td>{{ doc.get_doc_type_display }}</td>
-                            <td>{{ doc.recipient_name|default:doc.uploaded_by.profile.full_name|default:doc.uploaded_by.username }}</td>
+                            <td>{{ doc.recipient_name|default:doc.uploader_name }}</td>
                             <td>{{ doc.recipient_department|default:"-" }}</td>
-                            <td>{{ doc.transaction.display_tracking_number|default:"-" }}</td>
                             <td>{{ doc.uploaded_at|date:"Y/m/d h:i A" }}</td>
                         </tr>
                         {% endif %}
@@ -226,7 +226,7 @@
                             <td>{{ doc.transaction.display_tracking_number|default:"-" }}</td>
                             <td style="text-align: right;">{{ doc.title }}</td>
                             <td>{{ doc.get_doc_type_display }}</td>
-                            <td>{{ doc.uploaded_by.profile.full_name|default:doc.uploaded_by.username }}</td>
+                            <td>{{ doc.uploader_name }}</td>
                             <td>{{ doc.recipient_name|default:"-" }}</td>
                         </tr>
                         {% endif %}
@@ -254,7 +254,7 @@
                             <td style="font-weight: bold;">{{ doc.reference_number }}</td>
                             <td style="text-align: right;">{{ doc.title }}</td>
                             <td>{{ doc.get_doc_type_display }}</td>
-                            <td>{{ doc.uploaded_by.profile.full_name|default:doc.uploaded_by.username }}</td>
+                            <td>{{ doc.uploader_name }}</td>
                             <td>{{ doc.uploaded_at|date:"Y/m/d h:i A" }}</td>
                         </tr>
                         {% endif %}
@@ -265,6 +265,7 @@
         {% endif %}
     {% endif %}
 
+    {% if is_admin %}
     {% if report_type == 'all' or report_type == 'archive' %}
     <table class="summary-table">
         <thead>
@@ -283,6 +284,7 @@
             <tr class="total-row"><td>إجمالي الوثائق</td><td>{{ total_docs }}</td></tr>
         </tbody>
     </table>
+    {% endif %}
     {% endif %}
 
 </body>

@@ -385,10 +385,13 @@ def document_detail(request, pk):
             'extension': att.extension()
         })
     
+    history_logs = AuditLog.objects.filter(document_title=doc.title).order_by('-timestamp')
+
     return render(request, 'eams/document_detail.html', {
         'doc': doc,
         'all_files': all_files,
         'related_docs': related_docs.order_by('uploaded_at'),
+        'history_logs': history_logs,
     })
 
 
@@ -486,9 +489,9 @@ def document_create(request):
                     # تحديث حالة المعاملة
                     if transaction_obj:
                         if doc_type == 'outgoing':
-                            transaction_obj.current_status = 'sent'
+                            transaction_obj.current_status = 'sent_to_dept'
                         elif doc_type == 'incoming':
-                            transaction_obj.current_status = 'received_from_other'
+                            transaction_obj.current_status = 'received'
                         transaction_obj.save()
 
                     # تسجيل العملية
@@ -685,8 +688,10 @@ def audit_log_view(request):
     query = request.GET.get('q')
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
+    user_filter = request.GET.get('user_id')
+    action_filter = request.GET.get('action')
     
-    logs = AuditLog.objects.all()
+    logs = AuditLog.objects.select_related('user').all()
     
     if query:
         if is_precise_code_search(query):
@@ -698,18 +703,35 @@ def audit_log_view(request):
                 Q(details__icontains=query)
             )
     
+    if user_filter:
+        logs = logs.filter(user_id=user_filter)
+
+    if action_filter:
+        logs = logs.filter(action=action_filter)
+
     if start_date:
         logs = logs.filter(timestamp__date__gte=start_date)
     if end_date:
         logs = logs.filter(timestamp__date__lte=end_date)
         
     logs = logs.order_by('-timestamp')
+
+    # قائمة المستخدمين الذين لديهم حركات مسجلة فقط
+    from django.contrib.auth.models import User
+    active_users = User.objects.filter(
+        auditlog__isnull=False
+    ).distinct().order_by('username')
     
     context = {
         'logs': logs,
         'q': query,
         'start_date': start_date,
         'end_date': end_date,
+        'user_filter': user_filter,
+        'action_filter': action_filter,
+        'active_users': active_users,
+        'action_choices': AuditLog.ACTION_CHOICES,
+        'total_count': logs.count(),
     }
     
     if request.headers.get('HX-Request') or request.headers.get('X-Requested-Part') == 'rows':
@@ -777,6 +799,9 @@ def reports_view(request):
         messages.error(request, "ليس لديك صلاحية لعرض التقارير")
         return redirect('dashboard')
 
+    # تحديد ما إذا كان المستخدم لديه صلاحيات إدارية (وصول للمستخدمين = مسؤول نظام)
+    is_admin = request.user.profile.access_users or request.user.profile.access_categories
+
     category_id = request.GET.get('category')
     doc_type = request.GET.get('doc_type')
     user_id = request.GET.get('user_id')
@@ -788,6 +813,7 @@ def reports_view(request):
 
     # Filter Documents
     docs = Document.objects.all()
+    
     if category_id: docs = docs.filter(category_id=category_id)
     if doc_type: docs = docs.filter(doc_type=doc_type)
     if user_id: docs = docs.filter(uploaded_by_id=user_id)
@@ -824,6 +850,7 @@ def reports_view(request):
 
     # Filter Transactions
     transactions = Transaction.objects.all()
+
     if user_id: transactions = transactions.filter(created_by_id=user_id)
     if transaction_status: transactions = transactions.filter(current_status=transaction_status)
     if search_q:
@@ -859,6 +886,7 @@ def reports_view(request):
         docs = Document.objects.none()
 
     context = {
+        'is_admin': is_admin,
         'documents': docs.order_by('-uploaded_at'),
         'total_docs': docs.count(),
         'incoming': docs.filter(doc_type='incoming').count(),
@@ -876,9 +904,8 @@ def reports_view(request):
         # Detailed status counts for UI
         'status_counts': {
             'received': transactions.filter(current_status='received').count(),
+            'sent_to_dept': transactions.filter(current_status='sent_to_dept').count(),
             'under_review': transactions.filter(current_status='under_review').count(),
-            'sent': transactions.filter(current_status='sent').count(),
-            'received_from_other': transactions.filter(current_status='received_from_other').count(),
             'in_progress': transactions.filter(current_status='in_progress').count(),
             'completed': transactions.filter(current_status='completed').count(),
         },
@@ -888,7 +915,7 @@ def reports_view(request):
         'users_stats': User.objects.annotate(doc_count=Count('uploaded_documents', filter=Q(uploaded_documents__in=docs))).order_by('-doc_count')[:10],
         'doc_types': Document.TYPE_CHOICES,
         'status_choices': Transaction.STATUS_CHOICES,
-        'all_users': User.objects.all(),
+        'all_users': User.objects.all() if is_admin else None,
         'selected_category': category_id,
         'selected_type': doc_type,
         'selected_user': user_id,
@@ -897,7 +924,7 @@ def reports_view(request):
         'end_date': end_date,
         'q': search_q,
         'report_type': report_type,
-        'recent_logs': AuditLog.objects.order_by('-timestamp')[:10]
+        'recent_logs': AuditLog.objects.filter(user=request.user).order_by('-timestamp')[:10] if not is_admin else AuditLog.objects.order_by('-timestamp')[:10]
     }
     return render(request, 'eams/reports.html', context)
 
@@ -920,6 +947,8 @@ def reports_export_pdf(request):
     end_date = request.GET.get('end_date')
     search_q = request.GET.get('q')
     report_type = request.GET.get('report_type', 'all')
+
+    is_admin = request.user.profile.access_users or request.user.profile.access_categories
 
     docs = Document.objects.all()
     if category_id: docs = docs.filter(category_id=category_id)
@@ -1003,6 +1032,7 @@ def reports_export_pdf(request):
     status_display = dict(Transaction.STATUS_CHOICES).get(transaction_status) if transaction_status else None
 
     context = {
+        'is_admin': is_admin,
         'report_title': report_title,
         'report_type': report_type,
         'documents': docs.order_by('-uploaded_at'),
@@ -1018,9 +1048,8 @@ def reports_export_pdf(request):
         # Detailed status counts
         'status_counts': {
             'received': transactions.filter(current_status='received').count(),
+            'sent_to_dept': transactions.filter(current_status='sent_to_dept').count(),
             'under_review': transactions.filter(current_status='under_review').count(),
-            'sent': transactions.filter(current_status='sent').count(),
-            'received_from_other': transactions.filter(current_status='received_from_other').count(),
             'in_progress': transactions.filter(current_status='in_progress').count(),
             'completed': transactions.filter(current_status='completed').count(),
         },
@@ -1391,12 +1420,15 @@ def transaction_detail(request, pk):
     img.save(buffered, format="PNG")
     qr_code_data_uri = f"data:image/png;base64,{base64.b64encode(buffered.getvalue()).decode('utf-8')}"
 
+    history_logs = AuditLog.objects.filter(document_title=f"معاملة: {transaction.tracking_number}").order_by('-timestamp')
+
     context = {
         'transaction': transaction,
         'documents': documents,
         'status_choices': Transaction.STATUS_CHOICES,
         'tracking_url': tracking_url,
         'qr_code_data_uri': qr_code_data_uri,
+        'history_logs': history_logs,
     }
 
     if request.method == 'POST':
@@ -1511,8 +1543,6 @@ def public_tracking_api(request):
         'under_review':        'تحت المراجعة',
         'in_progress':         'جاري التنفيذ',
         'completed':           'تم الانتهاء',
-        'sent':                'تم الإرسال',
-        'received_from_other': 'تم الاستلام من جهة أخرى',
     }
 
     return _json_response({

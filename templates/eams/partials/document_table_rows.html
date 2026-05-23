@@ -22,7 +22,7 @@
         {% endif %}
     </td>
     <td style="padding: 20px 0;">
-        <span style="font-weight: 800; color: #000;">{{ doc.uploaded_by.profile.full_name|default:doc.uploaded_by.username|default:"نظام" }}</span>
+        <span style="font-weight: 800; color: #000;">{{ doc.uploader_name }}</span>
     </td>
     <td style="padding: 20px 0; color: var(--text-muted); font-weight: 700;">{{ doc.uploaded_at|date:"Y-m-d" }}</td>
     <td style="padding: 20px 0;">

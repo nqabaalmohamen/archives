@@ -540,9 +540,16 @@
     
     <!-- WhatsApp Integration Script -->
     <script>
-        function sendWhatsApp(event, phone, name, title, trackingNumber, trackingUrl) {
+        function sendWhatsAppNew(event, element) {
             if (event) event.preventDefault();
             
+            const phone = element.dataset.phone || '';
+            const name = element.dataset.name || '';
+            const title = element.dataset.title || '';
+            const trackingNumber = element.dataset.tracking || '';
+            const trackingUrl = element.dataset.url || '';
+            const gender = element.dataset.gender || 'male';
+
             // Clean phone number: remove non-digits
             let cleanPhone = phone.toString().replace(/\D/g, '');
             
@@ -560,14 +567,14 @@
                 return;
             }
 
-            const message = `السلام عليكم يا أستاذ/ة *${name}*،\n\n` +
-                            `تم تسجيل معاملتك بنجاح في *نقابة المحامين بالفيوم*.\n\n` +
-                            `📌 *تفاصيل المعاملة:*\n` +
-                            `- *الموضوع:* ${title}\n` +
-                            `- *رقم المتابعة:* ${trackingNumber}\n\n` +
-                            `🔗 *رابط التتبع المباشر (أونلاين):*\n` +
-                            `${trackingUrl}\n\n` +
-                            `مع تحيات نقابة المحامين بالفيوم.`;
+            const greeting = (gender === 'female') ? 'يا أستاذة' : 'يا أستاذ';
+            const message = `تم تسجيل الطلب بنجاح في نقابة المحامين بالفيوم\n\n` +
+                            `مرحباً بك ${greeting} ${name}\n\n` +
+                            `بيانات الطلب:\n` +
+                            `الموضوع: ${title}\n` +
+                            `رقم المتابعة: ${trackingNumber}\n\n` +
+                            `رابط التتبع المباشر:\n` +
+                            `${trackingUrl}`;
 
             const encodedText = encodeURIComponent(message);
             const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodedText}`;

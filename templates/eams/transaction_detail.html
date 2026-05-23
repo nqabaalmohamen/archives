@@ -32,7 +32,7 @@
                 </span>
                 {% endif %}
             </div>
-            <p style="color: #64748b; font-size: 15px; font-weight: 700;">أنشئت في: {{ transaction.created_at|date:"Y/m/d h:i A" }} بواسطة {{ transaction.created_by.profile.full_name|default:transaction.created_by.username }}</p>
+            <p style="color: #64748b; font-size: 15px; font-weight: 700;">أنشئت في: {{ transaction.created_at|date:"Y/m/d h:i A" }} بواسطة {{ transaction.creator_name }}</p>
         </div>
         
         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
@@ -44,7 +44,7 @@
                 <i class="fas fa-print"></i>
                 <span>طباعة المعاملة</span>
             </a>
-            <a href="#" onclick="sendWhatsApp(event, '{{ transaction.client_phone }}', '{{ transaction.client_name|escapejs }}', '{{ transaction.title|escapejs }}', '{{ transaction.display_tracking_number|escapejs }}', '{{ tracking_url|escapejs }}')" class="btn" style="background: #25D366 !important; color: #fff !important; padding: 12px 20px; border-radius: 14px; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; border: 2px solid #25D366; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);">
+            <a href="{% if transaction.get_whatsapp_url == '#' %}javascript:alert('رقم الهاتف الخاص بصاحب الشأن غير مسجل أو غير صحيح!');{% else %}{{ transaction.get_whatsapp_url }}{% endif %}" target="{% if transaction.get_whatsapp_url != '#' %}_blank{% endif %}" class="btn" style="background: #25D366 !important; color: #fff !important; padding: 12px 20px; border-radius: 14px; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; border: 2px solid #25D366; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);">
                 <i class="fab fa-whatsapp" style="font-size: 18px;"></i>
                 <span>إرسال للواتساب</span>
             </a>

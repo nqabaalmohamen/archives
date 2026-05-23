@@ -10,7 +10,7 @@
         <div style="font-size: 11px; color: #64748b !important; font-weight: 700;">
             بواسطة: 
             {% if tr.created_by %}
-                {{ tr.created_by.profile.full_name|default:tr.created_by.username }}
+                {{ tr.creator_name }}
             {% else %}
                 غير معروف
             {% endif %}
@@ -55,7 +55,7 @@
             <a href="{% url 'transaction_print' tr.pk %}" target="_blank" class="btn" style="background: #1a1a2e !important; color: #fff !important; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 900; border: 2px solid #1a1a2e; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
                 <i class="fas fa-print"></i>
             </a>
-            <a href="#" onclick="sendWhatsApp(event, '{{ tr.client_phone }}', '{{ tr.client_name|escapejs }}', '{{ tr.title|escapejs }}', '{{ tr.display_tracking_number|escapejs }}', '{{ tr.tracking_url|escapejs }}')" class="btn" style="background: #25D366 !important; color: #fff !important; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 900; border: 2px solid #25D366; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;" title="إرسال عبر الواتساب">
+            <a href="{% if tr.get_whatsapp_url == '#' %}javascript:alert('رقم الهاتف الخاص بصاحب الشأن غير مسجل أو غير صحيح!');{% else %}{{ tr.get_whatsapp_url }}{% endif %}" target="{% if tr.get_whatsapp_url != '#' %}_blank{% endif %}" class="btn" style="background: #25D366 !important; color: #fff !important; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 900; border: 2px solid #25D366; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;" title="إرسال عبر الواتساب">
                 <i class="fab fa-whatsapp"></i>
             </a>
             <a href="{% url 'transaction_update' tr.pk %}" class="btn" style="background: #eff6ff !important; color: #1e40af !important; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 900; border: 2px solid #1e40af; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
