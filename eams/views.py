@@ -880,6 +880,9 @@ def reports_view(request):
     if end_date: transactions = transactions.filter(created_at__date__lte=end_date)
 
     # Adjust based on report_type
+    # إذا تم الفلترة بحالة معاملة محددة، نعرض قسم المعاملات فقط تلقائياً
+    if transaction_status and report_type == 'all':
+        report_type = 'transaction'
     if report_type == 'archive':
         transactions = Transaction.objects.none()
     elif report_type == 'transaction':
@@ -1014,6 +1017,9 @@ def reports_export_pdf(request):
     if start_date: transactions = transactions.filter(created_at__date__gte=start_date)
     if end_date: transactions = transactions.filter(created_at__date__lte=end_date)
 
+    # إذا تم الفلترة بحالة معاملة محددة، نعرض قسم المعاملات فقط تلقائياً
+    if transaction_status and report_type == 'all':
+        report_type = 'transaction'
     if report_type == 'archive':
         transactions = Transaction.objects.none()
     elif report_type == 'transaction':
