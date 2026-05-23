@@ -18,3 +18,13 @@
 2026-05-23T05:55:50Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.192.57
 2026-05-23T05:55:50Z INF ICMP proxy will use fe80::10e9:159e:f521:fa63 in zone Ethernet as source for IPv6
 2026-05-23T05:55:50Z INF Starting metrics server on 127.0.0.1:20241/metrics
+2026-05-23T05:55:51Z INF Registered tunnel connection connIndex=0 connection=99fb128f-a7f8-4f34-b7cc-5f6cfff8537c event=0 ip=198.41.192.57 location=mrs01 protocol=quic
+2026-05-23T06:01:28Z INF Initiating graceful shutdown due to signal terminated ...
+2026-05-23T06:01:29Z ERR failed to run the datagram handler error="Application error 0x0 (remote)" connIndex=0 event=0 ip=198.41.192.57
+2026-05-23T06:01:29Z ERR failed to serve tunnel connection error="accept stream listener encountered a failure while serving" connIndex=0 event=0 ip=198.41.192.57
+2026-05-23T06:01:29Z ERR Serve tunnel error error="accept stream listener encountered a failure while serving" connIndex=0 event=0 ip=198.41.192.57
+2026-05-23T06:01:29Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.192.57
+2026-05-23T06:01:29Z ERR Connection terminated connIndex=0
+2026-05-23T06:01:29Z ERR no more connections active and exiting
+2026-05-23T06:01:29Z INF Tunnel server stopped
+2026-05-23T06:01:29Z INF Metrics server stopped
