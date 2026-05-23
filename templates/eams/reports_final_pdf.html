@@ -94,78 +94,72 @@
     </div>
 
     {% if report_type == 'all' or report_type == 'transaction' %}
-    <!-- 1. Received Transactions Table -->
-    <h3 style="border-right: 5px solid #6366f1; padding-right: 10px;">أولاً: المعاملات الواردة (تحت الاستلام)</h3>
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 15%;">رقم المتابعة</th>
-                <th style="width: 25%;">الموضوع</th>
-                <th style="width: 12%;">الحالة</th>
-                <th style="width: 28%;">الأرشفة المرتبطة</th>
-                <th style="width: 20%;">المسؤول / القسم</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for tr in transactions_list %}
-                {% if tr.current_status == 'received' %}
-                <tr>
-                    <td style="font-weight: bold; text-align: center;" dir="ltr">{{ tr.short_tracking_number }}</td>
-                    <td style="text-align: right;">{{ tr.title }}</td>
-                    <td>{{ tr.get_current_status_display }}</td>
-                    <td style="text-align: right; font-size: 9pt;">
-                        <strong>({{ tr.doc_count }}) ملفات:</strong><br>
-                        {% for doc in tr.documents.all %}
-                            - {{ doc.reference_number }} (بواسطة: {{ doc.uploader_name }})<br>
-                        {% endfor %}
-                    </td>
-                    <td>
-                        {{ tr.creator_name }}<br>
-                        <small>({{ tr.created_by.profile.department|default:"-" }})</small>
-                        <br><small>{{ tr.created_at|date:"Y/m/d h:i A" }}</small>
-                    </td>
-                </tr>
-                {% endif %}
-            {% empty %}
-            <tr><td colspan="5">لا توجد معاملات واردة حالياً</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
 
-    <!-- 2. Processed/Follow-up Transactions Table (Other statuses) -->
-    <h3 style="border-right: 5px solid #ec4899; padding-right: 10px; margin-top: 30px;">ثانياً: المعاملات الجارية والمنتهية (المتابعة والتنفيذ)</h3>
+    {% if filters.status %}
+    <!-- عند وجود فلتر: جدول واحد بعنوان يعكس الفلتر المختار -->
+    <h3 style="border-right: 5px solid #6366f1; padding-right: 10px;">
+        المعاملات المصفاة: {{ filters.status_display }}
+    </h3>
     <table>
         <thead>
             <tr>
                 <th style="width: 13%;">رقم المتابعة</th>
-                <th style="width: 15%;">اسم صاحب الشأن</th>
-                <th style="width: 17%;">الموضوع</th>
-                <th style="width: 15%;">القسم المستلم</th>
-                <th style="width: 15%;">مندوب المأمورية</th>
-                <th style="width: 10%;">تم / لا</th>
-                <th style="width: 15%;">سبب الرجوع</th>
+                <th style="width: 20%;">اسم صاحب الشأن</th>
+                <th style="width: 20%;">الموضوع</th>
+                <th style="width: 13%;">الحالة</th>
+                <th style="width: 15%;">المسؤول</th>
+                <th style="width: 19%;">تاريخ التسجيل</th>
             </tr>
         </thead>
         <tbody>
             {% for tr in transactions_list %}
-                {% if tr.current_status != 'received' %}
-                <tr>
-                    <td style="font-weight: bold; text-align: center;" dir="ltr">{{ tr.short_tracking_number }}</td>
-                    <td style="text-align: right;">{{ tr.client_name }}</td>
-                    <td style="text-align: right;">{{ tr.title }}</td>
-                    <td>{{ tr.created_by.profile.department|default:"-" }}</td>
-                    <td style="color: #64748b; font-size: 8pt; text-align: center; vertical-align: middle;">........................</td>
-                    <td style="text-align: center; font-size: 10pt; font-weight: bold; white-space: nowrap;">
-                        [ &nbsp; ] تم &nbsp;&nbsp; [ &nbsp; ] لا
-                    </td>
-                    <td style="color: #64748b; font-size: 8pt; text-align: center; vertical-align: middle;">........................</td>
-                </tr>
-                {% endif %}
+            <tr>
+                <td style="font-weight: bold; text-align: center;" dir="ltr">{{ tr.short_tracking_number }}</td>
+                <td style="text-align: right;">{{ tr.client_name }}</td>
+                <td style="text-align: right;">{{ tr.title }}</td>
+                <td>{{ tr.get_current_status_display }}</td>
+                <td>{{ tr.creator_name }}<br><small>({{ tr.created_by.profile.department|default:"-" }})</small></td>
+                <td>{{ tr.created_at|date:"Y/m/d h:i A" }}</td>
+            </tr>
             {% empty %}
-            <tr><td colspan="7">لا توجد معاملات جارية أو منتهية حالياً</td></tr>
+            <tr><td colspan="6" style="text-align:center;">لا توجد معاملات مطابقة للفلتر المختار</td></tr>
             {% endfor %}
         </tbody>
     </table>
+
+    {% else %}
+    <!-- بدون فلتر: جميع المعاملات في جدول واحد شامل -->
+    <h3 style="border-right: 5px solid #6366f1; padding-right: 10px;">قائمة جميع المعاملات</h3>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 13%;">رقم المتابعة</th>
+                <th style="width: 18%;">اسم صاحب الشأن</th>
+                <th style="width: 18%;">الموضوع</th>
+                <th style="width: 14%;">الحالة الحالية</th>
+                <th style="width: 15%;">المسؤول / القسم</th>
+                <th style="width: 12%;">الملفات المرتبطة</th>
+                <th style="width: 10%;">التاريخ</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tr in transactions_list %}
+            <tr>
+                <td style="font-weight: bold; text-align: center;" dir="ltr">{{ tr.short_tracking_number }}</td>
+                <td style="text-align: right;">{{ tr.client_name }}</td>
+                <td style="text-align: right;">{{ tr.title }}</td>
+                <td style="text-align: center;">{{ tr.get_current_status_display }}</td>
+                <td>{{ tr.creator_name }}<br><small>({{ tr.created_by.profile.department|default:"-" }})</small></td>
+                <td style="text-align: center;">{{ tr.doc_count }}</td>
+                <td style="font-size: 9pt;">{{ tr.created_at|date:"Y/m/d" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" style="text-align:center;">لا توجد معاملات حالياً</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
     {% endif %}
 
     {% if report_type == 'all' or report_type == 'archive' %}
