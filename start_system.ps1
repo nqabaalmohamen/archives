@@ -36,7 +36,7 @@ Start-Sleep -Seconds 4
 # ═══ تشغيل Ngrok بالدومين الثابت ═══
 Write-Host "تشغيل النفق الثابت..." -ForegroundColor Yellow
 $NgrokExe = "$PSScriptRoot\ngrok.exe"
-Start-Process $NgrokExe -ArgumentList "http --url=$FIXED_DOMAIN $PORT" -WindowStyle Minimized
+Start-Process $NgrokExe -ArgumentList "http --url=$FIXED_DOMAIN http://$IP`:$PORT" -WindowStyle Minimized
 
 Start-Sleep -Seconds 4
 
