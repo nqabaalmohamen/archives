@@ -1013,7 +1013,7 @@ async function loadTracking(isSilent = false) {
 // Dynamic Resolver: Fetch the active tunnel URL from keyval.org storage
 async function resolveActiveTunnel() {
     try {
-        const res = await fetch("https://api.keyval.org/get/nqaba_almohamen_fayoum_archive_tunnel_secure", {
+        const res = await fetch("https://api.keyval.org/get/nqaba_almohamen_fayoum_archive_tunnel_secure?v=" + Date.now(), {
             method: 'GET',
             headers: { 'Accept': 'application/json' }
         });
