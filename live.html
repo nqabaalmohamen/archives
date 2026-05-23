@@ -9,7 +9,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="version" content="12.5">
+    <meta name="version" content="12.6">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -697,7 +697,7 @@
 
         <!-- رقم الإصدار في أسفل الصفحة -->
         <div style="text-align: center; margin-top: 25px; padding-bottom: 20px; color: rgba(255,255,255,0.3); font-size: 11px; font-weight: 800; font-family: sans-serif;">
-            V12.5
+            V12.6
         </div>
     </div>
 </div>
@@ -900,8 +900,7 @@ async function loadTracking(isSilent = false) {
             method: 'GET',
             headers: { 
                 'Accept': 'application/json',
-                'ngrok-skip-browser-warning': '1',
-                'Bypass-Tunnel-Reminder': '1'
+                'ngrok-skip-browser-warning': '1'
             },
             signal: controller.signal
         });
@@ -1019,7 +1018,7 @@ async function loadTracking(isSilent = false) {
 function clearStaleCache() {
     try {
         const storedVersion = localStorage.getItem('app_version');
-        const currentVersion = '12.5';
+        const currentVersion = '12.6';
         if (storedVersion !== currentVersion) {
             const keysToDelete = [];
             for (let i = 0; i < localStorage.length; i++) {
