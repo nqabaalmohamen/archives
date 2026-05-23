@@ -71,7 +71,7 @@ class Tag(models.Model):
 
 class Transaction(models.Model):
     STATUS_CHOICES = (
-        ('received', 'تم الاستلام'),
+        ('received', 'تم تسجيل المعاملة'),
         ('sent_to_dept', 'تم الإرسال للقسم المختص'),
         ('under_review', 'تحت المراجعة'),
         ('in_progress', 'جاري التنفيذ'),
@@ -174,7 +174,7 @@ class Transaction(models.Model):
         if not clean_phone or clean_phone == '000':
             return "#" # Invalid phone
 
-        greeting = "يا أستاذة" if self.client_gender == 'female' else "يا أستاذ"
+        greeting = "أهلآ بك أستاذة" if self.client_gender == 'female' else "أهلآ بك أستاذ"
         name = self.client_name or ""
         title = self.title or ""
         tracking_num = self.display_tracking_number
@@ -182,12 +182,12 @@ class Transaction(models.Model):
 
         # The message is constructed safely server-side
         message = (
-            f"تم تسجيل طلبكم بنجاح في نقابة المحامين بالفيوم\n\n"
-            f"مرحباً بك {greeting} / {name}\n\n"
+            f"{greeting} / {name}\n"
+            f"تم تسجيل طلبكم بنجاح في نقابة المحامين بالفيوم\n\n\n\n"
             f"بيانات الطلب: -\n"
             f"الموضوع : {title}\n"
             f"رقم المتابعة : {tracking_num}\n\n"
-            f"رابط التتبع الطلب اونلاين:\n"
+            f"اضغط على الرابط لتتبع الطلب اونلاين:\n"
             f"{track_url}"
         )
 

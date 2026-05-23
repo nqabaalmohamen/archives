@@ -1538,7 +1538,7 @@ def public_tracking_api(request):
         return _json_response({'success': False, 'error': 'عذراً، هذا الرابط غير صحيح أو انتهت صلاحيته.'}, status=404)
 
     status_display_map = {
-        'received':            'تم الاستلام',
+        'received':            'تم تسجيل المعاملة',
         'sent_to_dept':        'تم الإرسال للقسم المختص',
         'under_review':        'تحت المراجعة',
         'in_progress':         'جاري التنفيذ',

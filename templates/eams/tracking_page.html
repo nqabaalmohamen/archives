@@ -650,13 +650,13 @@
                 <div class="stepper">
                     {% with s=transaction.current_status %}
 
-                    <!-- مرحلة 1: تم الاستلام -->
+                    <!-- مرحلة 1: تم تسجيل المعاملة -->
                     <div class="step-item {% if s == 'received' %}active{% elif s == 'under_review' or s == 'in_progress' or s == 'completed' %}done{% else %}pending{% endif %}">
                         <div class="step-icon {% if s == 'received' %}active{% elif s == 'under_review' or s == 'in_progress' or s == 'completed' %}done{% else %}pending{% endif %}">
                             <i class="fas {% if s == 'received' or s == 'under_review' or s == 'in_progress' or s == 'completed' %}fa-check{% else %}fa-inbox{% endif %}"></i>
                         </div>
                         <div class="step-content">
-                            <div class="step-name">تم الاستلام</div>
+                            <div class="step-name">تم تسجيل المعاملة</div>
                             <div class="step-time">تم تسجيل المعاملة بنجاح</div>
                         </div>
                     </div>
@@ -889,7 +889,7 @@
     const secureToken = "{{ transaction.secure_token }}";
 
     const steps = [
-        { key: 'received',     label: 'تم الاستلام',    sub: 'تم تسجيل المعاملة بنجاح',    icon: 'fa-inbox' },
+        { key: 'received',     label: 'تم تسجيل المعاملة',    sub: 'تم تسجيل المعاملة بنجاح',    icon: 'fa-inbox' },
         { key: 'under_review', label: 'تحت المراجعة',   sub: 'دراسة وفحص المعاملة',         icon: 'fa-search' },
         { key: 'in_progress',  label: 'جاري التنفيذ',   sub: 'اتخاذ الإجراءات اللازمة',      icon: 'fa-cog' },
         { key: 'completed',    label: 'تم الانتهاء',    sub: 'جاهزة للاستلام / منتهية',     icon: 'fa-check' },
