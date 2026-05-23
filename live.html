@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تتبع المعاملة | نقابة المحامين بالفيوم</title>
     <meta name="description" content="بوابة تتبع المعاملات الإلكترونية - نقابة المحامين بالفيوم">
+    <!-- منع حفظ الصفحة في ذاكرة المتصفح - لضمان تحميل أحدث نسخة دائماً -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="version" content="12.5">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -1010,12 +1015,31 @@ async function loadTracking(isSilent = false) {
         }
     }
 }
+// مسح الكاش القديم لضمان تحميل بيانات حية دائماً
+function clearStaleCache() {
+    try {
+        const storedVersion = localStorage.getItem('app_version');
+        const currentVersion = '12.5';
+        if (storedVersion !== currentVersion) {
+            const keysToDelete = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('cache_')) keysToDelete.push(key);
+            }
+            keysToDelete.forEach(k => localStorage.removeItem(k));
+            localStorage.setItem('app_version', currentVersion);
+            console.log("Cleared stale localStorage cache from old version.");
+        }
+    } catch(e) {}
+}
+
 // Dynamic Resolver: Fetch the active tunnel URL from keyval.org storage
 async function resolveActiveTunnel() {
     try {
         const res = await fetch("https://api.keyval.org/get/nqaba_almohamen_fayoum_archive_tunnel_secure?v=" + Date.now(), {
             method: 'GET',
-            headers: { 'Accept': 'application/json' }
+            headers: { 'Accept': 'application/json' },
+            cache: 'no-store'
         });
         if (res.ok) {
             const data = await res.json();
@@ -1023,7 +1047,7 @@ async function resolveActiveTunnel() {
                 const url = data.val.replace("https_", "https://");
                 if (url.startsWith("https://")) {
                     API_BASE = url;
-                    console.log("Dynamically resolved active tunnel API_BASE:", API_BASE);
+                    console.log("Resolved tunnel API_BASE:", API_BASE);
                 }
             }
         }
@@ -1033,6 +1057,7 @@ async function resolveActiveTunnel() {
 }
 
 async function startApp() {
+    clearStaleCache();
     await resolveActiveTunnel();
     loadTracking();
     setInterval(() => { loadTracking(true); }, 10000);
