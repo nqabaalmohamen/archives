@@ -12,7 +12,7 @@
     <style>
         /* ═══════════════════════════════════════
            ⚙️  إعداد المطوّر: ضع رابط Cloudflare Tunnel هنا
-           مثال: https://balanced-investment-compile-vocals.trycloudflare.com
+           مثال: https://symphony-preference-nominated-playing.trycloudflare.com
         ════════════════════════════════════════ */
 
         :root {
@@ -701,8 +701,8 @@
 // ═══════════════════════════════════════════════════════════
 //  ⚙️  إعداد رابط الـ API  ← غيّر هذا بعد إعداد Cloudflare
 // ═══════════════════════════════════════════════════════════
-let API_BASE = "https://balanced-investment-compile-vocals.trycloudflare.com";
-// مثال: const API_BASE = "https://balanced-investment-compile-vocals.trycloudflare.com";
+let API_BASE = "https://symphony-preference-nominated-playing.trycloudflare.com";
+// مثال: const API_BASE = "https://symphony-preference-nominated-playing.trycloudflare.com";
 // ═══════════════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════════
 
@@ -893,7 +893,11 @@ async function loadTracking(isSilent = false) {
 
         const res = await fetch(API_BASE + "/api/track/?tr=" + encodeURIComponent(tr) + "&v=" + Date.now() + "&cf-skip-browser-warning=1", {
             method: 'GET',
-            headers: { 'Accept': 'application/json' },
+            headers: { 
+                'Accept': 'application/json',
+                'ngrok-skip-browser-warning': '1',
+                'Bypass-Tunnel-Reminder': '1'
+            },
             signal: controller.signal
         });
 
