@@ -203,8 +203,8 @@
                     {% for doc in documents %}
                         {% if doc.doc_type == 'incoming' %}
                         <tr>
-                            <td style="font-weight: bold;">{{ doc.reference_number }}</td>
-                            <td>{{ doc.transaction.display_tracking_number|default:"-" }}</td>
+                            <td style="font-weight: bold;" dir="ltr">{{ doc.short_reference_number }}</td>
+                            <td dir="ltr">{{ doc.transaction.short_tracking_number|default:"-" }}</td>
                             <td style="text-align: right;">{{ doc.title }}</td>
                             <td>{{ doc.get_doc_type_display }}</td>
                             <td>{{ doc.recipient_name|default:doc.uploader_name }}</td>
@@ -234,8 +234,8 @@
                     {% for doc in documents %}
                         {% if doc.doc_type == 'outgoing' %}
                         <tr>
-                            <td style="font-weight: bold;">{{ doc.short_reference_number }}</td>
-                            <td>{{ doc.transaction.display_tracking_number|default:"-" }}</td>
+                            <td style="font-weight: bold;" dir="ltr">{{ doc.short_reference_number }}</td>
+                            <td dir="ltr">{{ doc.transaction.short_tracking_number|default:"-" }}</td>
                             <td style="text-align: right;">{{ doc.title }}</td>
                             <td>{{ doc.get_doc_type_display }}</td>
                             <td>{{ doc.uploader_name }}</td>
