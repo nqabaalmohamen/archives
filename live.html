@@ -9,7 +9,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="version" content="12.8">
+    <meta name="version" content="12.9">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -520,6 +520,31 @@
             font-size: 11px;
             color: rgba(255,255,255,0.35);
         }
+
+        /* ========= بطاقة التنزيل الرقمية ========= */
+        #digital-card-target {
+            position: absolute;
+            left: -5000px;
+            top: 0;
+            width: 800px;
+            background: #ffffff;
+            font-family: 'Cairo', sans-serif;
+            direction: rtl;
+            padding: 0;
+            border: 20px solid #1a1a2e;
+            display: block;
+        }
+        .dc-header {
+            background: #1a1a2e;
+            color: #f59e0b;
+            padding: 40px;
+            text-align: center;
+            border-bottom: 5px solid #f59e0b;
+        }
+        .dc-body { padding: 50px 40px; background: #fff; }
+        .dc-row { margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .dc-label { font-size: 18px; font-weight: 800; color: #64748b; margin-bottom: 10px; }
+        .dc-value { font-size: 32px; font-weight: 900; color: #1a1a2e; }
         </style>
 </head>
 <body>
@@ -698,8 +723,41 @@
 
         <!-- رقم الإصدار في أسفل الصفحة -->
         <div style="text-align: center; margin-top: 25px; padding-bottom: 20px; color: rgba(255,255,255,0.3); font-size: 11px; font-weight: 800; font-family: sans-serif;">
-            V12.8
+            V12.9
         </div>
+
+        <!-- بطاقة التنزيل الرقمية (المخفية التي سيتم تصويرها) -->
+        <div id="digital-card-target">
+            <div class="dc-header">
+                <div style="font-size: 24px; font-weight: 900; margin-bottom: 10px;">نقابة المحامين بالفيوم</div>
+                <div style="font-size: 40px; font-weight: 900; color: #fff;">مختصر المعاملة</div>
+            </div>
+            <div class="dc-body">
+                <div class="dc-row">
+                    <div class="dc-label">اسم صاحب الشأن</div>
+                    <div class="dc-value" id="dc-client-name"></div>
+                </div>
+                <div class="dc-row">
+                    <div class="dc-label">المطلوب</div>
+                    <div class="dc-value" id="dc-title"></div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div class="dc-row">
+                        <div class="dc-label">رقم المعاملة</div>
+                        <div class="dc-value" style="color: #6366f1;" id="dc-tracking-num"></div>
+                    </div>
+                    <div class="dc-row">
+                        <div class="dc-label">تاريخ التسجيل</div>
+                        <div class="dc-value" id="dc-date"></div>
+                    </div>
+                </div>
+                <div class="dc-row" style="border: none; margin-bottom: 0; padding-bottom: 0;">
+                    <div class="dc-label">حالة الطلب الآن</div>
+                    <div class="dc-value" style="color: #10b981;" id="dc-status"></div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -852,6 +910,13 @@ function renderTransaction(t) {
         completionAlert.style.display = 'none';
     }
 
+    // تعبئة بطاقة التنزيل الرقمية
+    document.getElementById('dc-client-name').textContent = t.client_name;
+    document.getElementById('dc-title').textContent = t.title;
+    document.getElementById('dc-tracking-num').textContent = t.tracking_number;
+    document.getElementById('dc-status').textContent = t.status_display;
+    document.getElementById('dc-date').textContent = t.created_at;
+
     show('result-card');
 }
 
@@ -863,7 +928,7 @@ async function downloadCard() {
     btn.disabled = true;
 
     try {
-        const target = document.getElementById('result-card');
+        const target = document.getElementById('digital-card-target');
         const canvas = await html2canvas(target, {
             scale: 3,
             useCORS: true,
@@ -1049,7 +1114,7 @@ async function loadTracking(isSilent = false) {
 function clearStaleCache() {
     try {
         const storedVersion = localStorage.getItem('app_version');
-        const currentVersion = '12.8';
+        const currentVersion = '12.9';
         if (storedVersion !== currentVersion) {
             const keysToDelete = [];
             for (let i = 0; i < localStorage.length; i++) {
