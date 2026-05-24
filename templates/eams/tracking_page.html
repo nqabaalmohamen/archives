@@ -728,14 +728,10 @@
 
             <!-- تذييل البطاقة -->
             <div class="card-footer">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-                    <button onclick="shareStatus()" style="background: none; border: none; color: var(--accent); font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border: 1.5px dashed var(--accent); border-radius: 12px;">
-                        <i class="fas fa-share-alt"></i>
-                        مشاركة
-                    </button>
-                    <button onclick="downloadCard()" style="background: var(--accent); border: none; color: #fff; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 12px; box-shadow: 0 4px 10px rgba(99,102,241,0.3);">
-                        <i class="fas fa-image"></i>
-                        حفظ كصورة
+                <div style="margin-bottom: 12px;">
+                    <button onclick="downloadCard()" style="width: 100%; background: var(--accent); border: none; color: #fff; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(99,102,241,0.3);">
+                        <i class="fas fa-download"></i>
+                        تنزيل المعاملة على هاتفك
                     </button>
                 </div>
                 <p>
@@ -856,27 +852,6 @@
             alert('حدث خطأ، يرجى المحاولة مرة أخرى أو تصوير الشاشة.');
         }
     }
-
-    // وظيفة مشاركة الرابط
-    function shareStatus() {
-        if (navigator.share) {
-            navigator.share({
-                title: 'تتبع معاملتي - نقابة المحامين بالفيوم',
-                text: 'يمكنك تتبع حالة المعاملة: {{ transaction.display_tracking_number }} من خلال هذا الرابط',
-                url: window.location.href,
-            }).catch(console.error);
-        } else {
-            // نسخة احتياطية: نسخ للكلببورد
-            const el = document.createElement('textarea');
-            el.value = window.location.href;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            alert('تم نسخ رابط التتبع للجهاز بنجاح!');
-        }
-    }
-
     // ==========================================
     // ⚡ نظام المتابعة الفورية وتحديث البيانات المباشر
     // ==========================================

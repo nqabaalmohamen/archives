@@ -9,11 +9,12 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="version" content="12.7">
+    <meta name="version" content="12.8">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         /* ═══════════════════════════════════════
            ⚙️  إعداد المطوّر: ضع رابط Cloudflare Tunnel هنا
@@ -684,9 +685,9 @@
 
             <!-- تذييل البطاقة -->
             <div class="card-footer">
-                <button class="share-btn" onclick="shareStatus()">
-                    <i class="fas fa-share-alt"></i>
-                    مشاركة حالة المعاملة
+                <button class="share-btn" style="background: var(--accent); color: #fff; border: none; box-shadow: 0 4px 10px rgba(99,102,241,0.3);" onclick="downloadCard()">
+                    <i class="fas fa-download"></i>
+                    تنزيل المعاملة على هاتفك
                 </button>
                 <p>
                     <i class="fas fa-shield-alt" style="margin-left:5px; color:#6366f1;"></i>
@@ -697,7 +698,7 @@
 
         <!-- رقم الإصدار في أسفل الصفحة -->
         <div style="text-align: center; margin-top: 25px; padding-bottom: 20px; color: rgba(255,255,255,0.3); font-size: 11px; font-weight: 800; font-family: sans-serif;">
-            V12.7
+            V12.8
         </div>
     </div>
 </div>
@@ -854,13 +855,43 @@ function renderTransaction(t) {
     show('result-card');
 }
 
-async function shareStatus() {
-    const url = window.location.href;
-    if (navigator.share) {
-        navigator.share({ title: 'متابعة معاملتي', text: 'تابع حالة معاملتي في نقابة المحامين بالفيوم', url });
-    } else {
-        await navigator.clipboard.writeText(url);
-        alert('تم نسخ رابط المتابعة ✓');
+async function downloadCard() {
+    const btn = event.currentTarget;
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
+    btn.disabled = true;
+
+    try {
+        const target = document.getElementById('result-card');
+        const canvas = await html2canvas(target, {
+            scale: 3,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+        });
+
+        canvas.toBlob(async (blob) => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'معاملة_رقم_' + (document.getElementById('r-simple-num').textContent || 'unknown') + '.png';
+            document.body.appendChild(a);
+            a.click();
+            
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }, 100);
+            
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }, 'image/png', 1.0);
+
+    } catch (err) {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        alert('حدث خطأ، يرجى المحاولة مرة أخرى أو تصوير الشاشة.');
     }
 }
 
@@ -1018,7 +1049,7 @@ async function loadTracking(isSilent = false) {
 function clearStaleCache() {
     try {
         const storedVersion = localStorage.getItem('app_version');
-        const currentVersion = '12.7';
+        const currentVersion = '12.8';
         if (storedVersion !== currentVersion) {
             const keysToDelete = [];
             for (let i = 0; i < localStorage.length; i++) {
