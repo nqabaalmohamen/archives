@@ -310,6 +310,21 @@
                 panel.style.display = 'block';
             }
         });
+
+        // معالجة مشكلة الانزلاق التدريجي عند التحديث مع الحفاظ على التركيز التلقائي
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual'; // منع المتصفح من استعادة التمرير الخاطئ
+        }
+
+        window.addEventListener('load', function() {
+            // إجبار المتصفح على البقاء في أعلى الصفحة عند التحديث
+            window.scrollTo(0, 0);
+            
+            setTimeout(function() {
+                input.focus({ preventScroll: true });
+                window.scrollTo(0, 0); // تأكيد البقاء في الأعلى بعد التركيز
+            }, 50);
+        });
     })();
     </script>
 

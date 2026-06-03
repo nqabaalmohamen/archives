@@ -1585,20 +1585,22 @@ def tracking_page(request):
     
     # إذا كان المستخدم مسجل دخوله كمسئول، نوجهه لواجهة النظام مباشرة
     if request.user.is_authenticated:
-        if not tracking_number:
-            # عرض صفحة تتبع داخلية بتصميم النظام للمسئولين
-            return render(request, 'eams/admin_tracking.html')
-            
-        import uuid
-        transaction = Transaction.objects.filter(
-            get_transaction_search_q(tracking_number)
-        ).order_by('-created_at').first()
-            
-        if transaction:
-            return redirect('transaction_detail', pk=transaction.pk)
-        else:
-            messages.warning(request, "لم يتم العثور على معاملة بهذا الرقم.")
-            return redirect('dashboard')
+        transaction = None
+        error = None
+        if tracking_number:
+            import uuid
+            transaction = Transaction.objects.filter(
+                get_transaction_search_q(tracking_number)
+            ).order_by('-created_at').first()
+                
+            if not transaction:
+                error = "لم يتم العثور على معاملة بهذا الرقم."
+                
+        return render(request, 'eams/admin_tracking.html', {
+            'transaction': transaction,
+            'error': error,
+            'tracking_number': tracking_number
+        })
 
     transaction = None
     error = None

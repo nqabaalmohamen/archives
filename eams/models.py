@@ -185,7 +185,7 @@ class Transaction(models.Model):
             f"{greeting} / {name}\n"
             f"تم تسجيل طلبكم بنجاح في نقابة المحامين بالفيوم\n\n\n\n"
             f"بيانات الطلب: -\n"
-            f"الموضوع : {title}\n"
+            f"موضوع الطلب : {title}\n"
             f"رقم المتابعة : {tracking_num}\n\n"
             f"اضغط على الرابط لتتبع الطلب اونلاين:\n"
             f"{track_url}"

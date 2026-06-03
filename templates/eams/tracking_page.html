@@ -11,18 +11,18 @@
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         :root {
-            --primary:   #1a1a2e;
-            --accent:    #6366f1;
-            --gold:      #f59e0b;
-            --success:   #10b981;
+            --primary:   #000000;
+            --accent:    #d4af37;
+            --gold:      #d4af37;
+            --success:   #22c55e;
             --warning:   #f59e0b;
             --danger:    #ef4444;
             --info:      #3b82f6;
-            --surface:   #ffffff;
-            --bg:        #f0f4f8;
-            --text:      #1a1a2e;
-            --muted:     #64748b;
-            --border:    #e2e8f0;
+            --surface:   #111111;
+            --bg:        #000000;
+            --text:      #ffffff;
+            --muted:     #94a3b8;
+            --border:    rgba(255,255,255,0.08);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -38,9 +38,13 @@
         /* ========= خلفية متحركة ========= */
         .bg-wrapper {
             min-height: 100vh;
-            background: linear-gradient(160deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            background: #000000;
             position: relative;
             overflow: hidden;
+            background-image: 
+                linear-gradient(rgba(212, 175, 55, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(212, 175, 55, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
         }
 
         /* دوائر خلفية ديكورية */
@@ -49,18 +53,19 @@
             content: '';
             position: absolute;
             border-radius: 50%;
-            opacity: 0.08;
+            opacity: 0.15;
+            filter: blur(60px);
             animation: float 8s ease-in-out infinite;
         }
         .bg-wrapper::before {
-            width: 500px; height: 500px;
-            background: #6366f1;
-            top: -150px; right: -150px;
+            width: 400px; height: 400px;
+            background: #d4af37;
+            top: -100px; right: -100px;
         }
         .bg-wrapper::after {
-            width: 350px; height: 350px;
-            background: #f59e0b;
-            bottom: -100px; left: -100px;
+            width: 300px; height: 300px;
+            background: #ffffff;
+            bottom: -50px; left: -50px;
             animation-delay: 3s;
         }
 
@@ -88,15 +93,14 @@
         }
 
         .logo-circle {
-            width: 72px; height: 72px;
-            background: rgba(255,255,255,0.12);
-            border: 2px solid rgba(255,255,255,0.25);
-            border-radius: 22px;
+            width: 80px; height: 80px;
+            background: #111111;
+            border: 2px solid rgba(212, 175, 55, 0.5);
+            border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 30px; color: #f59e0b;
-            margin: 0 auto 14px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            font-size: 34px; color: #d4af37;
+            margin: 0 auto 16px;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
         }
 
         .page-header h1 {
@@ -154,13 +158,13 @@
         }
         .search-input::placeholder { color: rgba(255,255,255,0.4); }
         .search-input:focus {
-            border-color: #6366f1;
-            background: rgba(99,102,241,0.15);
-            box-shadow: 0 0 0 3px rgba(99,102,241,0.25);
+            border-color: #d4af37;
+            background: rgba(212,175,55,0.15);
+            box-shadow: 0 0 0 3px rgba(212,175,55,0.25);
         }
 
         .search-btn {
-            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            background: linear-gradient(135deg, #d4af37, #b8860b);
             color: #fff;
             border: none;
             border-radius: 14px;
@@ -174,11 +178,11 @@
             gap: 6px;
             white-space: nowrap;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(99,102,241,0.4);
+            box-shadow: 0 4px 15px rgba(212,175,55,0.4);
         }
         .search-btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(99,102,241,0.5);
+            box-shadow: 0 6px 20px rgba(212,175,55,0.5);
         }
 
         /* ========= رسالة الخطأ ========= */
@@ -198,11 +202,19 @@
 
         /* ========= بطاقة المعاملة ========= */
         .result-card {
-            background: #fff;
-            border-radius: 28px;
+            background: var(--surface);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
             animation: slideUp 0.5s ease-out;
+            position: relative;
+        }
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, #d4af37, #fff, #d4af37);
         }
 
         @keyframes slideUp {
@@ -212,35 +224,35 @@
 
         /* رأس البطاقة */
         .card-header {
-            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
-            padding: 22px 22px 18px;
+            background: transparent;
+            padding: 30px 22px 20px;
             text-align: center;
         }
 
         .trk-chip {
             display: inline-block;
-            background: rgba(245,158,11,0.2);
-            border: 1.5px solid #f59e0b;
-            border-radius: 8px;
-            padding: 4px 14px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 6px;
+            padding: 6px 16px;
             font-family: 'Courier New', monospace;
             font-size: 13px;
             font-weight: 900;
-            color: #f59e0b;
+            color: #d4af37;
             letter-spacing: 1px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .card-title {
-            font-size: 18px;
+            font-size: 22px;
             font-weight: 900;
-            color: #fff;
-            margin-bottom: 4px;
+            color: var(--text);
+            margin-bottom: 8px;
         }
 
         .card-date {
-            font-size: 12px;
-            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+            color: var(--muted);
             font-weight: 600;
         }
 
@@ -335,7 +347,7 @@
             background: var(--border);
         }
 
-        .step-item.done::after  { background: #22c55e; }
+        .step-item.done::after  { background: #d4af37; }
         .step-item.active::after { background: var(--border); }
 
         .step-icon {
@@ -348,9 +360,9 @@
             z-index: 1;
         }
 
-        .step-icon.done   { background: #22c55e; color: #fff; }
-        .step-icon.active { background: #6366f1; color: #fff; box-shadow: 0 0 0 4px rgba(99,102,241,0.2); }
-        .step-icon.pending{ background: #f1f5f9; color: #94a3b8; border: 2px solid #e2e8f0; }
+        .step-icon.done   { background: #d4af37; color: #000; }
+        .step-icon.active { background: #ffffff; color: #000; box-shadow: 0 0 0 4px rgba(255,255,255,0.1); }
+        .step-icon.pending{ background: rgba(255,255,255,0.05); color: #64748b; border: 1px solid rgba(255,255,255,0.1); }
 
         .step-content {
             padding-bottom: 18px;
@@ -554,7 +566,7 @@
             .card-header { background: #1a1a2e !important; -webkit-print-color-adjust: exact; }
             .status-bar { background: #f8fafc !important; -webkit-print-color-adjust: exact; }
             .status-pill { -webkit-print-color-adjust: exact; }
-            .step-icon.done, .step-icon.active { background: #6366f1 !important; color: #fff !important; -webkit-print-color-adjust: exact; }
+            .step-icon.done, .step-icon.active { background: #d4af37 !important; color: #fff !important; -webkit-print-color-adjust: exact; }
             @page { size: auto; margin: 5mm; }
         }
         
@@ -572,8 +584,9 @@
 
         <!-- رأس الصفحة -->
         <div class="page-header">
+            <div class="logo-circle"><i class="fas fa-balance-scale"></i></div>
             <h1>نقابة المحامين بالفيوم</h1>
-            <p class="subtitle">بوابة تتبع المعاملات الإلكترونية</p>
+            <p class="subtitle" style="color: #d4af37;">بوابة تتبع المعاملات الإلكترونية</p>
         </div>
 
         {% if error %}
@@ -594,9 +607,9 @@
                     المعاملة رقم {{ transaction.display_tracking_number }}
                 </div>
                 <!-- مؤشر المتابعة المباشرة -->
-                <div class="live-status" id="live-status-indicator" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(16, 185, 129, 0.15); border: 1.5px solid rgba(16, 185, 129, 0.3); padding: 5px 14px; border-radius: 50px; margin: 0 auto 15px; width: fit-content;">
-                    <div class="live-dot" style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; animation: livePulse 1.5s infinite;"></div>
-                    <div class="live-text" style="color: #10b981; font-size: 11px; font-weight: 800; letter-spacing: 0.5px;">متابعة مباشرة الآن</div>
+                <div class="live-status" id="live-status-indicator" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.3); padding: 6px 16px; border-radius: 50px; margin: 0 auto 15px; width: fit-content;">
+                    <div class="live-dot" style="width: 8px; height: 8px; background: #d4af37; border-radius: 50%; box-shadow: 0 0 10px #d4af37; animation: livePulse 1.5s infinite;"></div>
+                    <div class="live-text" style="color: #d4af37; font-size: 11px; font-weight: 800; letter-spacing: 0.5px;">متابعة مباشرة الآن</div>
                 </div>
                 <div class="card-title" style="font-size: 24px;">{{ transaction.client_name }}</div>
                 <div class="card-date">
@@ -606,9 +619,9 @@
             </div>
 
             <!-- شريط حالة الطلب -->
-            <div class="status-bar" style="background: #f8fafc; padding: 22px; border-bottom: 2px solid #e2e8f0;">
+            <div class="status-bar" style="background: rgba(255,255,255,0.02); padding: 22px; border-bottom: 1px solid rgba(255,255,255,0.08); border-top: 1px solid rgba(255,255,255,0.08);">
                 <div>
-                    <div class="status-label-sm" style="font-size: 13px; color: #6366f1; font-weight: 900; margin-bottom: 4px;">حالة الطلب الآن:</div>
+                    <div class="status-label-sm" style="font-size: 13px; color: #d4af37; font-weight: 900; margin-bottom: 4px;">حالة الطلب الآن:</div>
                     <div style="font-size:11px; color:#94a3b8; font-weight:600;">
                         آخر تحديث: {{ transaction.updated_at|date:"Y/m/d - h:i A" }}
                     </div>
@@ -620,8 +633,8 @@
             </div>
 
             <!-- تنبيه النواقص -->
-            <div id="missing-info-alert" style="padding: 20px; border-bottom: 1px solid #fee2e2; {% if transaction.current_status == 'under_review' and transaction.missing_info %}display: block;{% else %}display: none;{% endif %}">
-                <div style="display: flex; gap: 15px; align-items: flex-start; background: #fff1f2; padding: 15px; border-radius: 15px; border: 1.5px solid #fda4af;">
+            <div id="missing-info-alert" style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); {% if transaction.current_status == 'under_review' and transaction.missing_info %}display: block;{% else %}display: none;{% endif %}">
+                <div style="display: flex; gap: 15px; align-items: flex-start; background: rgba(225, 29, 72, 0.1); padding: 15px; border-radius: 15px; border: 1px solid rgba(225, 29, 72, 0.3);">
                     <i class="fas fa-exclamation-circle" style="color:#e11d48; font-size:20px; margin-top:2px;"></i>
                     <div>
                         <div style="font-weight:900; color:#9f1239; font-size:14px; margin-bottom:4px;">تنبيه هـام من نقابة المحامين بالفيوم:</div>
@@ -631,8 +644,8 @@
             </div>
 
             <!-- تنبيه تعليمات الاستلام -->
-            <div id="completion-note-alert" style="padding: 20px; border-bottom: 1px solid #dcfce7; {% if transaction.current_status == 'completed' %}display: block;{% else %}display: none;{% endif %}">
-                <div style="display: flex; gap: 15px; align-items: flex-start; background: #f0fdf4; padding: 15px; border-radius: 15px; border: 1.5px solid #86efac;">
+            <div id="completion-note-alert" style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); {% if transaction.current_status == 'completed' %}display: block;{% else %}display: none;{% endif %}">
+                <div style="display: flex; gap: 15px; align-items: flex-start; background: rgba(34, 197, 94, 0.1); padding: 15px; border-radius: 15px; border: 1px solid rgba(34, 197, 94, 0.3);">
                     <i class="fas fa-check-circle" style="color:#16a34a; font-size:20px; margin-top:2px;"></i>
                     <div>
                         <div style="font-weight:900; color:#166534; font-size:14px; margin-bottom:4px;">تم الانتهاء من معاملتك :</div>
@@ -706,7 +719,7 @@
                 </div>
                 <div class="info-row">
                     <div class="info-key"><i class="fas fa-hashtag"></i> رقم المعاملة</div>
-                    <div class="info-val" style="font-family:monospace; color:#6366f1; font-weight:900;">{{ transaction.display_tracking_number }}</div>
+                    <div class="info-val" style="font-family:monospace; color:#d4af37; font-weight:900;">{{ transaction.display_tracking_number }}</div>
                 </div>
                 {% if transaction.registration_number %}
                 <div class="info-row">
@@ -719,9 +732,9 @@
                     <div class="info-val">{{ transaction.created_at|date:"Y/m/d - h:i A" }}</div>
                 </div>
                 {% if transaction.description %}
-                <div class="info-row" style="flex-direction: column; align-items: flex-start; gap: 8px; border-top: 1px dashed #eee; padding-top: 15px; margin-top: 5px;">
+                <div class="info-row" style="flex-direction: column; align-items: flex-start; gap: 8px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 15px; margin-top: 5px;">
                     <div class="info-key"><i class="fas fa-align-right"></i> وصف المعاملة</div>
-                    <div class="info-val" style="width: 100%; white-space: pre-wrap; line-height: 1.6; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 13px;">{{ transaction.description }}</div>
+                    <div class="info-val" style="width: 100%; white-space: pre-wrap; line-height: 1.6; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 13px;">{{ transaction.description }}</div>
                 </div>
                 {% endif %}
             </div>
@@ -729,13 +742,13 @@
             <!-- تذييل البطاقة -->
             <div class="card-footer">
                 <div style="margin-bottom: 12px;">
-                    <button onclick="downloadCard()" style="width: 100%; background: var(--accent); border: none; color: #fff; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(99,102,241,0.3);">
+                    <button onclick="downloadCard()" style="width: 100%; background: var(--accent); border: none; color: #fff; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(212,175,55,0.3);">
                         <i class="fas fa-download"></i>
                         تنزيل المعاملة على هاتفك
                     </button>
                 </div>
                 <p>
-                    <i class="fas fa-shield-alt" style="margin-left:5px; color:#6366f1;"></i>
+                    <i class="fas fa-shield-alt" style="margin-left:5px; color:#d4af37;"></i>
                     هذه المعلومات خاصة بمعاملتك فقط
                 </p>
             </div>
@@ -774,7 +787,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
                     <div class="dc-row">
                         <div class="dc-label">رقم المعاملة</div>
-                        <div class="dc-value" style="color: #6366f1;">{{ transaction.display_tracking_number }}</div>
+                        <div class="dc-value" style="color: #d4af37;">{{ transaction.display_tracking_number }}</div>
                     </div>
                     <div class="dc-row">
                         <div class="dc-label">حالة الطلب الآن</div>
@@ -911,7 +924,7 @@
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
             background: #1a1a2e; color: #fff; padding: 15px 25px; border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 10000; font-weight: 900;
-            display: flex; align-items: center; gap: 10px; border: 2px solid #6366f1;
+            display: flex; align-items: center; gap: 10px; border: 2px solid #d4af37;
             direction: rtl; font-family: 'Cairo', sans-serif;
             animation: slideDown 0.5s ease-out;
         `;
