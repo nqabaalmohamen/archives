@@ -52,7 +52,7 @@
         }
         .bg-wrapper::before {
             width: 500px; height: 500px;
-            background: #6366f1;
+            background: #1e3a8a;
             top: -150px; right: -150px;
         }
         .bg-wrapper::after {
@@ -64,8 +64,6 @@
 
         @keyframes float {
             0%, 100% { transform: translateY(0) scale(1); }
-            50%       { transform: translateY(-20px) scale(1.05); }
-        }
 
         /* ========= الحاوية المركزية ========= */
         .container {
@@ -104,7 +102,6 @@
             border: 1px solid #cbd5e1; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             border-radius: 24px;
             padding: 22px 20px;
-            backdrop-filter: blur(20px);
         }
 
         .search-label {
@@ -140,9 +137,9 @@
         }
         .search-input::placeholder { color: #94a3b8; }
         .search-input:focus {
-            border-color: #6366f1;
-            background: rgba(99,102,241,0.15);
-            box-shadow: 0 0 0 3px rgba(99,102,241,0.25);
+            border-color: #1e3a8a;
+            background: rgba(30,58,138,0.15);
+            box-shadow: 0 0 0 3px rgba(30,58,138,0.25);
         }
 
         .search-btn {
@@ -160,17 +157,17 @@
             gap: 6px;
             white-space: nowrap;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(99,102,241,0.4);
+            box-shadow: 0 4px 15px rgba(30,58,138,0.4);
         }
         .search-btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(99,102,241,0.5);
+            box-shadow: 0 6px 20px rgba(30,58,138,0.5);
         }
 
         /* ========= رسالة الخطأ ========= */
         .error-msg {
             background: rgba(239,68,68,0.15);
-            border: 1.5px solid rgba(239,68,68,0.4);
+            border: 1px solid #fca5a5; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             border-radius: 8px;
             padding: 14px 16px;
             color: #fca5a5;
@@ -527,7 +524,7 @@
             .card-header { background: #1a1a2e !important; -webkit-print-color-adjust: exact; }
             .status-bar { background: #f8fafc !important; -webkit-print-color-adjust: exact; }
             .status-pill { -webkit-print-color-adjust: exact; }
-            .step-icon.done, .step-icon.active { background: #6366f1 !important; color: #fff !important; -webkit-print-color-adjust: exact; }
+            .step-icon.done, .step-icon.active { background: #1e3a8a !important; color: #fff !important; -webkit-print-color-adjust: exact; }
             @page { size: auto; margin: 5mm; }
         }
         
@@ -540,6 +537,12 @@
     </style>
 </head>
 <body>
+<!-- === شريط حكومي رسمي علوي === -->
+<div style="background: #1e3a8a; padding: 8px 16px; text-align: center; border-bottom: 3px solid #e11d48;">
+    <span style="color: #ffffff; font-size: 11px; font-weight: 800; letter-spacing: 1px;">
+        جمهورية مصر العربية &nbsp;|&nbsp; نقابة المحامين بالفيوم &nbsp;|&nbsp; البوابة الإلكترونية الرسمية
+    </span>
+</div>
 <div class="bg-wrapper">
     <div class="container">
 
@@ -581,7 +584,7 @@
             <!-- شريط حالة الطلب -->
             <div class="status-bar" style="background: #f8fafc; padding: 22px; border-bottom: 2px solid #e2e8f0;">
                 <div>
-                    <div class="status-label-sm" style="font-size: 13px; color: #6366f1; font-weight: 900; margin-bottom: 4px;">حالة الطلب الآن:</div>
+                    <div class="status-label-sm" style="font-size: 13px; color: #1e3a8a; font-weight: 900; margin-bottom: 4px;">حالة الطلب الآن:</div>
                     <div style="font-size:11px; color:#94a3b8; font-weight:600;">
                         آخر تحديث: {{ transaction.updated_at|date:"Y/m/d - h:i A" }}
                     </div>
@@ -702,7 +705,7 @@
             <!-- تذييل البطاقة -->
             <div class="card-footer">
                 <div style="margin-bottom: 12px;">
-                    <button onclick="downloadCard()" style="width: 100%; background: var(--accent); border: none; color: #fff; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(99,102,241,0.3);">
+                    <button onclick="downloadCard()" style="width: 100%; background: var(--accent); border: none; color: #fff; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(30,58,138,0.3);">
                         <i class="fas fa-download"></i>
                         تنزيل المعاملة على هاتفك
                     </button>
@@ -747,7 +750,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
                     <div class="dc-row">
                         <div class="dc-label">رقم المعاملة</div>
-                        <div class="dc-value" style="color: #6366f1;">{{ transaction.display_tracking_number }}</div>
+                        <div class="dc-value" style="color: #1e3a8a;">{{ transaction.display_tracking_number }}</div>
                     </div>
                     <div class="dc-row">
                         <div class="dc-label">حالة الطلب الآن</div>
@@ -884,7 +887,7 @@
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
             background: #1a1a2e; color: #fff; padding: 15px 25px; border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 10000; font-weight: 900;
-            display: flex; align-items: center; gap: 10px; border: 2px solid #6366f1;
+            display: flex; align-items: center; gap: 10px; border: 2px solid #1e3a8a;
             direction: rtl; font-family: 'Cairo', sans-serif;
             animation: slideDown 0.5s ease-out;
         `;
